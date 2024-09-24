@@ -1,0 +1,12 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "extension/smartvideo",
+	"version": "2.1.0",
+	"title": "Smartvideo",
+	"category": "widgets",
+	"textdomain": "swarmify",
+	"editorScript": "file:./build/index.js",
+	"editorStyle": "file:./build/index.css",
+	"style": "file:./build/style-index.css"
+}

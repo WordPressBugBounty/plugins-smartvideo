@@ -1,0 +1,263 @@
+#swarmify-iso-bootstrap .nav-tabs > li.active > a, #swarmify-iso-bootstrap .nav-tabs > li.active > a:hover, #swarmify-iso-bootstrap .nav-tabs > li.active > a:focus {
+	color: #000;
+	background-color: #FFDE17;
+	border: 1px solid #FFDE17;
+	font-weight: 600;
+}
+
+#swarmify-iso-bootstrap .nav-tabs > li > a {
+	color: #000;
+	margin: 0;
+}
+
+#swarmify-iso-bootstrap .nav-tabs > li {
+	background-color: #dcdcdc;
+}
+
+
+
+#swarmify-iso-bootstrap .swarmify-button {
+	background-color: #FFDE17;
+	display: inline-block;
+	border-radius: 4px;
+	padding: 10px 25px;
+	font-weight: bold;
+	color: #000;
+	border: none;
+}
+
+#swarmify-iso-bootstrap .swarmify-button:hover {
+	background-color: #f3d41a;
+}
+
+#swarmify-iso-bootstrap p {
+	font-size: 16px;
+	margin: 15px 0;
+}
+
+, #swarmify-iso-bootstrap h2 {
+	margin: 0;
+	margin-bottom: 10px;
+}
+
+#swarmify-iso-bootstrap .list-group {
+	list-style: decimal inside;
+}
+
+#swarmify-iso-bootstrap .list-group-item {
+	display: list-item;
+	font-size: 16px;
+}
+
+#swarmify-iso-bootstrap .paragraph {
+	width: 75%;
+}
+
+@media (max-width:768px) {
+	#swarmify-iso-bootstrap .paragraph {
+		width: 100%;
+	}
+
+}
+
+#swarmify-iso-bootstrap .settings label {
+	font-weight: normal;
+}
+
+#swarmify-iso-bootstrap .settings input, #swarmify-iso-bootstrap .settings label {
+	margin: 0;
+}
+
+#swarmify-iso-bootstrap label.main_label {
+	margin-bottom: 10px;
+	font-size: 15px;
+	font-weight: bold;
+}
+
+#swarmify-iso-bootstrap .radio_buttons div {
+	margin-bottom: 5px
+}
+
+#swarmify-iso-bootstrap label span.red, #swarmify-iso-bootstrap .nav-tabs li span.red {
+	color: #F45052;
+	font-weight: bold;
+}
+
+#swarmify-iso-bootstrap label span, #swarmify-iso-bootstrap .nav-tabs li span {
+	color: #85E996;
+	font-weight: bold;
+}
+
+#swarmify-iso-bootstrap .nav-tabs li.swarmify_status {
+	background: none !important;
+	line-height: 40px;
+	font-size: 16px;
+	font-weight: bold;
+	margin-left: 10px;
+}
+
+#swarmify-iso-bootstrap label small {
+	font-weight: normal;
+}
+
+#swarmify-iso-bootstrap .low_opacity {
+	opacity: .7;
+}
+
+#swarmify-iso-bootstrap .copyright {
+	font-size: 13px;
+	float: right;
+	margin-bottom: 0;
+}
+
+/* Widget Style */
+.swarmify-tabs {
+	margin-top: 15px;
+}
+
+.swarmify-tabs span {
+	display: inline-block;
+	background: #ededed;
+	color: #000;
+	padding: 6px;
+	cursor: pointer;
+	font-size: 12px;
+}
+
+.swarmify-tabs span.active {
+	background: #ffde17;
+	color: #000;
+}
+
+.swarmify-basic,.swarmify-advanced {
+	display: none;
+}
+
+.swarmify-widget-div .wp_switch {
+	position: relative;
+	display: block;
+	width: 50px;
+	height: 26px;
+}
+
+.swarmify-widget-div .wp_switch input {
+	display: none;
+}
+
+.swarmify-widget-div .wp_slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+.swarmify-widget-div .wp_slider:before {
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 4px;
+	bottom: 4px;
+	background-color: white;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+.swarmify-widget-div input:checked + .wp_slider {
+	background-color: #0075ad;
+}
+
+.swarmify-widget-div input:focus + .wp_slider {
+	box-shadow: 0 0 1px #0075ad;
+}
+
+.swarmify-widget-div input:checked + .wp_slider:before {
+	-webkit-transform: translateX(26px);
+	-ms-transform: translateX(26px);
+	transform: translateX(26px);
+}
+
+.swarmify-widget-div .wp_slider.round {
+	border-radius: 34px;
+}
+
+.swarmify-widget-div .wp_slider.round:before {
+	border-radius: 50%;
+}
+
+.swarmify-widget-div p {
+	position: relative;
+}
+
+.swarmify_info {
+	background: #ffde17;
+	padding: 1px 4px;
+	font-size: 10px;
+	color: #000;
+}
+
+.swarmify_info_tooltip {
+	display: none;
+	position: absolute;
+	font-size: 10px;
+	background: #3a3a3a;
+	color: #fff;
+	padding: 6px 10px;
+	z-index: 999;
+}
+.wp-media-buttons .swarmify_add_button img{
+    padding: 0;
+    margin-right: 3px;
+    margin-bottom: 2px;
+}
+.swarmify_insert_button{background-color:#ffde17;color:#000; }
+.swarmify-widget-div .button{
+    display: block;
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.swarmify-lightbox-button,.swarmify-lightbox-button-img{
+    background-color: #FFDE17;
+    display: inline-block;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    border: none;
+    margin-top: 6px;
+}
+.video_url_fancybox p,.image_url_fancybox p{
+	margin-bottom: 10px;
+}
+
+.wp-customizer .fancybox-container{
+	z-index: 560000;
+}
+
+/**
+	Removed as it conflicts with media library popup
+**/
+/* .fancybox-container {
+    z-index: 2147483647;
+} */
+
+#swarmify-iso-bootstrap .wp-picker-container .button.wp-color-result {
+	font-size: .9em;
+}
+
+#swarmify-iso-bootstrap .wp-picker-holder * {
+	box-sizing: content-box;
+}
+
+#swarmify-iso-bootstrap .img-responsive {
+    display: block;
+    max-width: 800px;
+    height: auto;
+}

@@ -1,0 +1,40 @@
+{
+	"name": "smartvideo",
+	"version": "2.1.0",
+	"author": "Matthew Davidson",
+	"license": "AGPL-3.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start",
+		"postinstall": "composer install"
+	},
+	"engines": {
+		"node": "^16.14.1",
+		"pnpm": "^8.3.1"
+	},
+	"dependencies": {
+		"@wordpress/api-fetch": "^6.44.0",
+		"@wordpress/element": "^5.23.0",
+		"@wordpress/hooks": "^3.46.0",
+		"@wordpress/i18n": "^4.46.0",
+		"@wordpress/icons": "^9.37.0"
+	},
+	"devDependencies": {
+		"@woocommerce/dependency-extraction-webpack-plugin": "^2.2.0",
+		"@wordpress/eslint-plugin": "^17.3.0",
+		"@wordpress/prettier-config": "^2.25.13",
+		"@wordpress/scripts": "^24.6.0"
+	},
+	"pnpm": {
+		"overrides": {
+			"@types/react": "^17.0.2",
+			"react": "^17.0.2"
+		}
+	}
+}

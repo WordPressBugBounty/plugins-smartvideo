@@ -1,0 +1,70 @@
+$swarmify-yellow: #ffde17;
+$swarmify-yellow-bg: #f3d41a;
+
+#smartvideo-admin {
+	font-size: larger;
+
+	p, .settings-label, .option-text {
+		font-size: 1.2em;
+	}
+
+	.status-toggle-label {
+		// margin-bottom: 1em;
+		font-size: 1.1em;
+	}
+
+	h2 {
+		line-height: 1.2;
+		margin: 0px;
+		color: rgb(30, 30, 30);
+		font-size: calc(25.35px);
+		font-weight: 600;
+	}
+
+	.paragraph {
+		width: 75%;
+
+		@media (max-width:768px) {
+			width: 100%;
+		}
+	}
+
+	.swarmify-status {
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+
+	.swarmify-button {
+		background-color: $swarmify-yellow-bg;
+		border-radius: 4px;
+		padding: 10px 25px;
+		font-size: 1.2em;
+		font-weight: bold;
+		color: #000;
+		border: none;
+	}
+
+	.swarmify-tab {
+		font-size: 1.8em;
+		// font-weight: bold;
+
+		// &.is-active {
+		// 	font-weight: bold;
+		// }
+	}
+
+	.setup-paragraph {
+		max-width: 66%;
+
+		@media (max-width:768px) {
+			max-width: 100%;
+		}
+	}
+
+	.copyright {
+		// align-self: flex-end;
+		font-size: 13px;
+		// float: right;
+		margin: 0;
+	}
+}
