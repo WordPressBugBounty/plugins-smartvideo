@@ -9,14 +9,14 @@ class ComposerStaticInit931bf72f9c7c2de8ce9eca99aef07850
     public static $prefixLengthsPsr4 = array (
         'S' => 
         array (
-            'Swarmify\\' => 9,
+            'Swarmify\\Smartvideo\\' => 20,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Swarmify\\' => 
+        'Swarmify\\Smartvideo\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/includes',
+            0 => __DIR__ . '/../..' . '/includes/Smartvideo',
         ),
     );
 

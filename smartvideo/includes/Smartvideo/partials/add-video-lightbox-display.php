@@ -1,3 +1,4 @@
+<!-- Classic Editor "Add SmartVideo" popup - not a widget -->
 <div id="swarmify-modal-content" style="display: none;">
 	<div class="swarmify-widget-div">
 		<div class="swarmify-tabs">
@@ -11,15 +12,15 @@
 					<?php esc_html_e( 'Add a video:', 'swarmify' ); ?>
 				</label>
 				<button class="swarmify_add_video button">Add video from WordPress Media Library</button>
-				<button data-fancybox data-src="#video_url_fancybox" class="swarmify_add_youtube button">Add video from YouTube</button>
-				<button data-fancybox data-src="#video_url_fancybox" class="swarmify_add_source button">Add video from another source</button>
+				<button data-dialog="#video_url_popup" class="swarmify_add_youtube button">Add video from YouTube</button>
+				<button data-dialog="#video_url_popup" class="swarmify_add_source button">Add video from another source</button>
 				
-				<!-- Fancybox URL -->
-				<div class="video_url_fancybox" id="video_url_fancybox" style="display: none;">
+				<!-- Video popup -->
+				<div class="video_url_popup" id="video_url_popup" style="display: none;">
 					<p class="yt" style="display: none;">Head to YouTube, view your video, click "Share", click "Copy", and paste the URL here:</p>
 					<p class="other" style="display: none;">To add a video from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL ending in ".mp4" here:</p>
-					<input class="swarmify_url widefat" id="swarmify_url" placeholder="Video URL" type="text"/>
-					<button data-fancybox-close class="swarmify-lightbox-button"> Save </button>
+					<input class="swarmify_url" id="swarmify_url" placeholder="Video URL" type="text"/>
+					<button data-dialog-close class="swarmify-lightbox-button"> Save </button>
 				</div>
 			</p>
 			<p>
@@ -30,12 +31,12 @@
 					<?php esc_html_e( 'Add an optional poster image:', 'swarmify' ); ?>
 				</label>
 				<button class="swarmify_add_image button ">Add image from WordPress Media Library</button>
-				<button data-fancybox data-src="#image_url_fancybox" class="swarmify_add_source button ">Add image from another source</button>
-				<!-- Fancybox URL -->
-				<div id="image_url_fancybox" style="display: none;">
+				<button data-dialog="#image_url_popup" class="swarmify_add_source button ">Add image from another source</button>
+				<!-- Poster popup -->
+				<div id="image_url_popup" style="display: none;">
 					<p>Add an image from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL here.</p>
-					<input class="swarmify_poster widefat" id="swarmify_poster" placeholder="Image URL" type="text"/>
-					<button data-fancybox-close class="swarmify-lightbox-button"> Save </button>
+					<input class="swarmify_poster" id="swarmify_poster" placeholder="Image URL" type="text"/>
+					<button data-dialog-close class="swarmify-lightbox-button"> Save </button>
 				</div>
 			</p>
 			<p>
@@ -43,14 +44,14 @@
 					for="swarmify_height">
 					<?php esc_html_e( 'Height:', 'swarmify' ); ?>
 				</label>
-				<input class="swarmify_height widefat" id="swarmify_height" value="720" type="number"/>
+				<input class="swarmify_height" id="swarmify_height" value="720" type="number"/>
 			</p>
 			<p>
 				<label
 					for="swarmify_width">
 					<?php esc_html_e( 'Width:', 'swarmify' ); ?>
 				</label>
-				<input class="swarmify_width widefat" id="swarmify_width" value="1280" type="number"/>
+				<input class="swarmify_width" id="swarmify_width" value="1280" type="number"/>
 			</p>
 			
 		</div>

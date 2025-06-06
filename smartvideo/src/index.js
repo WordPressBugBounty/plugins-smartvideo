@@ -103,7 +103,7 @@ const Setup = ({cdnKey, updateSwarmifySetting, jumpToUsage}) => {
 				<Card>
 					<CardHeader><h2>Your CDN Key</h2></CardHeader>
 					<CardBody>
-						<div>1. Visit <ExternalLink href="https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=49">dash.swarmify.com</ExternalLink></div>
+						<div>1. Visit <ExternalLink href="https://dash.swarmify.com">dash.swarmify.com</ExternalLink></div>
 					</CardBody>
 					<CardDivider/>
 					<CardBody>
@@ -169,8 +169,8 @@ const Usage = () => (
 		</CardHeader>
 		<CardBody>
 			<VStack spacing={8} alignment="left" expanded={false}>
-				<div className="setup-paragraph">After enabling SmartVideo, it will begin scanning your site for YouTube and Vimeo videos.</div>
-				<div className="setup-paragraph"><b>If you have YouTube or Vimeo videos on your site</b>, they will be converted to SmartVideo and be displayed in a clean, fast-loading player automatically, requiring no extra work on your part.</div>
+				<div className="setup-paragraph">After enabling SmartVideo, it will begin scanning your site for Vimeo videos.</div>
+				<div className="setup-paragraph"><b>If you have Vimeo videos on your site</b>, they will be converted to SmartVideo and be displayed in a clean, fast-loading player automatically, requiring no extra work on your part.</div>
 				<div className="setup-paragraph"><b>If you want to add a video to your site directly</b>, simply use our included SmartVideo block. After enabling SmartVideo, this block will be visible in your page editor <i>(current supported editors: Classic WordPress Editor, Gutenberg, Beaver Builder, Divi, and Elementor)</i>.</div>
 				<CardMedia>
 					<img src={smartvideoPlugin.assetUrl + '/admin/images/widgetdemo.gif'} alt=""/>
@@ -181,17 +181,17 @@ const Usage = () => (
 					<img src={smartvideoPlugin.assetUrl + '/admin/images/accelon.gif'} alt=""/>
 				</CardMedia>
 				<div className="setup-paragraph">If the popup box says <b>Video Acceleration: Off</b>, the video is still being processed.</div>
-				<div className="setup-paragraph">After the conversion process is complete, the video is hosted on our global delivery network and served via our accelerated playback technology. This means you can keep uploading your videos to YouTube and placing them on your site, as SmartVideo will continuously look for new videos and convert them automatically.</div>
+				<div className="setup-paragraph">After the conversion process is complete, the video is hosted on our global delivery network and served via our accelerated playback technology. This means you can keep uploading your videos to Vimeo and placing them on your site, as SmartVideo will continuously look for new videos and convert them automatically.</div>
 			</VStack>
 		</CardBody>
 		<CardBody>	
 			<p><b>If you have questions</b>, take a look at the Frequently Asked Questions collection in our Help Center.</p>
-			<Button className="swarmify-button" variant="primary" href="https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=50" target="_blank">FAQs</Button>
+			<Button className="swarmify-button" variant="primary" href="https://support.swarmify.com/hc/en-us/sections/360007392954-Have-a-question-Your-answer-is-probably-here" target="_blank">FAQs</Button>
 		</CardBody>
 		<CardDivider/>
 		<CardBody>
-			<p><b>If you are not using a supported builder or editor</b>, YouTube and Vimeo videos should be auto-converted just fine. However, if you want to add a SmartVideo directly to your site, you'll have to make use of a SmartVideo tag. Click the button below to learn about SmartVideo tags.</p>
-			<Button className="swarmify-button" variant="primary" href="https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=51" target="_blank">SmartVideo tags</Button>
+			<p><b>If you are not using a supported builder or editor</b>, Vimeo videos should be auto-converted just fine. However, if you want to add a SmartVideo directly to your site, you'll have to make use of a SmartVideo tag. Click the button below to learn about SmartVideo tags.</p>
+			<Button className="swarmify-button" variant="primary" href="https://support.swarmify.com/hc/en-us/articles/360043738653-How-to-add-a-video-to-your-non-WordPress-website" target="_blank">SmartVideo tags</Button>
 		</CardBody>
 	</Card>
 );
@@ -235,15 +235,15 @@ const Settings = ({opts, updateSwarmifySetting}) => {
 						<CardHeader isShady={true}>Basic Options</CardHeader>
 						<CardBody>
 							<VStack spacing={4}>
-								<div className="option-text">YouTube & Vimeo auto-conversions</div>
+								<div className="option-text">Vimeo auto-conversions</div>
 								<CheckboxControl
-									label="Convert YouTube and Vimeo embeds to SmartVideos automatically."
+									label="Convert Vimeo embeds to SmartVideos automatically."
 									checked={ boolify(opts.swarmify_toggle_youtube) }
 									onChange={ val => updateSwarmifySetting("swarmify_toggle_youtube", val) }/>
 								<CardDivider/>
-								<div className="option-text">YouTube captions</div>
+								<div className="option-text">Vimeo captions</div>
 								<CheckboxControl
-									label="Import and display closed captions/subtitles from YouTube."
+									label="Import and display closed captions/subtitles from Vimeo."
 									checked={ boolify(opts.swarmify_toggle_youtube_cc) }
 									onChange={ val => updateSwarmifySetting("swarmify_toggle_youtube_cc", val) }/>
 								<CardDivider/>
@@ -324,10 +324,10 @@ const SignupFooter = () => (
 				<CardBody>
 					<h2>If you do not have a SmartVideo account yet, click the button below and create an account:</h2>
 					<p className="paragraph">Every account comes with a free trial. Once you create an account, return here and click the <b>Setup</b> tab.</p>
-					<Button className="swarmify-button" variant="primary" href="https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=46" target="_blank">Create an account</Button>
+					<Button className="swarmify-button" variant="primary" href="https://swarmify.com/pricing/" target="_blank">Create an account</Button>
 				</CardBody>
 				<CardFooter justify="flex-end">
-					<p className="copyright">SmartVideo Version {smartvideoPlugin?.version ?? "1.0.0" } powered by <a target="_blank" href="https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48">Swarmify</a></p>
+					<p className="copyright">SmartVideo Version {smartvideoPlugin?.version ?? "1.0.0" } powered by <a target="_blank" href="https://swarmify.com/">Swarmify</a></p>
 				</CardFooter>
 			</Card>
 		</footer>

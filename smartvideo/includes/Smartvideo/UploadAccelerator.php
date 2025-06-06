@@ -5,7 +5,7 @@ namespace Swarmify\Smartvideo;
 /**
  * Registers upload acceleration
  *
- * @link       https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48
+ * @link       https://swarmify.com
  * @since      2.1.0
  *
  * @package    Swarmify

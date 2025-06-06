@@ -8,7 +8,7 @@ class SmartvideoDiviWidget extends ET_Builder_Module {
 	protected $module_credits = array(
 		'module_uri' => '',
 		'author'     => 'Swarmify',
-		'author_uri' => 'https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48',
+		'author_uri' => 'https://swarmify.com',
 	);
 
 	public function init() {

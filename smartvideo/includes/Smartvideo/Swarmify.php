@@ -10,7 +10,7 @@ use Error;
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48
+ * @link       https://swarmify.com
  * @since      1.0.0
  *
  * @package    Swarmify

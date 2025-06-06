@@ -2,13 +2,13 @@
 /**
  * Plugin Name: SmartVideo
  * Description: SmartVideo makes building a beautiful, professional video experience for your site effortless.
- * Version: 2.1.1
+ * Version: 2.1.2
  * Requires at least: 3.0.1
  * Requires PHP: 7.3
  * Author: Swarmify
- * Author URI: https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48
+ * Author URI: https://swarmify.com
  * Developer: Matthew Davidson
- * Developer URI: https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48
+ * Developer URI: https://swarmify.com
  * Text Domain: swarmify
  * Domain Path: /languages
  *
@@ -23,9 +23,9 @@ if ( ! defined( 'SMARTVIDEO_PLUGIN_FILE' ) ) {
 	define( 'SMARTVIDEO_PLUGIN_FILE', __FILE__ );
 }
 
-define( 'SWARMIFY_PLUGIN_VERSION', '2.1.1' );
+define( 'SWARMIFY_PLUGIN_VERSION', '2.1.2' );
 
-require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
 
 use Swarmify\Smartvideo as Smartvideo;
 

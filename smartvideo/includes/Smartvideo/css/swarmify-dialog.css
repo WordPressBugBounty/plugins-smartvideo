@@ -1,0 +1,127 @@
+/**
+ * Native dialog styles for SmartVideo
+ */
+
+/* Dialog backdrop */
+.swarmify-dialog-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 99990;
+    display: none;
+}
+
+.swarmify-dialog-backdrop.active {
+    display: block;
+}
+
+/* Prevent scrolling when dialog is open */
+body.swarmify-dialog-open {
+    overflow: hidden;
+}
+
+/* Dialog container */
+.swarmify-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 99991;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto;
+    padding: 20px;
+    display: none;
+    width: auto;
+    min-width: 300px;
+}
+
+.swarmify-dialog.active {
+    display: block;
+}
+
+/* Dialog animation */
+.swarmify-dialog {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.swarmify-dialog.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Close button styling */
+[data-dialog-close] {
+    cursor: pointer;
+}
+
+/* Ensure proper stacking for nested dialogs */
+.swarmify-dialog:nth-child(2) {
+    z-index: 99992;
+}
+
+.swarmify-dialog:nth-child(3) {
+    z-index: 99993;
+}
+
+/* Styling for the video_url_popup and image_url_popup */
+#video_url_popup,
+#image_url_popup {
+    /* width: 400px; */
+    max-width: 90%;
+}
+
+/* Ensure the main modal has appropriate width */
+#swarmify-modal-content {
+    /* width: 600px; */
+    max-width: 90%;
+}
+
+/* Make sure buttons align properly */
+.swarmify-dialog button {
+    margin: 5px 0;
+}
+
+/* Ensure proper spacing for form elements */
+.swarmify-dialog input {
+    margin-bottom: 10px;
+}
+
+/* Accessibility focus styles */
+.swarmify-dialog:focus,
+.swarmify-dialog *:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 1px;
+}
+
+/* Ensure proper display in WordPress admin */
+.wp-admin .swarmify-dialog {
+    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Ensure compatibility with WordPress admin UI */
+.wp-admin .swarmify-dialog-backdrop {
+    z-index: 100000;
+}
+
+.wp-admin .swarmify-dialog {
+    z-index: 100001;
+}
+
+/* Ensure proper display in WordPress customizer */
+.wp-customizer .swarmify-dialog-backdrop {
+    z-index: 500000;
+}
+
+.wp-customizer .swarmify-dialog {
+    z-index: 500001;
+}

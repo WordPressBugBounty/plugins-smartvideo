@@ -110,27 +110,39 @@
 	margin-bottom: 0;
 }
 
+
 /* Widget Style */
 .swarmify-tabs {
-	margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
 }
 
 .swarmify-tabs span {
-	display: inline-block;
-	background: #ededed;
-	color: #000;
-	padding: 6px;
-	cursor: pointer;
-	font-size: 12px;
+    display: inline-block;
+    background: #ededed;
+    color: #000;
+    padding: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    flex: none;
+    text-align: center;
+    border-radius: 4px 4px 0 0;
+    transition: background-color 0.3s ease;
 }
 
 .swarmify-tabs span.active {
-	background: #ffde17;
-	color: #000;
+    background: #ffde17;
+    color: #000;
+    font-weight: bold;
 }
 
 .swarmify-basic,.swarmify-advanced {
 	display: none;
+}
+
+.widget-content .swarmify-widget-div{
+    padding-top: 15px;
 }
 
 .swarmify-widget-div .wp_switch {
@@ -233,20 +245,14 @@
     border: none;
     margin-top: 6px;
 }
-.video_url_fancybox p,.image_url_fancybox p{
+.video_url_popup p,.image_url_popup p{
 	margin-bottom: 10px;
 }
 
-.wp-customizer .fancybox-container{
+/* Dialog z-index for customizer */
+.wp-customizer .swarmify-dialog-backdrop {
 	z-index: 560000;
 }
-
-/**
-	Removed as it conflicts with media library popup
-**/
-/* .fancybox-container {
-    z-index: 2147483647;
-} */
 
 #swarmify-iso-bootstrap .wp-picker-container .button.wp-color-result {
 	font-size: .9em;

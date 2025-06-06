@@ -5,7 +5,7 @@ namespace Swarmify\Smartvideo;
 /**
  * Fired during plugin activation
  *
- * @link       https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48
+ * @link       https://swarmify.com
  * @since      1.0.0
  */
 

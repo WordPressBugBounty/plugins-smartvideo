@@ -5,7 +5,7 @@ namespace Swarmify\Smartvideo;
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://swarmify.idevaffiliate.com/idevaffiliate.php?id=10275&url=48
+ * @link       https://swarmify.com
  * @since      1.0.0
  *
  * @package    Swarmify

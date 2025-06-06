@@ -1,23 +1,23 @@
 jQuery(document).ready(function($){
 
 	'use strict';
-	$('.swarmify_cdn_key').inputmask("********-****-****-****-************");
+	// $('.swarmify_cdn_key').inputmask("********-****-****-****-************");
 
-	$('.cdn_key_button').click(function(e){
-		if (!$(".swarmify_cdn_key").inputmask("isComplete")){
-			e.preventDefault();;
-			alert('Swarm CDN Key is invalid.');
-		}
-    });
+	// $('.cdn_key_button').click(function(e){
+	// 	if (!$(".swarmify_cdn_key").inputmask("isComplete")){
+	// 		e.preventDefault();;
+	// 		alert('Swarm CDN Key is invalid.');
+	// 	}
+    // });
     
     // Add Color Picker to all inputs that have 'color-field' class
-    $(function() {
-        var colorOptions = {
-            width: 250,
-            palettes: true
-        };
-        $('.color-field').wpColorPicker(colorOptions);
-    });
+    // $(function() {
+    //     var colorOptions = {
+    //         width: 250,
+    //         palettes: true
+    //     };
+    //     $('.color-field').wpColorPicker(colorOptions);
+    // });
 
 	$(document).on('click', ".swarmify-tabs span", function() {
         var parent = $(this).parent().parent();
@@ -72,12 +72,14 @@ jQuery(document).ready(function($){
 
     $(document).on('click', ".swarmify-lightbox-button",function(){
         update_swarmify_video($(this));
-        $.fancybox.close();
+        // Close the dialog using our dialog manager
+        SwarmifyDialogManager.closeTopDialog();
     });
 
     $(document).on('click', ".swarmify-lightbox-button-img",function(){
         update_swarmify_video($(this));
-        $.fancybox.close();
+        // Close the dialog using our dialog manager
+        SwarmifyDialogManager.closeTopDialog();
     });
 
 
@@ -192,7 +194,8 @@ jQuery(document).ready(function($){
         smartvideo = smartvideo.replace(' ]',']');
         wp.media.editor.insert(smartvideo);
         reset_form_elements('swarmify-modal-content');
-        $.fancybox.close();
+        // Close the dialog using our dialog manager
+        SwarmifyDialogManager.closeTopDialog();
     });
 
     const default_checked = new Set(['controls', 'unresponsive']);
@@ -212,13 +215,23 @@ jQuery(document).ready(function($){
     }
 
     $(document).on('click', ".swarmify_add_youtube",function(){
-        $('.video_url_fancybox .yt').show();
-        $('.video_url_fancybox .other').hide();
+        $('.video_url_popup .yt').show();
+        $('.video_url_popup .other').hide();
+        // Open the dialog
+        const dialogId = $(this).data('dialog');
+        if (dialogId) {
+            SwarmifyDialogManager.openDialog(dialogId);
+        }
     });
 
     $(document).on('click', ".swarmify_add_source",function(){
-        $('.video_url_fancybox .yt').hide();
-        $('.video_url_fancybox .other').show();
+        $('.video_url_popup .yt').hide();
+        $('.video_url_popup .other').show();
+        // Open the dialog
+        const dialogId = $(this).data('dialog');
+        if (dialogId) {
+            SwarmifyDialogManager.openDialog(dialogId);
+        }
     });
 
     function open_watermark_window() {

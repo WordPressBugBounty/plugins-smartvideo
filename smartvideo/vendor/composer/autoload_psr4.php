@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Swarmify\\' => array($baseDir . '/includes'),
+    'Swarmify\\Smartvideo\\' => array($baseDir . '/includes/Smartvideo'),
 );
