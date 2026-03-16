@@ -196,7 +196,8 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 		// New single URL field (v2.4+).
 		$video_url = '';
 		if ( ! empty( $settings['video_url'] ) ) {
-			$video_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['video_url'] );
+			$raw_url   = $this->render_dynamic_data( $settings['video_url'] );
+			$video_url = \Swarmify\Smartvideo\VideoUrl::normalize( $raw_url );
 		}
 
 		// Backward compat: old source-type fields.
@@ -233,7 +234,7 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 			$size       = ! empty( $settings['poster_image']['size'] ) ? $settings['poster_image']['size'] : 'full';
 			$poster_url = wp_get_attachment_image_url( $settings['poster_image']['id'], $size );
 		} elseif ( 'another_source' === $poster_source && ! empty( $settings['poster_url'] ) ) {
-			$poster_url = $settings['poster_url'];
+			$poster_url = $this->render_dynamic_data( $settings['poster_url'] );
 		}
 
 		// Dimensions — resolve from aspect ratio preset.
