@@ -7,30 +7,30 @@ namespace Composer\Autoload;
 class ComposerStaticInit931bf72f9c7c2de8ce9eca99aef07850
 {
     public static $prefixLengthsPsr4 = array (
-        'S' => 
+        'S' =>
         array (
-            'Swarmify\\Smartvideo\\' => 20,
+            'Swarmify\\' => 9,
+        ),
+        'A' =>
+        array (
+            'Automattic\\Jetpack\\Autoloader\\' => 30,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Swarmify\\Smartvideo\\' => 
+        'Swarmify\\' =>
         array (
-            0 => __DIR__ . '/../..' . '/includes/Smartvideo',
+            0 => __DIR__ . '/../..' . '/includes',
+        ),
+        'Automattic\\Jetpack\\Autoloader\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/automattic/jetpack-autoloader/src',
         ),
     );
 
     public static $classMap = array (
+        'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator' => __DIR__ . '/..' . '/automattic/jetpack-autoloader/src/AutoloadGenerator.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Swarmify\\Smartvideo\\Activator' => __DIR__ . '/../..' . '/includes/Smartvideo/Activator.php',
-        'Swarmify\\Smartvideo\\Admin' => __DIR__ . '/../..' . '/includes/Smartvideo/Admin.php',
-        'Swarmify\\Smartvideo\\AdminWidget' => __DIR__ . '/../..' . '/includes/Smartvideo/AdminWidget.php',
-        'Swarmify\\Smartvideo\\Deactivator' => __DIR__ . '/../..' . '/includes/Smartvideo/Deactivator.php',
-        'Swarmify\\Smartvideo\\I18n' => __DIR__ . '/../..' . '/includes/Smartvideo/I18n.php',
-        'Swarmify\\Smartvideo\\Loader' => __DIR__ . '/../..' . '/includes/Smartvideo/Loader.php',
-        'Swarmify\\Smartvideo\\Settings' => __DIR__ . '/../..' . '/includes/Smartvideo/Settings.php',
-        'Swarmify\\Smartvideo\\Swarmify' => __DIR__ . '/../..' . '/includes/Smartvideo/Swarmify.php',
-        'Swarmify\\Smartvideo\\UploadAccelerator' => __DIR__ . '/../..' . '/includes/Smartvideo/UploadAccelerator.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

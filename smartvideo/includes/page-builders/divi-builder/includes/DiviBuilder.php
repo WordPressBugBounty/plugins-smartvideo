@@ -40,6 +40,17 @@ class SMARTVIDEO_DiviBuilder extends DiviExtension {
 		$this->plugin_dir_url = plugin_dir_url( $this->plugin_dir );
 
 		parent::__construct( $name, $args );
+
+		add_action( 'wp_head', array( $this, 'pass_status_to_builder' ), 1 );
+	}
+
+	public function pass_status_to_builder() {
+		printf(
+			'<script>window.smartvideoBlockData = %s;</script>',
+			wp_json_encode( array(
+				'isActive' => ( 'on' === get_option( 'swarmify_status' ) && '' !== get_option( 'swarmify_cdn_key', '' ) ),
+			) )
+		);
 	}
 
 }

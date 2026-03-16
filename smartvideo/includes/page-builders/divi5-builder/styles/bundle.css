@@ -1,0 +1,10 @@
+/* Frontend styles for SmartVideo Divi 5 module. */
+
+/* D5 uses flexbox layout — flex items don't get width:100% automatically
+   (unlike D4's block layout). Without this, the Swarmify player JS reads
+   a collapsed container width at init and calculates wrong dimensions. */
+.smartvideo_divi_module { width: 100%; min-width: 0; }
+
+/* Style the <smartvideo> custom element before the player JS replaces it. */
+.smartvideo_divi_module smartvideo { display: block; max-width: 100%; }
+.smartvideo_divi_module smartvideo.swarm-fluid { width: 100%; height: auto; }

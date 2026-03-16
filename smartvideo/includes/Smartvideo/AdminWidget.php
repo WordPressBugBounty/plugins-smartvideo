@@ -5,7 +5,7 @@ namespace Swarmify\Smartvideo;
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://swarmify.com
+ * @link       https://swarmify.com/?smartvideo_wordpress_plugin
  * @since      1.0.0
  *
  * @package    Swarmify
@@ -79,7 +79,7 @@ class AdminWidget extends \WP_Widget {
 		$title           = apply_filters( 'widget_title', $instance['title']);
 		$output          = $args['before_widget'];
 		if ( ! empty( $title)) {
-			$output .= $args['before_title'] . $title . $args['after_title'];
+			$output .= $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		}
 		$swarmify_url = $instance['swarmify_url'];
 
@@ -116,7 +116,7 @@ class AdminWidget extends \WP_Widget {
 			$loop         = ( 1 === $swarmify_loop ? 'loop' : '' );
 			$controls     = ( 1 === $swarmify_controls ? 'controls' : '' );
 			$video_inline = ( 1 === $swarmify_video_inline ? 'playsinline' : '' );
-			$unresponsive = ( 1 === $swarmify_unresponsive ? 'class="swarm-fluid"' : '' );
+			$unresponsive = ( 1 === $swarmify_unresponsive ? 'class="' . esc_attr( 'swarm-fluid' ) . '"' : '' );
 
 			$output .= '<smartvideo src="' . esc_url( $swarmify_url ) . '" width="' . $swarmify_width . '" height="' . $swarmify_height . '" ' . $unresponsive . ' poster="' . esc_url( $swarmify_poster ) . '" ' . $autoplay . ' ' . $muted . ' ' . $loop . ' ' . $controls . ' ' . $video_inline . '></smartvideo>';
 		} else {
@@ -128,7 +128,7 @@ class AdminWidget extends \WP_Widget {
 		}
 		$output .= $args['after_widget'];
 
-		$output = str_replace( 'et_pb_widget', '', $output);
+		$output = preg_replace( '/\bet_pb_widget\b/', '', $output );
 
 		echo wp_kses(
 			$output, 
@@ -165,8 +165,8 @@ class AdminWidget extends \WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance                      = array();
 		$instance['title']             = ! empty( $new_instance['title']) ? sanitize_text_field( $new_instance['title']) : '';
-		$instance['swarmify_url']      = ! empty( $new_instance['swarmify_url']) ? $new_instance['swarmify_url'] : '';
-		$instance['swarmify_poster']   = ! empty( $new_instance['swarmify_poster']) ? $new_instance['swarmify_poster'] : '';
+		$instance['swarmify_url']      = ! empty( $new_instance['swarmify_url']) ? esc_url_raw( $new_instance['swarmify_url']) : '';
+		$instance['swarmify_poster']   = ! empty( $new_instance['swarmify_poster']) ? esc_url_raw( $new_instance['swarmify_poster']) : '';
 		$instance['swarmify_autoplay'] = ! empty( $new_instance['swarmify_autoplay']) ? intval( $new_instance['swarmify_autoplay']) : 0;
 		$instance['swarmify_muted']    = ! empty( $new_instance['swarmify_muted']) ? intval( $new_instance['swarmify_muted']) : 0;
 		$instance['swarmify_loop']     = ! empty( $new_instance['swarmify_loop']) ? intval( $new_instance['swarmify_loop']) : 0;
@@ -174,12 +174,12 @@ class AdminWidget extends \WP_Widget {
 		$instance['swarmify_height']   = ! empty( $new_instance['swarmify_height']) ? intval( $new_instance['swarmify_height']) : 720;
 		$instance['swarmify_width']    = ! empty( $new_instance['swarmify_width']) ? intval( $new_instance['swarmify_width']) : 1280;
 
-		if (in_array( 'swarmify_controls', $old_instance) && null === $old_instance['swarmify_controls']) {
+		if (array_key_exists( 'swarmify_controls', $old_instance) && null === $old_instance['swarmify_controls']) {
 			$instance['swarmify_controls'] = 1;
 		}
 		$instance['swarmify_video_inline'] = ! empty( $new_instance['swarmify_video_inline']) ? intval( $new_instance['swarmify_video_inline']) : 0;
 		$instance['swarmify_unresponsive'] = ! empty( $new_instance['swarmify_unresponsive']) ? intval( $new_instance['swarmify_unresponsive']) : 0;
-		if (in_array( 'swarmify_unresponsive', $old_instance) && null === $old_instance['swarmify_unresponsive']) {
+		if (array_key_exists( 'swarmify_unresponsive', $old_instance) && null === $old_instance['swarmify_unresponsive']) {
 			$instance['swarmify_unresponsive'] = 0;
 		}
 		return $instance;

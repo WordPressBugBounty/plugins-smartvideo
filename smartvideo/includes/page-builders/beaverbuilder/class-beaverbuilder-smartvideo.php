@@ -15,6 +15,36 @@ class SmartVideo extends FLBuilderModule {
 			)
 		);
 	}
+
+	/**
+	 * Migrate old source-type fields into the new video_url field.
+	 * Runs before defaults are merged, so old saved data populates
+	 * the new field in both the editor form and frontend render.
+	 */
+	public function filter_raw_settings_defaults( $settings, $defaults ) {
+		if ( ! empty( $settings->video_url ) ) {
+			return $settings;
+		}
+
+		$video_type = isset( $settings->video_type ) ? $settings->video_type : '';
+
+		switch ( $video_type ) {
+			case 'youtube':
+				$settings->video_url = isset( $settings->youtube ) ? $settings->youtube : '';
+				break;
+			case 'vimeo':
+				$settings->video_url = isset( $settings->vimeo ) ? $settings->vimeo : '';
+				break;
+			case 'swarmify_url':
+				$settings->video_url = isset( $settings->swarmify_url ) ? $settings->swarmify_url : '';
+				break;
+			case 'other_source':
+				$settings->video_url = isset( $settings->other_source ) ? $settings->other_source : '';
+				break;
+		}
+
+		return $settings;
+	}
 }
 
 /**
@@ -29,62 +59,25 @@ FLBuilder::register_module(
 				'general' => array(
 					'title'  => '',
 					'fields' => array(
-						'video_type'      => array(
-							'type'    => 'select',
-							'label'   => __( 'Video source', 'swarmify' ),
-							'default' => 'media_library',
-							'options' => array(
-								'media_library' => __( 'Media library', 'swarmify' ),
-								'youtube'       => __( 'YouTube', 'swarmify' ),
-								'vimeo'         => __( 'Vimeo', 'swarmify' ),
-								'other_source'  => __( 'Other source', 'swarmify' ),
-							),
-							'toggle'  => array(
-								'media_library' => array(
-									'fields' => array( 'video' ),
-								),
-								'youtube'       => array(
-									'fields' => array( 'youtube' ),
-								),
-								'vimeo'         => array(
-									'fields' => array( 'vimeo' ),
-								),
-								'other_source'  => array(
-									'fields' => array( 'other_source' ),
-								),
-							),
+						'video_url'       => array(
+							'type'        => 'text',
+							'label'       => __( 'Video URL', 'swarmify' ),
+							'placeholder' => 'https://www.youtube.com/watch?v=... or any video URL',
+							'help'        => __( 'Paste a YouTube, Vimeo, Swarmify, or direct video URL', 'swarmify' ),
 						),
 						'video'           => array(
 							'type'        => 'video',
-							'label'       => __( 'Video (MP4)', 'swarmify' ),
+							'label'       => __( 'Choose from Media Library', 'swarmify' ),
 							'help'        => __( 'A video in the MP4 format. Most modern browsers support this format.', 'swarmify' ),
 							'show_remove' => true,
-						),
-						'youtube'         => array(
-							'type'          => 'link',
-							'label'         => 'YouTube link',
-							'show_target'   => false,
-							'show_nofollow' => false,
-						),
-						'vimeo'           => array(
-							'type'          => 'link',
-							'label'         => 'Vimeo link',
-							'show_target'   => false,
-							'show_nofollow' => false,
-						),
-						'other_source'    => array(
-							'type'          => 'link',
-							'label'         => 'Video link',
-							'show_target'   => false,
-							'show_nofollow' => false,
 						),
 						'poster'          => array(
 							'type'    => 'select',
 							'label'   => __( 'Add a poster', 'swarmify' ),
 							'options' => array(
+								'none'          => __( 'Automatic', 'swarmify' ),
 								'media_library' => __( 'Media library', 'swarmify' ),
-								'other_source'  => __( 'Other source', 'swarmify' ),
-								'none'          => __( 'None', 'swarmify' ),
+								'other_source'  => __( 'Other', 'swarmify' ),
 							),
 							'default' => 'none',
 							'toggle'  => array(
@@ -102,10 +95,9 @@ FLBuilder::register_module(
 							'label'       => _x( 'Poster', 'Video preview/fallback image.', 'swarmify' ),
 						),
 						'poster_external' => array(
-							'type'          => 'link',
-							'label'         => 'Poster link',
-							'show_target'   => false,
-							'show_nofollow' => false,
+							'type'        => 'text',
+							'label'       => 'Poster link',
+							'placeholder' => 'https://example.com/poster.jpg',
 						),
 					),
 				),
@@ -117,6 +109,17 @@ FLBuilder::register_module(
 			'sections' => array(
 				'basic_options' => array(
 					'fields' => array(
+						'aspect_ratio' => array(
+							'type'    => 'select',
+							'label'   => __( 'Aspect Ratio', 'swarmify' ),
+							'default' => '16:9',
+							'options' => \Swarmify\Smartvideo\AspectRatio::get_options(),
+							'toggle'  => array(
+								'custom' => array(
+									'fields' => array( 'width', 'height' ),
+								),
+							),
+						),
 						'height'     => array(
 							'type'    => 'text',
 							'label'   => __( 'Height', 'swarmify' ),
@@ -132,7 +135,8 @@ FLBuilder::register_module(
 						'autoplay'   => array(
 							'type'    => 'select',
 							'label'   => __( 'Autoplay', 'swarmify' ),
-							'default' => '0',
+							'help'    => __( "Automatically start playing when the video is visible. Most browsers require 'Muted' to be enabled.", 'swarmify' ),
+							'default' => 'on' === get_option( 'swarmify_default_autoplay', 'off' ) ? '1' : '0',
 							'options' => array(
 								'0' => __( 'No', 'swarmify' ),
 								'1' => __( 'Yes', 'swarmify' ),
@@ -144,7 +148,8 @@ FLBuilder::register_module(
 						'muted'      => array(
 							'type'    => 'select',
 							'label'   => __( 'Muted', 'swarmify' ),
-							'default' => '0',
+							'help'    => __( 'Start playback with audio muted.', 'swarmify' ),
+							'default' => 'on' === get_option( 'swarmify_default_muted', 'off' ) ? '1' : '0',
 							'options' => array(
 								'0' => __( 'No', 'swarmify' ),
 								'1' => __( 'Yes', 'swarmify' ),
@@ -156,7 +161,8 @@ FLBuilder::register_module(
 						'loop'       => array(
 							'type'    => 'select',
 							'label'   => __( 'Loop', 'swarmify' ),
-							'default' => '0',
+							'help'    => __( 'Restart the video automatically when it reaches the end.', 'swarmify' ),
+							'default' => 'on' === get_option( 'swarmify_default_loop', 'off' ) ? '1' : '0',
 							'options' => array(
 								'0' => __( 'No', 'swarmify' ),
 								'1' => __( 'Yes', 'swarmify' ),
@@ -168,7 +174,8 @@ FLBuilder::register_module(
 						'controls'   => array(
 							'type'    => 'select',
 							'label'   => __( 'Controls', 'swarmify' ),
-							'default' => '1',
+							'help'    => __( 'Show player controls (play, pause, volume, etc.).', 'swarmify' ),
+							'default' => 'on' === get_option( 'swarmify_default_controls', 'on' ) ? '1' : '0',
 							'options' => array(
 								'0' => __( 'No', 'swarmify' ),
 								'1' => __( 'Yes', 'swarmify' ),
@@ -177,10 +184,11 @@ FLBuilder::register_module(
 								'type' => 'none',
 							),
 						),
-						'inline'     => array(
+					'inline'     => array(
 							'type'    => 'select',
-							'label'   => __( 'Play video inline', 'swarmify' ),
-							'default' => '0',
+							'label'   => __( 'Play inline', 'swarmify' ),
+							'help'    => __( 'Keep the video inline on iOS instead of opening in fullscreen.', 'swarmify' ),
+							'default' => 'on' === get_option( 'swarmify_default_playsinline', 'off' ) ? '1' : '0',
 							'options' => array(
 								'0' => __( 'No', 'swarmify' ),
 								'1' => __( 'Yes', 'swarmify' ),
@@ -192,7 +200,8 @@ FLBuilder::register_module(
 						'responsive' => array(
 							'type'    => 'select',
 							'label'   => __( 'Responsive', 'swarmify' ),
-							'default' => '1',
+							'help'    => __( 'Make the video responsive to fill its container width while maintaining aspect ratio.', 'swarmify' ),
+							'default' => 'on' === get_option( 'swarmify_default_responsive', 'on' ) ? '1' : '0',
 							'options' => array(
 								'0' => __( 'No', 'swarmify' ),
 								'1' => __( 'Yes', 'swarmify' ),

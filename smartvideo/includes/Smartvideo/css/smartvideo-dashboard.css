@@ -1,0 +1,72 @@
+/* SmartVideo Dashboard Widget */
+
+/* Brand the postbox wrapper */
+#smartvideo_status { border-top: 3px solid #FFD84D !important; }
+#smartvideo_status .postbox-header { background: linear-gradient(180deg, #fffdf5 0%, #fff 100%); }
+#smartvideo_status .hndle { font-weight: 700 !important; letter-spacing: -0.01em; }
+
+/* Widget content */
+.sv-dash { font-size: 13px; color: #334155; line-height: 1.5; }
+
+/* Status badge */
+.sv-dash-badge {
+	display: inline-flex; align-items: center; gap: 6px;
+	padding: 4px 12px 4px 10px; border-radius: 100px;
+	font-size: 12px; font-weight: 600; letter-spacing: 0.01em;
+	margin-bottom: 14px;
+}
+.sv-dash-badge--on { background: #ecfdf5; color: #059669; }
+.sv-dash-badge--off { background: #fef2f2; color: #dc2626; }
+.sv-dash-badge__dot {
+	width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.sv-dash-badge--on .sv-dash-badge__dot {
+	background: #059669;
+	box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+}
+.sv-dash-badge--off .sv-dash-badge__dot {
+	background: #dc2626;
+	box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+}
+
+/* Status rows */
+.sv-dash-items { list-style: none; margin: 0; padding: 0; }
+.sv-dash-items li {
+	display: flex; justify-content: space-between; align-items: center;
+	padding: 9px 0;
+}
+.sv-dash-items li + li { border-top: 1px solid #f1f5f9; }
+.sv-dash-label { color: #64748b; font-size: 13px; }
+.sv-dash-val { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; }
+.sv-dash-val--on { color: #059669; }
+.sv-dash-val--off { color: #94a3b8; }
+.sv-dash-val--warn { color: #d97706; }
+
+/* Action links */
+.sv-dash-actions {
+	display: flex; gap: 8px; margin-top: 14px;
+	padding-top: 14px; border-top: 1px solid #e2e8f0;
+}
+.sv-dash-btn {
+	display: inline-flex; align-items: center; gap: 4px;
+	padding: 5px 14px; border-radius: 100px;
+	font-size: 12px; font-weight: 500;
+	text-decoration: none !important; transition: all 0.15s ease;
+}
+.sv-dash-btn--primary {
+	background: #0f172a; color: #fef9e7 !important;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.sv-dash-btn--primary:hover, .sv-dash-btn--primary:focus {
+	background: #1e293b; color: #fef9e7 !important;
+	box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+	transform: translateY(-1px);
+}
+.sv-dash-btn--secondary {
+	background: #f8fafc; color: #334155 !important;
+	border: 1px solid #e2e8f0;
+}
+.sv-dash-btn--secondary:hover, .sv-dash-btn--secondary:focus {
+	border-color: #FFD84D; background: #fffdf5; color: #334155 !important;
+	transform: translateY(-1px);
+}

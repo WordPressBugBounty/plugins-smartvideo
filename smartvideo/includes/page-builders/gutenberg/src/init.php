@@ -1,11 +1,12 @@
 <?php
 /**
- * Blocks Initializer
+ * SmartVideo Gutenberg Block
  *
- * Enqueue CSS/JS of all the blocks.
+ * Registers the SmartVideo block for the Gutenberg editor.
+ * Built with @wordpress/scripts (output in /build/).
  *
- * @since   1.0.0
- * @package CGB
+ * @since 1.0.0
+ * @package SmartVideo
  */
 
 // Exit if accessed directly.
@@ -14,81 +15,164 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Enqueue Gutenberg block assets for both frontend + backend.
- *
- * Assets enqueued:
- * 1. blocks.style.build.css - Frontend + Backend.
- * 2. blocks.build.js - Backend.
- * 3. blocks.editor.build.css - Backend.
- *
- * @uses {wp-blocks} for block type registration & related functions.
- * @uses {wp-element} for WP Element abstraction — structure of blocks.
- * @uses {wp-i18n} to internationalize the block's text.
- * @uses {wp-block-editor} for WP editor styles.
- * @since 1.0.0
+ * Register the SmartVideo Gutenberg block.
  */
-function smartvideo_guten_cgb_block_assets() { // phpcs:ignore
-	// Register block styles for both frontend + backend.
-	wp_register_style(
-		'smartvideo_guten-cgb-style-css', // Handle.
-		plugins_url( 'dist/blocks.style.build.css', dirname( __FILE__ ) ), // Block style CSS.
-		array(), // Dependency to include the CSS after it.
-		'2.1.0'
-	);
+function smartvideo_register_gutenberg_block() {
+	$script_asset_path = dirname( SMARTVIDEO_PLUGIN_FILE ) . '/build/gutenberg-block.asset.php';
+	$script_asset      = file_exists( $script_asset_path )
+		? require $script_asset_path
+		: array(
+			'dependencies' => array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ),
+			'version'      => SWARMIFY_PLUGIN_VERSION,
+		);
 
-	// Register block editor script for backend.
+	// Register block editor script.
 	wp_register_script(
-		'smartvideo_guten-cgb-block-js', // Handle.
-		plugins_url( '/dist/blocks.build.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.
-		array( 'wp-block-editor', 'wp-blocks', 'wp-element', 'wp-i18n' ), // Dependencies, defined above.
-		'2.1.0',
-		true // Enqueue the script in the footer.
+		'smartvideo-gutenberg-block',
+		plugins_url( '/build/gutenberg-block.js', SMARTVIDEO_PLUGIN_FILE ),
+		$script_asset['dependencies'],
+		$script_asset['version'],
+		true
 	);
 
-	// Register block editor styles for backend.
+	// Register block editor styles (editor only).
 	wp_register_style(
-		'smartvideo_guten-cgb-block-editor-css', // Handle.
-		plugins_url( 'dist/blocks.editor.build.css', dirname( __FILE__ ) ), // Block editor CSS.
-		array( 'wp-edit-blocks' ), // Dependency to include the CSS after it.
-		'2.1.0'
+		'smartvideo-gutenberg-block-editor',
+		plugins_url( '/build/gutenberg-block.css', SMARTVIDEO_PLUGIN_FILE ),
+		array( 'wp-edit-blocks' ),
+		SWARMIFY_PLUGIN_VERSION
 	);
 
-	// WP Localized globals. Use dynamic PHP stuff in JavaScript via `cgbGlobal` object.
+	// Register block frontend + backend styles.
+	wp_register_style(
+		'smartvideo-gutenberg-block-style',
+		plugins_url( '/build/style-gutenberg-block.css', SMARTVIDEO_PLUGIN_FILE ),
+		array(),
+		SWARMIFY_PLUGIN_VERSION
+	);
+
+	// Pass plugin status and global defaults to the block editor.
 	wp_localize_script(
-		'smartvideo_guten-cgb-block-js',
-		'cgbGlobal', // Array containing dynamic data for a JS Global.
+		'smartvideo-gutenberg-block',
+		'smartvideoBlockData',
 		array(
-			'pluginDirPath' => plugin_dir_path( __DIR__ ),
-			'pluginDirUrl'  => plugin_dir_url( __DIR__ ),
-			// Add more data here that you want to access from `cgbGlobal` object.
+			'isActive' => ( 'on' === get_option( 'swarmify_status' ) && '' !== get_option( 'swarmify_cdn_key', '' ) ),
+			'defaults' => array(
+				'autoplay'    => 'on' === get_option( 'swarmify_default_autoplay', 'off' ),
+				'muted'       => 'on' === get_option( 'swarmify_default_muted', 'off' ),
+				'loop'        => 'on' === get_option( 'swarmify_default_loop', 'off' ),
+				'controls'    => 'on' === get_option( 'swarmify_default_controls', 'on' ),
+				'playsInline' => 'on' === get_option( 'swarmify_default_playsinline', 'off' ),
+				'responsive'  => 'on' === get_option( 'swarmify_default_responsive', 'on' ),
+				'preload'     => get_option( 'swarmify_default_preload', 'auto' ),
+			),
 		)
 	);
 
-	/**
-	 * Register Gutenberg block on server-side.
-	 *
-	 * Register the block on server-side to ensure that the block
-	 * scripts and styles for both frontend and backend are
-	 * enqueued when the editor loads.
-	 *
-	 * @link https://wordpress.org/gutenberg/handbook/blocks/writing-your-first-block-type#enqueuing-block-scripts
-	 * @since 1.16.0
-	 */
+	// Register the block type.
 	register_block_type(
-		'cgb/block-smartvideo-guten',
+		'smartvideo/block-smartvideo-guten',
 		array(
-			// Enqueue blocks.style.build.css on both frontend & backend.
-			'style'         => 'smartvideo_guten-cgb-style-css',
-			// Enqueue blocks.build.js in the editor only.
-			'editor_script' => 'smartvideo_guten-cgb-block-js',
-			// Enqueue blocks.editor.build.css in the editor only.
-			'editor_style'  => 'smartvideo_guten-cgb-block-editor-css',
+			'style'         => 'smartvideo-gutenberg-block-style',
+			'editor_script' => 'smartvideo-gutenberg-block',
+			'editor_style'  => 'smartvideo-gutenberg-block-editor',
+		)
+	);
+
+	// Register the per-page disable sidebar panel.
+	$sidebar_asset_path = dirname( SMARTVIDEO_PLUGIN_FILE ) . '/build/gutenberg-sidebar.asset.php';
+	$sidebar_asset      = file_exists( $sidebar_asset_path )
+		? require $sidebar_asset_path
+		: array(
+			'dependencies' => array( 'wp-plugins', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-core-data', 'wp-i18n' ),
+			'version'      => SWARMIFY_PLUGIN_VERSION,
+		);
+
+	wp_register_script(
+		'smartvideo-gutenberg-sidebar',
+		plugins_url( '/build/gutenberg-sidebar.js', SMARTVIDEO_PLUGIN_FILE ),
+		$sidebar_asset['dependencies'],
+		$sidebar_asset['version'],
+		true
+	);
+
+	// Enqueue in the editor only.
+	add_action( 'enqueue_block_editor_assets', function () {
+		wp_enqueue_script( 'smartvideo-gutenberg-sidebar' );
+	} );
+}
+
+add_action( 'init', 'smartvideo_register_gutenberg_block' );
+
+/**
+ * Register SmartVideo block patterns.
+ */
+function smartvideo_register_block_patterns() {
+	register_block_pattern_category(
+		'smartvideo',
+		array( 'label' => __( 'SmartVideo', 'swarmify' ) )
+	);
+
+	// Pattern 1: Hero Video — full-width, autoplay, muted, loop, no controls.
+	register_block_pattern(
+		'smartvideo/hero-video',
+		array(
+			'title'       => __( 'Hero Video', 'swarmify' ),
+			'description' => __( 'Full-width background-style video with autoplay, muted, and loop.', 'swarmify' ),
+			'categories'  => array( 'smartvideo' ),
+			'content'     => '<!-- wp:smartvideo/block-smartvideo-guten {"autoplay":true,"muted":true,"loop":true,"controls":false,"responsive":true,"align":"full"} -->
+<div class="wp-block-smartvideo-block-smartvideo-guten alignfull"><smartvideo src="https://swarmify.com/wp-content/uploads/SmartVideoIntroMain.mp4" width="1280" height="720" class="swarm-fluid" autoplay muted loop></smartvideo></div>
+<!-- /wp:smartvideo/block-smartvideo-guten -->',
+		)
+	);
+
+	// Pattern 2: Video with Description — two columns.
+	register_block_pattern(
+		'smartvideo/video-with-description',
+		array(
+			'title'       => __( 'Video with Description', 'swarmify' ),
+			'description' => __( 'Two-column layout with video on the left and text on the right.', 'swarmify' ),
+			'categories'  => array( 'smartvideo' ),
+			'content'     => '<!-- wp:columns -->
+<div class="wp-block-columns"><!-- wp:column {"width":"60%"} -->
+<div class="wp-block-column" style="flex-basis:60%"><!-- wp:smartvideo/block-smartvideo-guten {"controls":true,"responsive":true} -->
+<div class="wp-block-smartvideo-block-smartvideo-guten"><smartvideo src="https://swarmify.com/wp-content/uploads/SmartVideoIntroMain.mp4" width="1280" height="720" class="swarm-fluid" controls></smartvideo></div>
+<!-- /wp:smartvideo/block-smartvideo-guten --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"width":"40%"} -->
+<div class="wp-block-column" style="flex-basis:40%"><!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Video Title</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Add a description of your video here. Explain what viewers will learn or see.</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->',
+		)
+	);
+
+	// Pattern 3: Video Showcase — heading + video + description.
+	register_block_pattern(
+		'smartvideo/video-showcase',
+		array(
+			'title'       => __( 'Video Showcase', 'swarmify' ),
+			'description' => __( 'Centered video with a heading above and description below.', 'swarmify' ),
+			'categories'  => array( 'smartvideo' ),
+			'content'     => '<!-- wp:heading {"textAlign":"center"} -->
+<h2 class="wp-block-heading has-text-align-center">Watch Our Video</h2>
+<!-- /wp:heading -->
+
+<!-- wp:smartvideo/block-smartvideo-guten {"controls":true,"responsive":true,"align":"wide"} -->
+<div class="wp-block-smartvideo-block-smartvideo-guten alignwide"><smartvideo src="https://swarmify.com/wp-content/uploads/SmartVideoIntroMain.mp4" width="1280" height="720" class="swarm-fluid" controls></smartvideo></div>
+<!-- /wp:smartvideo/block-smartvideo-guten -->
+
+<!-- wp:paragraph {"align":"center"} -->
+<p class="has-text-align-center">A brief description of the video content goes here.</p>
+<!-- /wp:paragraph -->',
 		)
 	);
 }
 
-// Only install blocks when version is new enough for Gutenberg
-if ( function_exists( 'register_block_type' ) ) {
-	// Hook: Block assets.
-	add_action( 'init', 'smartvideo_guten_cgb_block_assets' );
-}
+add_action( 'init', 'smartvideo_register_block_patterns' );

@@ -1,0 +1,15 @@
+// Visual Builder styles for SmartVideo Divi 5 module.
+// These are only loaded inside the Visual Builder editor.
+
+.smartvideo_divi_module {
+  smartvideo {
+    display: block;
+    max-width: 100%;
+    pointer-events: none; // Prevent interaction in VB.
+  }
+
+  smartvideo.swarm-fluid {
+    width: 100%;
+    height: auto;
+  }
+}

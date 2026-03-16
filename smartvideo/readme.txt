@@ -1,149 +1,207 @@
-=== SmartVideo – Fast Video Player, Unlimited CDN, Vimeo Alternative ===
+=== SmartVideo - Video Player and CDN ===
+Contributors: kinggmobb, jdadmin, chris10sen
+Tags: video player, video hosting, youtube, video embed, vimeo
+Requires at least: 6.0
+Tested up to: 6.9.1
+Stable tag: trunk
+Requires PHP: 7.4
+License: AGPL-3.0
+License URI: https://www.gnu.org/licenses/agpl.txt
 
-Contributors: kinggmobb, jdadmin  
-Tags: video player, video hosting, vimeo, cdn, embed
-Requires at least: 3.0.1  
-Tested up to: 6.8.1 
-Stable tag: 2.1.2
-Requires PHP: 7.2  
-License: AGPL-3.0  
-License URI: https://www.gnu.org/licenses/agpl.txt  
-
-The fastest video player with unlimited CDN hosting. 12x faster start times, 8x fewer stalls. Perfect Vimeo replacement.
+Video player and unlimited video hosting built to work for WordPress users
 
 == Description ==
 
-**SmartVideo** is the fastest way to deliver professional, buffer-free video on WordPress. Replace slow, bloated video players with lightning-fast performance that improves your Core Web Vitals and keeps visitors engaged.
+**SmartVideo** replaces YouTube and Vimeo embeds on your WordPress site with a clean, ad-free player served from a global CDN. No "Recommended Videos" pulling visitors away. No YouTube branding competing with yours. Just your content, loading fast.
 
-**⚡ Proven Performance Results:**
-* 12x faster video start times
-* 8x fewer stall-outs during playback  
+### ⚡ Why SmartVideo?
+
+* The SmartVideo player is ~50KB vs YouTube's ~400KB of JavaScript — pages load faster and PageSpeed scores improve
 * Unlimited video hosting with global CDN delivery
-* Instant improvement to PageSpeed scores
+* Auto-converts existing YouTube and Vimeo embeds with zero manual work
+* Only loads its player on pages that actually have video — no player script on the rest of your site
 
-SmartVideo combines a modern video player with intelligent CDN technology, delivering the same streaming quality used by Netflix and Hulu but simple enough for any WordPress site. Our patented streaming technology ensures zero buffering and maximum quality across all devices.
-
-=== Why WordPress Site Owners Choose SmartVideo ===
+### Why WordPress Site Owners Choose SmartVideo
 
 **Speed & Performance First**
-– Lightning-fast video loading with instant-start playback
-– Improve Core Web Vitals and page speed performance instantly
-– EdgeAI-powered global CDN eliminates buffering worldwide
-– Optimized for mobile, desktop, and tablet viewing
+* Lightweight player loads significantly faster than standard YouTube/Vimeo embeds
+* Improve Core Web Vitals and page speed performance
+* Global CDN delivers video from the nearest edge server
+* Optimized for mobile, desktop, and tablet viewing
 
-**Complete Brand Control**  
-– Remove YouTube or Vimeo branding, overlays, and distracting related videos
-– Custom player branding with your colors and watermark
-– Professional, distraction-free playback environment
-– Prevent traffic leaks to competitor content
+**Complete Brand Control**
+* Remove YouTube or Vimeo branding, overlays, and distracting related videos
+* Custom player branding with your colors and watermark
+* Professional, distraction-free playback environment
+* Prevent traffic leaks to competitor content
 
 **WordPress Integration Made Simple**
-– Works seamlessly with Elementor, Gutenberg, Divi, Beaver Builder and more
-– Auto-converts existing Vimeo embeds instantly (no workflow changes)
-– Embed videos in seconds with shortcodes or blocks
-– Responsive design adapts to any theme
+* Native widgets for Elementor, Gutenberg, Beaver Builder, Bricks, and Divi 5
+* Auto-converts existing YouTube and Vimeo embeds instantly (no workflow changes)
+* Embed videos in seconds with shortcodes or blocks
+* Responsive design adapts to any theme
+* Per-page disable toggle when you need the original embed
 
-=== What Our Users Say ===
+### What Our Users Say
 
-**★★★★★ Stefan G.** – "After using Swarmify we are incredibly annoyed. But only because of our mistake of not having used Swarmify before. Super fast video player and CDN!"
+⭐⭐⭐⭐⭐ **Stefan G.** – "After using Swarmify we are incredibly annoyed. But only because of our mistake of not having used Swarmify before. Super fast video player and CDN!"
 
-**★★★★★ Dan S.** – "This tool is easy to setup and as easy to use. Does the job as intended, no nonsense. Really enhances the experience of having video on your website."
+⭐⭐⭐⭐⭐ **Dan S.** – "This tool is easy to setup and as easy to use. Does the job as intended, no nonsense. Really enhances the experience of having video on your website."
 
-**★★★★★ Joe W.** – "I implemented this on my site and immediately saw an impact. I am very impressed with how simple they have made the entire setup. It works very well and as advertised."
+⭐⭐⭐⭐⭐ **Joe W.** – "I implemented this on my site and immediately saw an impact. I am very impressed with how simple they have made the entire setup. It works very well and as advertised."
 
-**★★★★★ Aditya R.** – "Goodbye YouTube Embeds! Incredibly fast, stable and bloat-free!"
+⭐⭐⭐⭐⭐ **Aditya R.** – "Goodbye YouTube Embeds! Incredibly fast, stable and bloat-free!"
 
-=== 🎯 Key Features ===
+### 🎯 Key Features
 
-* **📹 Video Hosting**: Unlimited bandwidth, encoding, and views included
-* **⚙️ Playback Customization**: Autoplay, loop, mute, hide controls, play inline
-* **🎨 Visual Enhancement**: Add poster images and custom branding  
-* **💰 Monetization Ready**: VAST ad support for revenue generation
-* **📁 Format Support**: MP4, HLS (M3U8), MPEG-DASH, WEBM, VP8/9, MP3, AAC, OPUS
-* **🛠️ Developer Friendly**: Extensive customization options
+* 📹 **Video Hosting**: Unlimited bandwidth, encoding, and views included
+* ⚙️ **Playback Customization**: Autoplay, loop, mute, hide controls, play inline, preload control
+* 🎨 **Visual Enhancement**: Add poster images and custom branding
+* 🧩 **Page Builder Support**: Native widgets for Gutenberg, Elementor, Beaver Builder, Bricks, and Divi 5
+* 🎯 **Conditional Loading**: Player script only loads on pages with video content
+* 🔒 **Per-Page Control**: Disable SmartVideo on individual pages or posts
+* 💰 **Monetization Ready**: VAST ad support for revenue generation
+* 📁 **Format Support**: MP4, HLS (M3U8), MPEG-DASH, WEBM, VP8/9, MP3, AAC, OPUS
+* 📊 **SEO Friendly**: JSON-LD VideoObject schema auto-generated for pages with SmartVideo
+* 🛠️ **Developer Friendly**: Filters, shortcodes, and extensive customization options
 
-=== 🔧 Behind the Scenes: How SmartVideo Works ===
+### 🔧 Behind the Scenes: How SmartVideo Works
 
 SmartVideo handles the complex video optimization automatically:
 
-* **🤖 Automatic Encoding**: Uploads are quickly optimized for web delivery
-* **🌍 Global CDN**: EdgeAI technology routes videos from the fastest server  
-* **📱 Responsive Rendering**: Perfect playback on any device or screen size
-* **♾️ Unlimited everything**: Unlimited bandwidth, unlimited encoding, unlimited storage
+* 🤖 **Automatic Encoding**: Uploads are optimized for web delivery
+* 🌍 **Global CDN**: Routes video from the nearest edge server for fast playback
+* 📱 **Responsive Rendering**: Adapts to any device or screen size
+* ♾️ **Unlimited Everything**: Unlimited bandwidth, unlimited encoding, unlimited storage
 
-Whether you're showcasing product demos, educational content, sales videos, or background visuals, SmartVideo ensures they load fast, look professional, and keep visitors engaged without any technical complexity.
+Whether you're showcasing product demos, educational content, sales videos, or background visuals, SmartVideo loads fast, looks professional, and keeps visitors on your site.
+
+### 🚀 Get Started in Minutes
+
+**Start with our free 14-day trial:**
+
+1. 📥 **Install** the SmartVideo plugin from your WordPress dashboard
+2. 🔗 **Connect** your free Swarmify account (14-day trial included)
+3. 👀 **Watch** your existing embeds automatically convert to the clean SmartVideo player
+4. 📈 **Upgrade** when you're ready for unlimited hosting and advanced features
+
+SmartVideo requires a Swarmify account. Visit [swarmify.com/pricing](https://swarmify.com/pricing/) for current plans. The WordPress plugin itself is free and open source (AGPL-3.0).
+
+== Installation ==
+
+1. Upload the plugin files to the `/wp-content/plugins/SmartVideo` directory, or install the plugin through the WordPress plugins screen directly.
+1. Activate the plugin through the 'Plugins' screen in WordPress.
+1. Use the Settings->SmartVideo screen to configure the plugin.
+1. You will need to sign up for an account at [Swarmify](https://swarmify.com/?smartvideo_wordpress_plugin).
 
 == Frequently Asked Questions ==
 
-= How to speed up videos on WordPress? =
-SmartVideo automatically optimizes your videos for fast loading with adaptive bitrate streaming and global CDN delivery. Simply install the plugin and see immediate speed improvements – 12x faster start times on average.
+= How does SmartVideo speed up videos on my WordPress site? =
 
-= Is this the best WordPress video player plugin 2025? =
-SmartVideo delivers enterprise-level streaming technology (used by Netflix/Hulu) in a simple WordPress plugin. With proven performance metrics and thousands of satisfied users, it's designed specifically for speed and professional presentation.
+SmartVideo replaces heavy YouTube/Vimeo embeds (~400KB+ of JavaScript) with a lightweight ~50KB player served from a global CDN. Pages load faster, PageSpeed scores improve, and videos start playing sooner. The plugin also uses conditional loading — the player script only loads on pages that actually have video.
 
-= How to reduce video loading time on WordPress? =
-SmartVideo reduces loading time through intelligent CDN routing, automatic encoding optimization, and adaptive streaming. Users typically see 12x faster video start times and 8x fewer playback interruptions.
+= Which page builders does SmartVideo support? =
+
+SmartVideo includes native widgets for Gutenberg (block editor), Elementor, Beaver Builder, Bricks, and Divi 5. Each widget supports full visual editing with live preview. You can also use the `[smartvideo]` shortcode in any builder or the classic editor.
+
+= How does auto-conversion from YouTube/Vimeo work? =
+
+When you enable auto-convert in settings, SmartVideo detects YouTube and Vimeo embeds on your pages and serves them through the SmartVideo player instead. For Vimeo, the video file is re-encoded and delivered via our CDN. Visitors see a clean, ad-free player with no "Recommended Videos" or third-party branding.
+
+= I use Vimeo on my site. How do I switch to SmartVideo? =
+
+Install the plugin and enable Vimeo auto-convert in settings. All your existing Vimeo embeds will be automatically converted — no need to re-embed anything. Your workflow stays the same.
+
+= What video and audio formats are supported? =
+
+Video: MP4, HLS (M3U8), MPEG-DASH, WEBM, VP8/9. Audio: MP3, AAC, OPUS.
+
+= Can I disable SmartVideo on specific pages? =
+
+Yes. SmartVideo 2.2.0 adds a per-page disable toggle in both the Gutenberg editor sidebar and the classic editor. This lets you keep the original embed on specific pages while SmartVideo handles the rest of your site.
 
 = Who is Swarmify? =
-Swarmify is a video acceleration company focused on bringing the streaming technologies used by industry leaders like Netflix and Hulu to everyone in a simple, affordable package. We offer the world's fastest video experience with zero complexity.
 
-= What is SmartVideo? =
-SmartVideo is Swarmify's flagship product, combining a modern, professional video player with patented streaming technology that ensures stall-free playback and maximum visual quality.
+Swarmify is a video acceleration company focused on making fast, professional video accessible to any website owner. SmartVideo is our flagship product, combining a clean video player with CDN-powered delivery.
 
 = Who is SmartVideo for? =
-SmartVideo was built for two core audiences: developers who want a fast and professional video solution with minimal setup, and sales-driven businesses that need to control branding and eliminate distractions like related videos and third-party overlays.
+
+SmartVideo is built for site owners who want fast, professional video without the complexity of managing encoding, CDNs, and player configuration. It's especially useful if you want to remove YouTube/Vimeo branding and keep visitors on your site.
 
 = Who is SmartVideo not for? =
-SmartVideo is not for users who need a completely free video platform. If you are willing to accept trade-offs like branding, traffic loss, and slower load times, a free platform like YouTube or Vimeo may be a better fit.
+
+SmartVideo requires a paid account for ongoing use (14-day free trial to start). If you need a completely free solution and are willing to accept third-party branding and related video recommendations, YouTube or Vimeo embeds may be a better fit.
 
 = Why choose SmartVideo over Vimeo? =
-Vimeo places its branding, overlays, and recommendations in your video experience, which can distract viewers and redirect traffic. SmartVideo removes those elements, delivers faster playback (12x faster start times), and gives you full control of the player and your brand.
+
+Vimeo places its branding, overlays, and recommendations in your video experience, which can distract viewers and redirect traffic away from your site. SmartVideo removes those elements and gives you full control of the player appearance and your brand.
 
 = Can I use SmartVideo for live video? =
-SmartVideo currently supports on-demand video only. Live streaming is not yet available. If you'd like to be notified when we add support for live video, please contact our support team.
 
-= 🔄 I use Vimeo on my site. How do I switch to SmartVideo? =
-If you currently upload to Vimeo and use their embed code, SmartVideo requires no changes to your workflow. Simply install the plugin, and all your existing Vimeo embeds will be auto-converted to use our fast, clutter-free player automatically.
-
-= ⚙️ How does auto-conversion from Vimeo work? =
-When SmartVideo detects a Vimeo embed, it downloads the video file, re-encodes it for optimized delivery, and serves it via our global CDN using the SmartVideo player.
+SmartVideo currently supports on-demand video only. Live streaming is not yet available. Contact our support team if you'd like to be notified when live streaming support is added.
 
 = Are there any content restrictions? =
+
 You may use SmartVideo to deliver any content that is legally permissible under United States law and for which you have the appropriate usage and distribution rights. Swarmify adheres to DMCA procedures and responds to takedown requests.
-
-== 🚀 Get Started in Minutes ==
-
-**⚡ See Results Instantly with Our Free 14-Day Trial**
-
-1. **📥 Install** the SmartVideo plugin from your WordPress dashboard
-2. **🔗 Connect** your free Swarmify account (14-day trial included)  
-3. **👀 Watch** your videos load 12x faster automatically
-4. **📈 Upgrade** when you're ready for unlimited hosting and advanced features
-
-**Ready to eliminate slow, buffering videos?** Install SmartVideo now and experience enterprise-level video performance on your WordPress site.
 
 == Screenshots ==
 
-1. Introduction
-2. Automagically convert Vimeo
-3. Welcome to SmartVideo!
-4. Add your account key
-5. How-to guide
-6. Change plugin settings
+1. Settings page — Video conversion toggles, player appearance, color picker
+2. Gutenberg block editor — Video URL field, poster, playback options in sidebar
+3. Elementor widget — SmartVideo widget with live preview in the editor
+4. Bricks Builder element — Video source, poster, dimensions, and playback controls
+5. Divi 5 Visual Builder — SmartVideo module with playback options
+6. Frontend player — Clean, ad-free video player as your visitors see it
 
 == Changelog ==
+
+= 2.2.0 =
+* **Divi 5 + Bricks Builder support**
+  * Native SmartVideo module for Divi 5 Visual Builder with live preview
+  * Native SmartVideo element for Bricks Builder
+  * Divi 5 video blocks detected by conditional loading
+* **Conditional loading overhaul**
+  * Standard mode: loads on any page with video content (safe default)
+  * Strict mode: only loads when features that will convert content are enabled
+  * Elementor content scanning rebuilt to read the widget tree directly — eliminates false positives
+  * Per-builder native detection for Elementor, Beaver Builder, Bricks, and Divi
+  * Builder edit modes (Divi VB, BB editor, Bricks editor, Elementor preview) always load the player
+  * `smartvideo_force_load_script` filter for themes/plugins to force-load the player
+* **Modernized admin settings**
+  * Rebuilt settings page with React — cleaner UI, better defaults display
+  * Dashboard widget showing video stats at a glance
+  * Reset buttons for each settings section with branded confirm dialog
+* **Gutenberg block improvements**
+  * Unified video URL field replaces source-type dropdowns
+  * Legacy blocks migrate automatically on first edit — no "invalid content" errors
+  * Per-page SmartVideo disable toggle in the editor sidebar
+  * Responsive auto-converted YouTube/Vimeo iframes scale properly at all widths
+* **New features**
+  * Preload attribute support across all builders and shortcode
+  * Per-page SmartVideo disable via post meta (classic editor + Gutenberg)
+  * JSON-LD VideoObject schema auto-generated for pages with SmartVideo
+  * Aspect ratio helper class for responsive embeds
+* **Security & bug fixes**
+  * Fixed XSS vulnerabilities in all builder render paths (URL sanitization, poster escaping)
+  * Fixed poster leak when poster source set to "none" but stale URL remained
+  * Empty video source now shows placeholder instead of broken tag
+  * Invalid YouTube/Vimeo URLs return empty output instead of malformed tags
+  * Improved YouTube URL normalization (short URLs, privacy-enhanced, already-embedded)
+  * Fixed upload accelerator corrupting temp file paths during chunked uploads
+  * Per-page disable meta no longer saved on revisions or autosaves
+  * Elementor widget frontend script now loads reliably via proper dependency registration
 
 = 2.1.2 =
 * **Fixed Fancybox conflict bug**
   * Fixed a bug where old Fancybox versions were conflicting with SmartVideo
   * Improved BuddyBoss compatibility
 
-= 2.1.1 = 
+= 2.1.1 =
 * **Bugfixes for Elementor**
   * Added 'swarmify://' protocol type to allowed list in Elementor
   * Also fixed a broken link to the settings page
 
-= 2.1.0 = 
+= 2.1.0 =
 * **Improved New Admin Interface**
   * The same top-notch video playing and CDN, with a more modern admin panel
 
@@ -165,7 +223,7 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 * **Fairy dust magic for better PageSpeed Scores (FCP, LCP, CLS)**
   * We're going to be straight with you, this brings some magic pixie dust which will boost your Web Vitals. But you are boosting the score only and not actually changing anything real with the performance of the site. So if the score is important to you, then this will make you happy. But don't fool yourself into thinking anything changed in actual speed, it just tests better and unfortunately a lot of people are judging yours and our works by a number generated by Google which currently doesn't have a basis in reality. Hence us putting out this update because fair or not, people gonna judge.
   * For more reading on the current problems in Web Vitals:
-    * [Framehole: PageSpeed 6.0 loophole for easy perfect score](https://buzz.swarmify.com/how-to-get-a-100-score-on-lighthouse-pagespeed-in-one-easy-step/)
+    * [Framehole: PageSpeed 6.0 loophole for easy perfect score](https://buzz.swarmify.com/how-to-get-a-100-score-on-lighthouse-pagespeed-in-one-easy-step/?smartvideo_wordpress_plugin)
     * [Get a perfect Largest Contentful Paint (LCP) time with a single line of code](https://www.devisedlabs.com/blog/largest-contentful-paint-lcp-hack)
   * Also fixed a minor bug(z-index) in the layout of our Classic Widget causing you to be unable to pick from your Media Library. Sorry about that and hat tip to Mirco for pointing it out!
   * You're among friends here. You are going to update for the PageSpeed Score improvement aren't you? No judgement here, do what you need to do because business is a contact sport.
@@ -214,11 +272,11 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 = 2.0.12 =
 * **Sometimes you need MOAR POWER**
   * You can now statically configure the Swarmify CDN key in advance from your 'wp-config.php' file. Just define the constant `SWARMIFY_CDN_KEY` and set it to your key. Config->Done
-  * Elementor Pro giving you heartburn when used with our widget, antacid has arrived. We worked out an issue causing Elementor Pro's form widget to run itself out of memory. 
+  * Elementor Pro giving you heartburn when used with our widget, antacid has arrived. We worked out an issue causing Elementor Pro's form widget to run itself out of memory.
 
 = 2.0.11 =
 * **WordPress host wants you to upload slower, fine we can make that happen**
-  * Added a toggle in the settings to disable our upload acceleration if your WordPress host has issues with it. 
+  * Added a toggle in the settings to disable our upload acceleration if your WordPress host has issues with it.
   * We wish they would just adjust on their side, but we can be flexible so now you can turn this off in the settings if its giving your web host heartburn ;)
 
 = 2.0.10 =
@@ -299,6 +357,9 @@ Initial version
 
 == Upgrade Notice ==
 
+= 2.2.0 =
+Major release: Divi 5 and Bricks Builder support, conditional script loading overhaul, modernized settings UI, Gutenberg block improvements, per-page disable, security fixes. Recommended for all users.
+
 = 1.2.1 =
 * Awesome Color Picker for video player color customization now in settings
 
@@ -310,7 +371,7 @@ Initial version
 All users of 1.1.4 should upgrade.
 
 = 1.1.4 =
-You should upgrade if you want more control over video parameters, you are using non-YouTube videos, or you are using Beaver Builder, Elementor, or KingComposer. 
+You should upgrade if you want more control over video parameters, you are using non-YouTube videos, or you are using Beaver Builder, Elementor, or KingComposer.
 
 = 1.0.2 =
 You should upgrade if you are experiencing visible delays in the conversions from standard video tags/YouTube to SmartVideo.

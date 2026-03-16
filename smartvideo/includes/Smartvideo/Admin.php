@@ -26,8 +26,24 @@ class Admin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function register_scripts() {
-		if ( ! is_admin() ) {
+	public function activation_redirect() {
+		if ( ! get_transient( 'smartvideo_activation_redirect' ) ) {
+			return;
+		}
+
+		// Don't redirect on multisite bulk activation, WP-CLI, or AJAX/REST requests.
+		if ( is_network_admin() || isset( $_GET['activate-multi'] ) || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_ajax() || defined( 'REST_REQUEST' ) ) {
+			return;
+		}
+
+		delete_transient( 'smartvideo_activation_redirect' );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=SmartVideo.php' ) );
+		exit;
+	}
+
+	public function register_scripts( $hook ) {
+		if ( 'toplevel_page_SmartVideo' !== $hook ) {
 			return;
 		}
 
@@ -49,12 +65,18 @@ class Admin {
 			true
 		);
 
+		wp_enqueue_style(
+			'smartvideo-google-fonts',
+			'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap',
+			array(),
+			null
+		);
+
 		wp_register_style(
 			$this->plugin_name,
 			plugins_url( '/build/index.css', SMARTVIDEO_PLUGIN_FILE ),
-			// Add any dependencies styles may have, such as wp-components.
-			array( 'wp-components' ),
-			$this->version
+			array( 'wp-components', 'smartvideo-google-fonts' ),
+			'2.1.0'
 		);
 
 		wp_enqueue_media(); // necessary to ensure wp.media exists in Js	
@@ -109,10 +131,12 @@ EOSVG;
 		<?php
 	}
 
-	public function enqueue_classic_editor_styles() {
-		wp_enqueue_style( $this->plugin_name . '-bootstrap', plugin_dir_url( __FILE__ ) . 'css/bootstrap.css', array(), $this->version, 'all' );
+	public function enqueue_classic_editor_styles( $hook ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
 
-		wp_enqueue_style( $this->plugin_name . '-dialog', plugin_dir_url( __FILE__ ) . 'css/swarmify-dialog.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name . '-fancybox', plugin_dir_url( __FILE__ ) . 'css/jquery.fancybox.min.css', array(), $this->version, 'all' );
 
 		// Add the color picker css file
 		wp_enqueue_style( 'wp-color-picker' );
@@ -122,30 +146,13 @@ EOSVG;
 	}
 
 	public function enqueue_classic_editor_scripts( $hook ) {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Swarmify_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Swarmify_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		// wp_enqueue_script( $this->plugin_name . '-mask', plugin_dir_url( __FILE__ ) . 'js/jquery.inputmask.bundle.js', array( 'jquery' ), $this->version, false );
-
-		wp_enqueue_script( $this->plugin_name . '-dialog', plugin_dir_url( __FILE__ ) . 'js/swarmify-dialog.js', array( 'jquery' ), $this->version, false );
-
-		wp_enqueue_script( $this->plugin_name . '-swarmify-admin', plugin_dir_url( __FILE__ ) . 'js/swarmify-admin.js', array( 'jquery', 'wp-color-picker' ), $this->version, false );
-
-		/** Only loaded on our admin pages */
-		if ( 'toplevel_page_' != $hook ) {
-			wp_enqueue_script( $this->plugin_name . '-mt', plugin_dir_url( __FILE__ ) . 'js/mt.js', array(), $this->version, false );
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
 		}
 
+		wp_enqueue_script( $this->plugin_name . '-fancybox', plugin_dir_url( __FILE__ ) . 'js/jquery.fancybox.min.js', array( 'jquery' ), $this->version, false );
+
+		wp_enqueue_script( $this->plugin_name . '-swarmify-admin', plugin_dir_url( __FILE__ ) . 'js/swarmify-admin.js', array( 'jquery', 'wp-color-picker' ), $this->version, false );
 	}
 
 	/**
@@ -157,7 +164,7 @@ EOSVG;
 	 */
 	public function plugin_action_links( $links ) {
 		$action_links = array(
-			'settings' => '<a href="' . admin_url( 'admin.php?page=SmartVideo.php' ) . '" aria-label="' . esc_attr__( 'View SmartVideo settings', 'swarmify' ) . '">' . esc_html__( 'Settings', 'swarmify' ) . '</a>',
+			'settings' => '<a href="' . esc_url( admin_url( 'admin.php?page=SmartVideo.php' ) ) . '" aria-label="' . esc_attr__( 'View SmartVideo settings', 'swarmify' ) . '">' . esc_html__( 'Settings', 'swarmify' ) . '</a>',
 		);
 
 		return array_merge( $action_links, $links );
@@ -166,11 +173,44 @@ EOSVG;
 
 
 
+	public function admin_notices() {
+		// Don't show notices on the SmartVideo settings page itself.
+		$screen = get_current_screen();
+		if ( $screen && 'toplevel_page_SmartVideo' === $screen->id ) {
+			return;
+		}
+
+		$cdn_key = $this->settings->get( 'swarmify_cdn_key' );
+		$status  = $this->settings->get( 'swarmify_status' );
+		$settings_url = esc_url( admin_url( 'admin.php?page=SmartVideo.php' ) );
+
+		if ( '' === $cdn_key ) {
+			printf(
+				'<div class="notice notice-warning is-dismissible"><p><strong>SmartVideo</strong> needs your CDN key to work. <a href="%s">Set it up now</a></p></div>',
+				$settings_url
+			);
+		} elseif ( 'on' !== $status ) {
+			printf(
+				'<div class="notice notice-info is-dismissible"><p><strong>SmartVideo</strong> is currently disabled. <a href="%s">Enable it</a> to start optimizing your videos.</p></div>',
+				$settings_url
+			);
+		} elseif ( 'on' !== $this->settings->get( 'swarmify_toggle_youtube' ) ) {
+			printf(
+				'<div class="notice notice-info is-dismissible"><p><strong>SmartVideo</strong> can automatically replace YouTube and Vimeo embeds with a faster, ad-free player. <a href="%s">Turn it on</a></p></div>',
+				$settings_url
+			);
+		}
+	}
+
 	public function add_video_button() {
-		echo '<a href="" data-dialog="#swarmify-modal-content" class="button swarmify_add_button"><img src="' . esc_attr( plugin_dir_url( __FILE__ )) . 'images/smartvideo_icon.png" alt="">Add SmartVideo</a>';
+		echo '<a href="" data-fancybox data-src="#swarmify-modal-content" class="button swarmify_add_button"><img src="' . esc_url( plugin_dir_url( __FILE__ ) ) . 'images/smartvideo_icon.png" alt="">' . esc_html__( 'Add SmartVideo', 'swarmify' ) . '</a>';
 	}
 
 	public function add_video_lightbox_html() {
-		require 'partials/add-video-lightbox-display.php';
+		global $pagenow;
+		if ( ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+		require __DIR__ . '/partials/add-video-lightbox-display.php';
 	}
 }

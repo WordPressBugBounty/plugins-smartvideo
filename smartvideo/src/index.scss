@@ -1,70 +1,1486 @@
-$swarmify-yellow: #ffde17;
-$swarmify-yellow-bg: #f3d41a;
+// SmartVideo Admin — Design System
+// ============================================================
 
+// Tokens
+$font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+$sv-charcoal: #0f172a;
+$sv-slate: #334155;
+$sv-gray: #64748b;
+$sv-muted: #94a3b8;
+$sv-border: #e2e8f0;
+$sv-bg: #f8fafc;
+$sv-white: #ffffff;
+
+$sv-gold: #FFD84D;
+$sv-gold-hover: #f5cc2a;
+$sv-gold-light: #fef9e7;
+$sv-dark: #212529;
+$sv-dark-hover: #1a1d21;
+
+$sv-green: #059669;
+$sv-green-bg: #d1fae5;
+$sv-red: #dc2626;
+$sv-red-bg: #fee2e2;
+
+$radius: 12px;
+$radius-sm: 8px;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+$ease: 0.2s ease;
+
+// ============================================================
+// Entrance animation
+// ============================================================
+@keyframes sv-fadeUp {
+	from { opacity: 0; transform: translateY(10px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sv-pulse {
+	0%, 100% { box-shadow: 0 0 6px 1px rgba(5, 150, 105, 0.45); }
+	50% { box-shadow: 0 0 10px 3px rgba(5, 150, 105, 0.6); }
+}
+
+// ============================================================
+// Root scope
+// ============================================================
 #smartvideo-admin {
-	font-size: larger;
+	// Override WP's global blue accent with charcoal for all
+	// components (range sliders, focus rings, etc.)
+	--wp-components-color-accent: #{$sv-charcoal};
+	--wp-components-color-accent-darker-10: #0a1120;
+	--wp-components-color-accent-darker-20: #060b17;
+	--wp-admin-theme-color: #{$sv-charcoal};
+	--wp-admin-theme-color-darker-10: #0a1120;
+	--wp-admin-theme-color-darker-20: #060b17;
 
-	p, .settings-label, .option-text {
-		font-size: 1.2em;
+	font-family: $font;
+	font-size: 15px;
+	color: $sv-charcoal;
+	max-width: 880px;
+	margin: 0 auto;
+	line-height: 1.6;
+
+	*, *::before, *::after {
+		box-sizing: border-box;
 	}
 
-	.status-toggle-label {
-		// margin-bottom: 1em;
-		font-size: 1.1em;
-	}
-
+	// --------------------------------------------------------
+	// Typography
+	// --------------------------------------------------------
 	h2 {
-		line-height: 1.2;
-		margin: 0px;
-		color: rgb(30, 30, 30);
-		font-size: calc(25.35px);
-		font-weight: 600;
+		font-family: $font;
+		font-size: 1.5rem;
+		font-weight: 700;
+		line-height: 1.3;
+		color: $sv-charcoal;
+		margin: 0 0 0.5rem;
+		letter-spacing: -0.015em;
 	}
 
-	.paragraph {
-		width: 75%;
+	h3 {
+		font-family: $font;
+		font-size: 1.05rem;
+		font-weight: 600;
+		line-height: 1.4;
+		color: $sv-charcoal;
+		margin: 0 0 0.25rem;
+	}
 
-		@media (max-width:768px) {
-			width: 100%;
+	p, div, span, label, input, select, button {
+		font-family: $font;
+	}
+
+	a {
+		color: #8a6d00;
+		text-decoration: none;
+
+		&:hover {
+			color: #6b5500;
+			text-decoration: underline;
 		}
 	}
 
-	.swarmify-status {
-		font-size: 1.2em;
-		font-weight: bold;
-	}
-
-	.swarmify-button {
-		background-color: $swarmify-yellow-bg;
+	code {
+		background: $sv-bg;
+		border: 1px solid $sv-border;
 		border-radius: 4px;
-		padding: 10px 25px;
-		font-size: 1.2em;
-		font-weight: bold;
-		color: #000;
-		border: none;
+		padding: 1px 6px;
+		font-size: 0.82em;
+		font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+		color: $sv-slate;
+		word-break: break-word;
 	}
 
-	.swarmify-tab {
-		font-size: 1.8em;
-		// font-weight: bold;
+	// --------------------------------------------------------
+	// Header
+	// --------------------------------------------------------
+	header {
+		background: $sv-white;
+		border-radius: $radius;
+		padding: 18px 28px;
+		box-shadow: $shadow;
+		border: 1px solid $sv-border;
+		position: sticky;
+		top: 32px;
+		z-index: 100;
 
-		// &.is-active {
-		// 	font-weight: bold;
-		// }
+		@media screen and (max-width: 782px) {
+			top: 46px;
+		}
+
+		@media screen and (max-width: 600px) {
+			top: 0;
+		}
+
+		.img-responsive {
+			max-height: 40px;
+			width: auto;
+		}
+
 	}
 
-	.setup-paragraph {
-		max-width: 66%;
+	.sv-power-toggle {
+		display: inline-flex;
+		align-items: center;
+		width: 80px;
+		height: 34px;
+		padding: 3px;
+		border-radius: 100px;
+		border: 2px solid transparent;
+		font-family: $font;
+		font-size: 0.65rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		position: relative;
+		overflow: hidden;
 
-		@media (max-width:768px) {
+		&__dot {
+			width: 24px;
+			height: 24px;
+			border-radius: 50%;
+			flex-shrink: 0;
+			position: absolute;
+			top: 3px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+		}
+
+		&__label {
+			line-height: 1;
+			position: absolute;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			user-select: none;
+		}
+
+		&--on {
+			background: $sv-green-bg;
+			border-color: rgba($sv-green, 0.15);
+
+			.sv-power-toggle__dot {
+				background: $sv-green;
+				right: 3px;
+				animation: sv-pulse 2s ease-in-out infinite;
+			}
+
+			.sv-power-toggle__label {
+				color: $sv-green;
+				left: 12px;
+			}
+
+			&:hover {
+				border-color: rgba($sv-green, 0.35);
+				box-shadow: 0 2px 12px rgba($sv-green, 0.15);
+				transform: translateY(-1px);
+			}
+
+			&:active {
+				transform: scale(0.97);
+				box-shadow: none;
+			}
+		}
+
+		&--off {
+			background: $sv-muted;
+			border-color: darken($sv-muted, 5%);
+
+			.sv-power-toggle__dot {
+				background: $sv-white;
+				left: 3px;
+			}
+
+			.sv-power-toggle__label {
+				color: $sv-white;
+				right: 10px;
+			}
+
+			&:hover {
+				background: darken($sv-muted, 8%);
+				box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+				transform: translateY(-1px);
+			}
+
+			&:active {
+				transform: scale(0.97);
+				box-shadow: none;
+			}
+		}
+
+		&:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+
+			&:hover {
+				transform: none;
+				box-shadow: none;
+			}
+		}
+
+		&:focus-visible {
+			outline: 2px solid $sv-gold;
+			outline-offset: 2px;
+		}
+	}
+
+	// --------------------------------------------------------
+	// Tab navigation
+	// --------------------------------------------------------
+	.swarmify-tab-panel {
+
+		.components-tab-panel__tabs {
+			background: $sv-white;
+			border-radius: $radius;
+			padding: 5px;
+			box-shadow: $shadow;
+			border: 1px solid $sv-border;
+			display: flex;
+			gap: 4px;
+			margin-bottom: 0;
+			position: sticky;
+			top: 110px;
+			z-index: 99;
+
+			@media screen and (max-width: 782px) {
+				top: 124px;
+			}
+
+			@media screen and (max-width: 600px) {
+				top: 78px;
+			}
+		}
+
+		.components-tab-panel__tabs-item {
+			font-family: $font;
+			font-size: 0.9rem;
+			font-weight: 500;
+			color: $sv-gray;
+			padding: 9px 20px;
+			border-radius: $radius-sm;
+			border: none !important;
+			background: transparent;
+			cursor: pointer;
+			transition: all $ease;
+			flex: 1;
+			text-align: center !important;
+			justify-content: center !important;
+			box-shadow: none !important;
+
+			&:hover:not(.is-active) {
+				color: $sv-charcoal;
+				background: $sv-bg;
+			}
+
+			&.is-active {
+				color: $sv-dark;
+				background: $sv-gold;
+				font-weight: 600;
+			}
+
+			&::after {
+				display: none !important;
+			}
+
+			&:focus:not(:disabled) {
+				box-shadow: none !important;
+				outline: 2px solid $sv-gold;
+				outline-offset: -2px;
+			}
+		}
+
+		.components-tab-panel__tab-content > * {
+			animation: sv-fadeUp 0.25s ease;
+		}
+	}
+
+	// --------------------------------------------------------
+	// Cards
+	// --------------------------------------------------------
+	.components-card {
+		background: $sv-white;
+		border-radius: $radius;
+		border: 1px solid $sv-border;
+		box-shadow: $shadow;
+		overflow: hidden;
+	}
+
+	.components-card__header {
+		padding: 18px 28px;
+		border-bottom: 1px solid $sv-border;
+		background: $sv-bg;
+
+		h2 {
+			margin: 0;
+			font-size: 1.1rem;
+		}
+
+	}
+
+	.components-card__body {
+		padding: 22px 28px;
+		font-size: 0.93rem;
+		line-height: 1.7;
+		color: $sv-slate;
+
+		p {
+			margin: 0 0 10px;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+
+		b, strong {
+			color: $sv-charcoal;
+			font-weight: 600;
+		}
+	}
+
+	.components-card__divider {
+		border-color: $sv-border;
+		margin: 0;
+	}
+
+	.components-card__footer {
+		padding: 14px 28px;
+		justify-content: flex-start;
+		border-top: 1px solid $sv-border;
+	}
+
+	.components-card__media {
+		padding: 12px 0;
+
+		img {
+			border-radius: $radius-sm;
+			border: 1px solid $sv-border;
+			max-width: 100%;
+			height: auto;
+		}
+	}
+
+	// --------------------------------------------------------
+	// Buttons — match swarmify.com hero-cta (dark pill)
+	// --------------------------------------------------------
+	.swarmify-button {
+		font-family: $font !important;
+		background: $sv-dark !important;
+		color: $sv-gold-light !important;
+		border: none !important;
+		border-radius: 100px !important;
+		padding: 10px 24px !important;
+		font-size: 0.875rem !important;
+		font-weight: 500 !important;
+		letter-spacing: 0.1px;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+		text-decoration: none !important;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+
+		&:hover {
+			background: $sv-dark-hover !important;
+			color: $sv-gold-light !important;
+			transform: translateY(-3px);
+			box-shadow: 0 7px 15px rgba(0, 0, 0, 0.08);
+		}
+
+		&:active {
+			transform: translateY(-1px);
+		}
+
+		&:focus:not(:disabled) {
+			box-shadow: 0 0 0 2px $sv-white, 0 0 0 4px $sv-gold !important;
+		}
+
+		&:disabled, &[aria-disabled="true"] {
+			opacity: 0.4;
+			cursor: not-allowed;
+
+			&:hover {
+				transform: none;
+				box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+			}
+		}
+
+		&.is-secondary {
+			background: transparent !important;
+			color: $sv-slate !important;
+			border: 1.5px solid $sv-border !important;
+			box-shadow: none;
+
+			&:hover {
+				background: $sv-bg !important;
+				color: $sv-charcoal !important;
+				border-color: $sv-muted !important;
+				transform: translateY(-2px);
+				box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+			}
+		}
+	}
+
+	// --------------------------------------------------------
+	// Setup — hero + how it works
+	// --------------------------------------------------------
+	.sv-setup-hero {
+		text-align: center;
+		padding: 20px 8px;
+
+		h2 {
+			font-size: 1.5rem;
+			margin-bottom: 8px;
+		}
+
+		p {
+			color: $sv-gray;
+			font-size: 0.95rem;
+			max-width: 540px;
+			margin: 0 auto;
+			line-height: 1.65;
+		}
+	}
+
+	.sv-checklist {
+		&__title {
+			font-size: 0.75rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			color: $sv-muted;
+			margin: 0 0 12px;
+		}
+	}
+
+	.sv-checklist-item {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 8px 0;
+		font-size: 0.95rem;
+		color: $sv-slate;
+
+		& + & {
+			border-top: 1px solid $sv-border;
+		}
+	}
+
+	.sv-checklist-item__icon {
+		width: 22px;
+		height: 22px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		font-size: 0.75rem;
+		flex-shrink: 0;
+		background: $sv-bg;
+		border: 2px solid $sv-border;
+		color: transparent;
+		transition: all $ease;
+	}
+
+	.sv-checklist-item--done .sv-checklist-item__icon {
+		background: $sv-green;
+		border-color: $sv-green;
+		color: $sv-white;
+		font-weight: 700;
+	}
+
+	.paragraph {
+		max-width: 600px;
+
+		@media (max-width: 768px) {
 			max-width: 100%;
 		}
 	}
 
-	.copyright {
-		// align-self: flex-end;
-		font-size: 13px;
-		// float: right;
-		margin: 0;
+
+	// --------------------------------------------------------
+	// Player Appearance — preview on top, controls below
+	// --------------------------------------------------------
+	.sv-player-preview {
+		max-width: min(640px, 60vh);
+		margin: 0 auto 20px;
+		border-radius: $radius;
+		overflow: hidden;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+
+		img {
+			width: 100%;
+			height: auto;
+			display: block;
+		}
+	}
+
+	.sv-appearance-controls {
+		display: flex;
+		gap: 16px;
+
+		@media (max-width: 600px) {
+			flex-direction: column;
+		}
+	}
+
+	.sv-appearance-control {
+		flex: 1;
+		min-width: 0;
+		background: $sv-bg;
+		border: 1px solid $sv-border;
+		border-radius: $radius-sm;
+		padding: 16px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.sv-watermark-zone {
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid $sv-border;
+
+		.option-text {
+			margin-bottom: 10px;
+		}
+	}
+
+	.sv-image-compact {
+		position: relative;
+		display: block;
+
+		&__preview {
+			display: block;
+			padding: 0;
+			border: none;
+			background: none;
+			cursor: pointer;
+
+			img {
+				max-width: 100%;
+				height: auto;
+				display: block;
+				border-radius: 6px;
+				border: 1px solid $sv-border;
+				transition: opacity 0.15s ease;
+			}
+
+			&:hover img {
+				opacity: 0.85;
+			}
+
+			&:focus-visible {
+				outline: 2px solid $sv-gold;
+				outline-offset: 2px;
+				border-radius: 6px;
+			}
+		}
+
+		&__remove {
+			position: absolute;
+			top: -6px;
+			right: -6px;
+			width: 22px;
+			height: 22px;
+			border-radius: 50%;
+			border: 2px solid $sv-white;
+			background: $sv-charcoal;
+			color: $sv-white;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0;
+			opacity: 0;
+			transform: scale(0.8);
+			transition: all 0.15s ease;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+			svg {
+				width: 11px;
+				height: 11px;
+			}
+
+			&:hover {
+				background: $sv-red;
+				transform: scale(1.1);
+			}
+		}
+
+		&:hover .sv-image-compact__remove,
+		&:focus-within .sv-image-compact__remove {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	.sv-shape-picker {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		margin-top: 6px;
+	}
+
+	.sv-shape-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 12px 18px;
+		border-radius: $radius-sm;
+		border: 2px solid $sv-border;
+		background: $sv-white;
+		font-family: $font;
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: $sv-gray;
+		cursor: pointer;
+		transition: all 0.15s ease;
+		width: 100%;
+		text-align: left;
+
+		&:hover {
+			border-color: $sv-gold;
+			color: $sv-charcoal;
+		}
+
+		&--active {
+			border-color: $sv-gold;
+			background: $sv-gold-light;
+			color: $sv-charcoal;
+			font-weight: 600;
+		}
+
+		&__check {
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
+		}
+
+		&:focus-visible {
+			outline: 2px solid $sv-gold;
+			outline-offset: 2px;
+		}
+	}
+
+	// --------------------------------------------------------
+	// Settings
+	// --------------------------------------------------------
+	.option-text {
+		font-size: 0.93rem;
+		font-weight: 600;
+		color: $sv-charcoal;
+	}
+
+	.sv-settings-group {
+		background: $sv-white;
+		border: 1px solid $sv-border;
+		border-radius: $radius;
+		box-shadow: $shadow;
+		overflow: hidden;
+
+		&__header {
+			padding: 16px 24px;
+			background: $sv-bg;
+			border-bottom: 1px solid $sv-border;
+			font-size: 0.95rem;
+			font-weight: 600;
+			color: $sv-charcoal;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		&__desc {
+			padding: 4px 24px 12px;
+			margin: 0;
+			font-size: 0.85rem;
+			color: $sv-gray;
+			background: $sv-bg;
+			border-bottom: 1px solid $sv-border;
+		}
+
+		&__header + &__desc {
+			margin-top: -1px;
+			padding-top: 0;
+			border-top: none;
+		}
+
+		// When desc follows header, remove the header's bottom border
+		// so they read as one continuous block.
+		&__header:has(+ .sv-settings-group__desc) {
+			border-bottom: none;
+			padding-bottom: 4px;
+		}
+
+		&__content {
+			padding: 20px 24px;
+		}
+	}
+
+	.sv-reset-btn {
+		margin-left: auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: none;
+		border: 2px solid transparent;
+		border-radius: $radius-sm;
+		padding: 4px;
+		color: $sv-muted;
+		cursor: pointer;
+		transition: all 0.15s ease;
+		&:hover { color: $sv-charcoal; border-color: $sv-gold; }
+		&:focus-visible { outline: 2px solid $sv-gold; outline-offset: 2px; }
+	}
+
+	.sv-setting-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 24px;
+		padding: 16px 0;
+		border-bottom: 1px solid $sv-border;
+
+		&:last-child {
+			border-bottom: none;
+			padding-bottom: 0;
+		}
+
+		&:first-child {
+			padding-top: 0;
+		}
+
+		&__info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		&__desc {
+			font-size: 0.85rem;
+			color: $sv-gray;
+			margin: 4px 0 0;
+			line-height: 1.5;
+		}
+
+		&__control {
+			flex-shrink: 0;
+
+			.components-toggle-control__label {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+				border: 0;
+			}
+
+			.components-input-control__container {
+				min-width: 320px;
+			}
+
+		}
+
+		@media (max-width: 600px) {
+			&:has(.components-input-control__container) {
+				flex-wrap: wrap;
+
+				.sv-setting-row__control {
+					width: 100%;
+
+					.components-input-control__container {
+						min-width: 100%;
+					}
+				}
+			}
+		}
+	}
+
+	.sv-pro-badge, .sv-beta-badge {
+		display: inline-block;
+		font-size: 0.65rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		padding: 1px 8px;
+		border-radius: 100px;
+		vertical-align: middle;
+		margin-left: 6px;
+	}
+
+	.sv-pro-badge {
+		color: $sv-gold-hover;
+		background: $sv-gold-light;
+		border: 1px solid rgba($sv-gold, 0.3);
+	}
+
+	.sv-beta-badge {
+		color: #5b6b82;
+		background: #eef1f6;
+		border: 1px solid rgba(#5b6b82, 0.2);
+	}
+
+	// --------------------------------------------------------
+	// Conditional loading slider
+	// --------------------------------------------------------
+
+	// Segmented control — Off / Standard / Strict
+	.sv-segmented-control {
+		display: inline-flex;
+		background: $sv-bg;
+		border: 1px solid $sv-border;
+		border-radius: $radius-sm;
+		padding: 3px;
+		gap: 2px;
+
+		&__btn {
+			font-family: $font;
+			font-size: 12px;
+			font-weight: 500;
+			color: $sv-gray;
+			background: transparent;
+			border: 1px solid transparent;
+			border-radius: #{$radius-sm - 2px};
+			padding: 5px 14px;
+			cursor: pointer;
+			transition: all $ease;
+			white-space: nowrap;
+			line-height: 1.4;
+
+			&:hover:not(.is-active) {
+				color: $sv-slate;
+				background: $sv-white;
+			}
+
+			&.is-active {
+				color: $sv-charcoal;
+				background: $sv-gold-light;
+				border-color: rgba($sv-gold, 0.4);
+				box-shadow: $shadow;
+				font-weight: 600;
+			}
+		}
+	}
+
+	// --------------------------------------------------------
+	// Custom form controls
+	// --------------------------------------------------------
+
+	.components-form-toggle {
+		// Scale up for better touch targets. Zoom scales all internals
+		// (track, thumb, transforms) proportionally without fighting WP CSS.
+		zoom: 1.25;
+
+		.components-form-toggle__track {
+			border-color: $sv-border;
+			background: $sv-border;
+		}
+
+		.components-form-toggle__thumb {
+			background: $sv-white;
+		}
+
+		&.is-checked {
+			.components-form-toggle__track {
+				background: $sv-gold !important;
+				border-color: $sv-gold-hover !important;
+			}
+
+			.components-form-toggle__thumb {
+				background: $sv-white;
+			}
+		}
+
+		&:hover .components-form-toggle__track {
+			border-color: $sv-gold;
+		}
+	}
+
+	.components-form-toggle__input:focus-visible + .components-form-toggle__track {
+		box-shadow: 0 0 0 2px $sv-white, 0 0 0 4px $sv-gold !important;
+	}
+
+	.components-select-control__input {
+		font-family: $font;
+		font-size: 0.88rem;
+		color: $sv-charcoal;
+		border: 2px solid $sv-border !important;
+		border-radius: $radius-sm !important;
+		padding: 8px 14px !important;
+		height: auto !important;
+		min-height: 40px;
+		background-color: $sv-white !important;
+		cursor: pointer;
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+		&:hover {
+			border-color: $sv-gold !important;
+		}
+
+		&:focus {
+			border-color: $sv-gold !important;
+			box-shadow: 0 0 0 1px $sv-gold !important;
+			outline: none;
+		}
+	}
+
+	.components-input-control__input {
+		font-family: $font;
+		font-size: 0.88rem !important;
+		border: 2px solid $sv-border !important;
+		border-radius: $radius-sm !important;
+		padding: 8px 14px !important;
+		min-height: 40px;
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+		&:hover {
+			border-color: $sv-muted !important;
+		}
+
+		&:focus,
+		&:focus-visible {
+			border-color: $sv-gold !important;
+			box-shadow: 0 0 0 1px rgba($sv-gold, 0.3) !important;
+			outline: none !important;
+		}
+	}
+
+	// WP wraps inputs in a container with its own focus backdrop
+	.components-input-control__container:focus-within {
+		.components-input-control__backdrop {
+			border-color: $sv-gold !important;
+			box-shadow: 0 0 0 1px rgba($sv-gold, 0.3) !important;
+			outline: none !important;
+		}
+	}
+
+	.components-color-picker {
+		max-width: 100% !important;
+		width: 100% !important;
+		margin-top: 6px;
+
+		.react-colorful {
+			width: 100% !important;
+			max-width: 100% !important;
+			border-radius: 6px !important;
+			overflow: hidden;
+		}
+
+		.components-v-stack,
+		.components-h-stack {
+			max-width: 100% !important;
+			width: 100%;
+		}
+
+		.react-colorful__saturation {
+			border-radius: 6px 6px 0 0 !important;
+			padding-bottom: 65% !important;
+		}
+
+		.react-colorful__hue,
+		.react-colorful__alpha {
+			height: 12px !important;
+			border-radius: 6px !important;
+			margin: 10px 0 4px !important;
+		}
+
+		.react-colorful__hue-pointer,
+		.react-colorful__alpha-pointer,
+		.react-colorful__saturation-pointer {
+			width: 16px !important;
+			height: 16px !important;
+			border: 2px solid $sv-white !important;
+			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+		}
+
+		> .components-v-stack,
+		> div > .components-v-stack {
+			gap: 4px !important;
+		}
+
+		.components-input-control__input {
+			border: none !important;
+			box-shadow: none !important;
+			min-height: unset;
+			padding: 4px 8px !important;
+			font-size: 0.82rem !important;
+			font-family: $font;
+		}
+
+		.components-input-control__container {
+			border: none !important;
+			box-shadow: none !important;
+			margin: 0 auto !important;
+		}
+
+		.components-input-control__backdrop {
+			border: none !important;
+			box-shadow: none !important;
+		}
+
+		> div:last-child .components-h-stack:has(.components-select-control__input) {
+			display: none !important;
+		}
+	}
+
+	.sv-format-picker {
+		display: flex;
+		justify-content: center;
+		gap: 4px;
+		margin: 6px 0 2px;
+	}
+
+	.sv-format-btn {
+		padding: 3px 10px;
+		border-radius: 100px;
+		border: 1.5px solid $sv-border;
+		background: $sv-white;
+		font-family: $font;
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		color: $sv-gray;
+		cursor: pointer;
+		transition: all 0.15s ease;
+
+		&:hover {
+			border-color: $sv-gold;
+			color: $sv-charcoal;
+		}
+
+		&--active {
+			border-color: $sv-gold;
+			background: $sv-gold-light;
+			color: $sv-charcoal;
+		}
+
+		&:focus-visible {
+			outline: 2px solid $sv-gold;
+			outline-offset: 2px;
+		}
+	}
+
+	.components-button.is-secondary {
+		font-family: $font !important;
+		font-size: 0.85rem !important;
+		font-weight: 500 !important;
+		color: $sv-slate !important;
+		border: 2px dashed $sv-border !important;
+		border-radius: $radius-sm !important;
+		padding: 10px 18px !important;
+		background: $sv-bg !important;
+		transition: all 0.15s ease;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+
+		svg {
+			fill: $sv-muted;
+			transition: fill 0.15s ease;
+		}
+
+		&:hover {
+			border-color: $sv-gold !important;
+			color: $sv-charcoal !important;
+			background: $sv-gold-light !important;
+			box-shadow: none !important;
+
+			svg {
+				fill: $sv-gold-hover;
+			}
+		}
+
+		&:focus:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			border-color: $sv-gold !important;
+			box-shadow: 0 0 0 1px rgba($sv-gold, 0.3) !important;
+			outline: none !important;
+		}
+	}
+
+
+
+	// --------------------------------------------------------
+	// Global focus ring override — replace WP blue with gold
+	// --------------------------------------------------------
+
+	.components-notice {
+		border-radius: $radius-sm;
+		font-family: $font;
+	}
+
+	.components-external-link {
+		font-weight: 600;
+		color: #8a6d00;
+	}
+
+	// --------------------------------------------------------
+	// Footer — dark CTA block with centered layout
+	// --------------------------------------------------------
+	footer .components-card {
+		background: linear-gradient(135deg, $sv-dark 0%, #1a1d21 100%);
+		border: none;
+
+		.components-card__body {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+			padding: 36px 28px 24px;
+
+			h2 {
+				color: #fff;
+				font-size: 1.2rem;
+			}
+
+			p {
+				color: $sv-muted;
+				max-width: 480px;
+
+				b, strong {
+					color: #e2e8f0;
+				}
+			}
+
+			.swarmify-button {
+				margin-top: 8px;
+				background: $sv-gold !important;
+				color: $sv-dark !important;
+
+				&:hover {
+					background: $sv-gold-hover !important;
+					color: $sv-dark !important;
+				}
+			}
+		}
+
+		.components-card__footer {
+			background: transparent;
+			border-top-color: rgba(255, 255, 255, 0.08);
+
+			.copyright {
+				color: $sv-muted;
+				font-size: 0.78rem;
+				margin: 0;
+				text-align: center;
+				width: 100%;
+
+				a {
+					color: $sv-gold;
+
+					&:hover {
+						text-decoration: underline;
+					}
+				}
+			}
+		}
+	}
+}
+
+// ============================================================
+// Dark Reader overrides — only when extension is actually active
+// (prefers-color-scheme: dark fires on OS theme, not page theme)
+// ============================================================
+html[data-darkreader-scheme="dark"] #smartvideo-admin {
+	header .img-responsive {
+		filter: brightness(1.8);
+	}
+
+	.components-card__media img {
+		filter: brightness(0.6);
+	}
+
+	.swarmify-button {
+		background: $sv-gold !important;
+		color: $sv-dark !important;
+
+		&:hover {
+			background: $sv-gold-hover !important;
+			color: $sv-dark !important;
+		}
+	}
+}
+
+// Status Bar (compact diagnostic strip)
+// ============================================================
+
+.sv-status-bar {
+	background: $sv-white;
+	border: 1px solid $sv-border;
+	border-radius: $radius;
+	box-shadow: $shadow;
+	font-size: 12px;
+	overflow: hidden;
+	transition: border-color $ease, background $ease;
+
+	&--warn {
+		border-color: #e2a300;
+		background: #fffbeb;
+	}
+
+	&__summary {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 20px;
+		cursor: pointer;
+		user-select: none;
+		transition: background $ease;
+
+		&:hover {
+			background: $sv-bg;
+		}
+	}
+
+	&__dots {
+		display: flex;
+		gap: 5px;
+		align-items: center;
+	}
+
+	&__label {
+		color: $sv-gray;
+		font-weight: 500;
+	}
+
+	&__env {
+		color: $sv-muted;
+		margin-left: auto;
+		font-size: 11px;
+		padding-left: 12px;
+		border-left: 1px solid $sv-border;
+	}
+
+	&__chevron {
+		color: $sv-muted;
+		font-size: 10px;
+		transition: transform 0.15s ease;
+		line-height: 1;
+
+		&--open {
+			transform: rotate(180deg);
+		}
+	}
+
+	&__details {
+		border-top: 1px solid $sv-border;
+		padding: 12px 20px;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	&__row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	&__check-label {
+		color: $sv-gray;
+		min-width: 60px;
+	}
+
+	&__check-value {
+		color: $sv-green;
+		font-weight: 500;
+
+		&--bad {
+			color: $sv-red;
+		}
+	}
+
+	&__conflicts {
+		padding-top: 4px;
+		border-top: 1px solid $sv-border;
+		margin-top: 2px;
+	}
+
+	&__conflict {
+		color: $sv-gray;
+		padding: 2px 0 2px 17px;
+		position: relative;
+
+		&::before {
+			content: '\2022';
+			position: absolute;
+			left: 4px;
+			color: #e2a300;
+		}
+	}
+}
+
+.sv-status-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex-shrink: 0;
+
+	&--pass { background: $sv-green; }
+	&--fail { background: $sv-red; }
+	&--loading { background: $sv-muted; animation: sv-dot-pulse 1s ease infinite; }
+}
+
+@keyframes sv-dot-pulse {
+	0%, 100% { opacity: 0.4; }
+	50% { opacity: 1; }
+}
+
+// ============================================================
+// Reset confirmation dialog (portaled to body)
+// ============================================================
+@keyframes sv-overlay-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes sv-dialog-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.97);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.sv-reset-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 100100; // above WP admin bar + modals
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba($sv-charcoal, 0.35);
+	backdrop-filter: blur(4px);
+	animation: sv-overlay-in 0.15s ease;
+}
+
+.sv-reset-dialog {
+	font-family: $font;
+	background: $sv-white;
+	border: 1px solid $sv-border;
+	border-radius: $radius;
+	box-shadow:
+		0 8px 30px rgba(0, 0, 0, 0.12),
+		0 2px 8px rgba(0, 0, 0, 0.06);
+	padding: 28px 32px 24px;
+	max-width: 380px;
+	width: calc(100% - 32px);
+	text-align: center;
+	animation: sv-dialog-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+	&__icon {
+		width: 44px;
+		height: 44px;
+		margin: 0 auto 14px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		background: $sv-gold-light;
+		border: 2px solid rgba($sv-gold, 0.3);
+		color: $sv-gold-hover;
+
+		svg {
+			width: 20px;
+			height: 20px;
+		}
+	}
+
+	&__title {
+		font-family: $font;
+		font-size: 1.05rem;
+		font-weight: 700;
+		color: $sv-charcoal;
+		margin: 0 0 6px;
+		letter-spacing: -0.01em;
+	}
+
+	&__desc {
+		font-family: $font;
+		font-size: 0.88rem;
+		color: $sv-gray;
+		line-height: 1.55;
+		margin: 0 0 22px;
+
+		strong {
+			color: $sv-charcoal;
+			font-weight: 600;
+		}
+	}
+
+	&__actions {
+		display: flex;
+		gap: 10px;
+	}
+
+	&__btn {
+		flex: 1;
+		font-family: $font;
+		font-size: 0.85rem;
+		font-weight: 600;
+		padding: 10px 20px;
+		border-radius: 100px;
+		cursor: pointer;
+		transition: all 0.15s ease;
+		border: none;
+
+		&--cancel {
+			background: $sv-bg;
+			color: $sv-slate;
+			border: 1.5px solid $sv-border;
+
+			&:hover {
+				background: $sv-border;
+				color: $sv-charcoal;
+			}
+		}
+
+		&--confirm {
+			background: $sv-dark;
+			color: $sv-gold-light;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+			&:hover {
+				background: $sv-dark-hover;
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			}
+
+			&:active {
+				transform: translateY(0);
+				box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+			}
+		}
+
+		&:focus-visible {
+			outline: 2px solid $sv-gold;
+			outline-offset: 2px;
+		}
 	}
 }

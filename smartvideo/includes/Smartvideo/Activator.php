@@ -5,7 +5,7 @@ namespace Swarmify\Smartvideo;
 /**
  * Fired during plugin activation
  *
- * @link       https://swarmify.com
+ * @link       https://swarmify.com/?smartvideo_wordpress_plugin
  * @since      1.0.0
  */
 
@@ -21,6 +21,8 @@ namespace Swarmify\Smartvideo;
 class Activator {
 
 	public static function activate() {
+		set_transient( 'smartvideo_activation_redirect', true, 30 );
+
 		add_option( 'swarmify_status', 'on' );
 		add_option( 'swarmify_cdn_key', '' );
 
@@ -34,6 +36,20 @@ class Activator {
 		add_option( 'swarmify_watermark', '' );
 		add_option( 'swarmify_ads_vasturl', '' );
 
+		add_option( 'swarmify_toggle_schema', 'on' );
+
+		// Global video defaults.
+		add_option( 'swarmify_default_autoplay', 'off' );
+		add_option( 'swarmify_default_muted', 'off' );
+		add_option( 'swarmify_default_loop', 'off' );
+		add_option( 'swarmify_default_controls', 'on' );
+		add_option( 'swarmify_default_playsinline', 'off' );
+		add_option( 'swarmify_default_responsive', 'on' );
+		add_option( 'swarmify_default_preload', 'auto' );
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 		if ( is_plugin_active( 'swarm-cdn/swarmcdn.php' ) ) {
 			deactivate_plugins( 'swarm-cdn/swarmcdn.php' );
 		}
