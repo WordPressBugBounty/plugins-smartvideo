@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SmartVideo
  * Description: SmartVideo makes building a beautiful, professional video experience for your site effortless.
- * Version: 2.2.1
+ * Version: 2.2.2
  * Requires at least: 6.0
  * Requires PHP: 7.3
  * Author: Swarmify
@@ -24,7 +24,7 @@ if ( ! defined( 'SMARTVIDEO_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'SWARMIFY_PLUGIN_VERSION' ) ) {
-	define( 'SWARMIFY_PLUGIN_VERSION', '2.2.1' );
+	define( 'SWARMIFY_PLUGIN_VERSION', '2.2.2' );
 }
 
 require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';

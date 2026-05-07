@@ -72,6 +72,10 @@ class Swarmify {
 
 	protected $swarmdetect_handle = 'smartvideo_swarmdetect';
 
+	// Resolved once in enqueue, reused by the script_loader_tag filter so the
+	// URL and the fetchpriority attribute can never disagree.
+	protected $use_beta_player = false;
+
 	/**
 	 * Define the core functionality of the plugin.
 	 *
@@ -662,9 +666,14 @@ class Swarmify {
 			);
 			$swarmoptions_js = 'var swarmoptions = ' . wp_json_encode( $swarmoptions ) . ';';
 
+			$this->use_beta_player = 'on' === $this->settings->get( 'swarmify_toggle_beta_player' );
+			$script_src            = $this->use_beta_player
+				? 'https://assets.swarmcdn.com/beta/swarmcdn.js'
+				: 'https://assets.swarmcdn.com/cross/swarmdetect.js';
+
 			wp_enqueue_script(
 				$this->swarmdetect_handle,
-				'https://assets.swarmcdn.com/cross/swarmdetect.js',
+				$script_src,
 				array(),
 				$this->version,
 				false
@@ -706,13 +715,16 @@ class Swarmify {
 	public function add_async_swarmdetect_script_attributes( $tag, $handle ) {
 		// Add async and data-cfasync attributes for linter
 		if ( $this->swarmdetect_handle === $handle ) {
-			return str_replace( 
-				array( ' src=', '<script ' ), 
-				array( ' async src=', '<script data-cfasync="false" ' ), 
-				$tag 
+			$src_replacement = $this->use_beta_player
+				? ' async fetchpriority="high" src='
+				: ' async src=';
+			return str_replace(
+				array( ' src=', '<script ' ),
+				array( $src_replacement, '<script data-cfasync="false" ' ),
+				$tag
 			);
 		}
-	
+
 		return $tag;
 	}
 

@@ -3,30 +3,31 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.0
 Tested up to: 6.9.1
-Stable tag: trunk
+Stable tag: 2.2.2
 Requires PHP: 7.4
 License: AGPL-3.0
 License URI: https://www.gnu.org/licenses/agpl.txt
 
-Video player and unlimited video hosting built to work for WordPress users
+Lightweight HTML5 video player and video hosting with CDN built for WordPress
 
 == Description ==
 
-**SmartVideo** replaces YouTube and Vimeo embeds on your WordPress site with a clean, ad-free player served from a global CDN. No "Recommended Videos" pulling visitors away. No YouTube branding competing with yours. Just your content, loading fast.
+**SmartVideo** is a YouTube alternative that replaces YouTube and Vimeo embeds on your WordPress site with a clean, ad-free video player served from a global CDN. No "Recommended Videos" pulling visitors away. No YouTube branding competing with yours. Just your content, loading fast.
 
 ### ⚡ Why SmartVideo?
 
-* The SmartVideo player is ~50KB vs YouTube's ~400KB of JavaScript — pages load faster and PageSpeed scores improve
-* Unlimited video hosting with global CDN delivery
+* The SmartVideo player loads only on pages with video, unlike YouTube embeds which add weight to every page — pages load faster and PageSpeed scores improve
+* Video hosting with global CDN delivery
 * Auto-converts existing YouTube and Vimeo embeds with zero manual work
 * Only loads its player on pages that actually have video — no player script on the rest of your site
 
 ### Why WordPress Site Owners Choose SmartVideo
 
 **Speed & Performance First**
-* Lightweight player loads significantly faster than standard YouTube/Vimeo embeds
+* Lightweight video player loads significantly faster than standard YouTube/Vimeo embeds
 * Improve Core Web Vitals and page speed performance
 * Global CDN delivers video from the nearest edge server
+* Lazy load video with preload control — defer video loading until needed
 * Optimized for mobile, desktop, and tablet viewing
 
 **Complete Brand Control**
@@ -54,25 +55,25 @@ Video player and unlimited video hosting built to work for WordPress users
 
 ### 🎯 Key Features
 
-* 📹 **Video Hosting**: Unlimited bandwidth, encoding, and views included
-* ⚙️ **Playback Customization**: Autoplay, loop, mute, hide controls, play inline, preload control
+* 📹 **Video Hosting**: Generous bandwidth, automatic encoding, and CDN delivery included
+* ⚙️ **Playback Customization**: Autoplay, loop, mute, hide controls, play inline, preload control, video speed control
 * 🎨 **Visual Enhancement**: Add poster images and custom branding
 * 🧩 **Page Builder Support**: Native widgets for Gutenberg, Elementor, Beaver Builder, Bricks, and Divi 5
 * 🎯 **Conditional Loading**: Player script only loads on pages with video content
 * 🔒 **Per-Page Control**: Disable SmartVideo on individual pages or posts
 * 💰 **Monetization Ready**: VAST ad support for revenue generation
-* 📁 **Format Support**: MP4, HLS (M3U8), MPEG-DASH, WEBM, VP8/9, MP3, AAC, OPUS
-* 📊 **SEO Friendly**: JSON-LD VideoObject schema auto-generated for pages with SmartVideo
+* 📁 **Format Support**: MP4, HLS adaptive bitrate streaming (M3U8), MPEG-DASH, WEBM, VP8/9, MP3, AAC, OPUS
+* 📊 **Video Schema & SEO**: JSON-LD VideoObject video schema auto-generated for pages with SmartVideo
 * 🛠️ **Developer Friendly**: Filters, shortcodes, and extensive customization options
 
 ### 🔧 Behind the Scenes: How SmartVideo Works
 
-SmartVideo handles the complex video optimization automatically:
+SmartVideo handles video streaming and optimization automatically:
 
 * 🤖 **Automatic Encoding**: Uploads are optimized for web delivery
 * 🌍 **Global CDN**: Routes video from the nearest edge server for fast playback
 * 📱 **Responsive Rendering**: Adapts to any device or screen size
-* ♾️ **Unlimited Everything**: Unlimited bandwidth, unlimited encoding, unlimited storage
+* 📦 **Generous Limits**: Bandwidth, encoding, and storage included with every plan
 
 Whether you're showcasing product demos, educational content, sales videos, or background visuals, SmartVideo loads fast, looks professional, and keeps visitors on your site.
 
@@ -83,7 +84,7 @@ Whether you're showcasing product demos, educational content, sales videos, or b
 1. 📥 **Install** the SmartVideo plugin from your WordPress dashboard
 2. 🔗 **Connect** your free Swarmify account (14-day trial included)
 3. 👀 **Watch** your existing embeds automatically convert to the clean SmartVideo player
-4. 📈 **Upgrade** when you're ready for unlimited hosting and advanced features
+4. 📈 **Upgrade** when you're ready for more hosting and advanced features
 
 SmartVideo requires a Swarmify account. Visit [swarmify.com/pricing](https://swarmify.com/pricing/) for current plans. The WordPress plugin itself is free and open source (AGPL-3.0).
 
@@ -98,7 +99,7 @@ SmartVideo requires a Swarmify account. Visit [swarmify.com/pricing](https://swa
 
 = How does SmartVideo speed up videos on my WordPress site? =
 
-SmartVideo replaces heavy YouTube/Vimeo embeds (~400KB+ of JavaScript) with a lightweight ~50KB player served from a global CDN. Pages load faster, PageSpeed scores improve, and videos start playing sooner. The plugin also uses conditional loading — the player script only loads on pages that actually have video.
+SmartVideo replaces heavy YouTube/Vimeo embeds (hundreds of KB of JavaScript) with a lightweight player served from a global CDN. Pages load faster, Core Web Vitals and PageSpeed scores improve, and videos start playing sooner. The plugin also uses conditional loading — the player script only loads on pages that actually have video.
 
 = Which page builders does SmartVideo support? =
 
@@ -126,15 +127,15 @@ Swarmify is a video acceleration company focused on making fast, professional vi
 
 = Who is SmartVideo for? =
 
-SmartVideo is built for site owners who want fast, professional video without the complexity of managing encoding, CDNs, and player configuration. It's especially useful if you want to remove YouTube/Vimeo branding and keep visitors on your site.
+SmartVideo is built for site owners who want fast, professional video without the complexity of managing encoding, CDNs, and player configuration. Whether you're hosting self-hosted video files or replacing YouTube/Vimeo embeds, SmartVideo handles delivery and keeps visitors on your site.
 
 = Who is SmartVideo not for? =
 
 SmartVideo requires a paid account for ongoing use (14-day free trial to start). If you need a completely free solution and are willing to accept third-party branding and related video recommendations, YouTube or Vimeo embeds may be a better fit.
 
-= Why choose SmartVideo over Vimeo? =
+= Why choose SmartVideo as a Vimeo alternative? =
 
-Vimeo places its branding, overlays, and recommendations in your video experience, which can distract viewers and redirect traffic away from your site. SmartVideo removes those elements and gives you full control of the player appearance and your brand.
+Vimeo places its branding, overlays, and recommendations in your video experience, which can distract viewers and redirect traffic away from your site. As a Vimeo alternative, SmartVideo removes those elements and gives you full control of the player appearance and your brand.
 
 = Can I use SmartVideo for live video? =
 
@@ -151,9 +152,15 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 3. Elementor widget — SmartVideo widget with live preview in the editor
 4. Bricks Builder element — Video source, poster, dimensions, and playback controls
 5. Divi 5 Visual Builder — SmartVideo module with playback options
-6. Frontend player — Clean, ad-free video player as your visitors see it
+6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.2.2 =
+* **Beta player toggle**
+  * New "Beta player" toggle under Advanced settings loads the pre-release SmartVideo player build (`assets.swarmcdn.com/beta/swarmcdn.js`) for testing upcoming fixes/features
+  * Off by default — stable build still ships to all users unless explicitly enabled
+  * Beta script is loaded async with `fetchpriority="high"` for faster startup
 
 = 2.2.0 =
 * **Divi 5 + Bricks Builder support**

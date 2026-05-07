@@ -30,6 +30,7 @@ class Settings {
 		'swarmify_default_responsive'         => 'on',
 		'swarmify_default_preload'            => 'auto',
 		'swarmify_toggle_conditional_loading' => 'off',
+		'swarmify_toggle_beta_player'         => 'off',
 	];
 
     public $setting_list;
@@ -126,6 +127,7 @@ class Settings {
 					return is_string( $param ) && in_array( $param, [ 'off', 'standard', 'strict' ], true );
 				}
 			],
+			'swarmify_toggle_beta_player' => $bool_param_callbacks,
 		];
 	}
 
