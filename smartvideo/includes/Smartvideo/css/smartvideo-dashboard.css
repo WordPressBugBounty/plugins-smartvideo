@@ -39,7 +39,7 @@
 .sv-dash-label { color: #64748b; font-size: 13px; }
 .sv-dash-val { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; }
 .sv-dash-val--on { color: #059669; }
-.sv-dash-val--off { color: #94a3b8; }
+.sv-dash-val--off { color: #64748b; }
 .sv-dash-val--warn { color: #d97706; }
 
 /* Action links */

@@ -35,14 +35,6 @@ function smartvideo_register_gutenberg_block() {
 		true
 	);
 
-	// Register block editor styles (editor only).
-	wp_register_style(
-		'smartvideo-gutenberg-block-editor',
-		plugins_url( '/build/gutenberg-block.css', SMARTVIDEO_PLUGIN_FILE ),
-		array( 'wp-edit-blocks' ),
-		SWARMIFY_PLUGIN_VERSION
-	);
-
 	// Register block frontend + backend styles.
 	wp_register_style(
 		'smartvideo-gutenberg-block-style',
@@ -64,18 +56,22 @@ function smartvideo_register_gutenberg_block() {
 				'controls'    => 'on' === get_option( 'swarmify_default_controls', 'on' ),
 				'playsInline' => 'on' === get_option( 'swarmify_default_playsinline', 'off' ),
 				'responsive'  => 'on' === get_option( 'swarmify_default_responsive', 'on' ),
-				'preload'     => get_option( 'swarmify_default_preload', 'auto' ),
 			),
 		)
 	);
 
-	// Register the block type.
+	// Enable JS translation loading for the block editor script.
+	wp_set_script_translations( 'smartvideo-gutenberg-block', 'swarmify' );
+
+	// Register the block type. The `style` handle applies in both editor and
+	// frontend; we don't ship a separate editor stylesheet (build/style-* and
+	// build/gutenberg-block.css are byte-identical, so registering both costs
+	// an extra HTTP request for no visual difference).
 	register_block_type(
 		'smartvideo/block-smartvideo-guten',
 		array(
 			'style'         => 'smartvideo-gutenberg-block-style',
 			'editor_script' => 'smartvideo-gutenberg-block',
-			'editor_style'  => 'smartvideo-gutenberg-block-editor',
 		)
 	);
 
@@ -95,6 +91,9 @@ function smartvideo_register_gutenberg_block() {
 		$sidebar_asset['version'],
 		true
 	);
+
+	// Enable JS translation loading for the sidebar script.
+	wp_set_script_translations( 'smartvideo-gutenberg-sidebar', 'swarmify' );
 
 	// Enqueue in the editor only.
 	add_action( 'enqueue_block_editor_assets', function () {
@@ -142,11 +141,11 @@ function smartvideo_register_block_patterns() {
 
 <!-- wp:column {"width":"40%"} -->
 <div class="wp-block-column" style="flex-basis:40%"><!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading">Video Title</h3>
+<h3 class="wp-block-heading">' . esc_html__( 'Video Title', 'swarmify' ) . '</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Add a description of your video here. Explain what viewers will learn or see.</p>
+<p>' . esc_html__( 'Add a description of your video here. Explain what viewers will learn or see.', 'swarmify' ) . '</p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns -->',
@@ -161,7 +160,7 @@ function smartvideo_register_block_patterns() {
 			'description' => __( 'Centered video with a heading above and description below.', 'swarmify' ),
 			'categories'  => array( 'smartvideo' ),
 			'content'     => '<!-- wp:heading {"textAlign":"center"} -->
-<h2 class="wp-block-heading has-text-align-center">Watch Our Video</h2>
+<h2 class="wp-block-heading has-text-align-center">' . esc_html__( 'Watch Our Video', 'swarmify' ) . '</h2>
 <!-- /wp:heading -->
 
 <!-- wp:smartvideo/block-smartvideo-guten {"controls":true,"responsive":true,"align":"wide"} -->
@@ -169,7 +168,7 @@ function smartvideo_register_block_patterns() {
 <!-- /wp:smartvideo/block-smartvideo-guten -->
 
 <!-- wp:paragraph {"align":"center"} -->
-<p class="has-text-align-center">A brief description of the video content goes here.</p>
+<p class="has-text-align-center">' . esc_html__( 'A brief description of the video content goes here.', 'swarmify' ) . '</p>
 <!-- /wp:paragraph -->',
 		)
 	);

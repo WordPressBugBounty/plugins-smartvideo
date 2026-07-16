@@ -2,8 +2,6 @@
 
 namespace Swarmify\Smartvideo;
 
-use Error;
-
 /**
  * The file that defines the core plugin class
  *
@@ -33,8 +31,15 @@ use Error;
 
 
 class Swarmify {
-	public const API_VERSION = 'v1';
 
+	/**
+	 * Regex to detect YouTube/Vimeo iframes with a bare `src=` attribute.
+	 *
+	 * Uses `\s` before `src=` instead of `\b` so that lazy-loading attributes
+	 * like `data-src=` and `data-lazy-src=` are not matched (the word boundary
+	 * `\b` fires between `-` and `s`, which still matches those prefixed attrs).
+	 */
+	private const VIDEO_IFRAME_RE = '/<iframe[^>]*\ssrc=["\'][^"\']*(?:youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com)[^"\']*["\']/';
 
 	/**
 	 * The unique identifier of this plugin.
@@ -72,8 +77,7 @@ class Swarmify {
 
 	protected $swarmdetect_handle = 'smartvideo_swarmdetect';
 
-	// Resolved once in enqueue, reused by the script_loader_tag filter so the
-	// URL and the fetchpriority attribute can never disagree.
+	// Resolved once in enqueue to select stable vs beta script URL.
 	protected $use_beta_player = false;
 
 	/**
@@ -96,10 +100,8 @@ class Swarmify {
 		$this->settings  = new Settings( $this->plugin_name, $this->version );
 		$this->post_meta = new PostMeta();
 
-		// $this->log_debug_info();
-
-		// enable upload accelerator (admin-only — plupload filters and AJAX handler)
-		if ( is_admin() ) {
+		// enable upload accelerator (admin + cron — plupload filters, AJAX handler, and chunk cleanup)
+		if ( is_admin() || defined( 'DOING_CRON' ) ) {
 			UploadAccelerator::get_instance();
 		}
 
@@ -112,10 +114,15 @@ class Swarmify {
 		$this->define_public_hooks();
 
 		add_shortcode( 'smartvideo', array( $this, 'smartvideo_shortcode' ) );
-
 	}
 
 
+	/**
+	 * Render the [smartvideo] shortcode into a <smartvideo> HTML tag.
+	 *
+	 * @param  array $atts Shortcode attributes (src, poster, dimensions, autoplay, etc.).
+	 * @return string Rendered <smartvideo> markup, or an empty placeholder when src is missing.
+	 */
 	public function smartvideo_shortcode( $atts ) {
 		$atts         = shortcode_atts(
 			array(
@@ -137,39 +144,78 @@ class Swarmify {
 		);
 		$swarmify_url = $atts['src'];
 		if ( empty( $swarmify_url ) ) {
-			return AspectRatio::empty_placeholder();
+			// Shortcode has no editor context — never render authoring
+			// chrome to frontend visitors when src is empty.
+			return '';
 		}
-		$poster       = ( '' === $atts['poster'] ? '' : 'poster="' . esc_url($atts['poster']) . '"' );
-
 		// Resolve dimensions from aspect ratio when not custom and no explicit dimensions.
 		if ( '' !== $atts['aspect_ratio'] && 'custom' !== $atts['aspect_ratio'] ) {
 			list( $width, $height ) = AspectRatio::resolve( $atts['aspect_ratio'] );
 		} else {
-			$height = ( '' !== $atts['height'] ? $atts['height'] : '' );
-			$width  = ( '' !== $atts['width'] ? $atts['width'] : '' );
+			$width  = $atts['width'];
+			$height = $atts['height'];
 		}
-		// Shortcodes use explicit, predictable defaults — not global settings.
-		// Global defaults feed builder UI pre-selections, not raw shortcodes.
-		$sc_bool = function ( $val, $default = false ) {
-			if ( '' !== $val ) {
-				return 'true' === $val;
-			}
-			return $default;
-		};
-		$autoplay     = $sc_bool( $atts['autoplay'] ) ? 'autoplay' : '';
-		$muted        = $sc_bool( $atts['muted'] ) ? 'muted' : '';
-		$loop         = $sc_bool( $atts['loop'] ) ? 'loop' : '';
-		$controls     = $sc_bool( $atts['controls'], true ) ? 'controls' : '';
-		$video_inline = $sc_bool( $atts['playsinline'] ) ? 'playsinline' : '';
-		$unresponsive = $sc_bool( $atts['responsive'] ) ? 'swarm-fluid' : '';
-		$preload_raw  = '' !== $atts['preload'] ? $atts['preload'] : 'auto';
-		$preload      = in_array( $preload_raw, array( 'auto', 'metadata', 'none' ), true ) ? $preload_raw : 'auto';
-		$preload_attr = ( 'auto' !== $preload ) ? 'preload="' . esc_attr( $preload ) . '"' : '';
 
+		// Pull the 7 global plugin video defaults — used when the shortcode
+		// attribute is omitted. Hardcoded fallbacks match Settings::DEFAULTS
+		// in case the option row is missing entirely.
+		$default_autoplay    = 'on' === $this->settings->get( 'swarmify_default_autoplay' );
+		$default_muted       = 'on' === $this->settings->get( 'swarmify_default_muted' );
+		$default_loop        = 'on' === $this->settings->get( 'swarmify_default_loop' );
+		$default_controls    = 'on' === $this->settings->get( 'swarmify_default_controls' );
+		$default_playsinline = 'on' === $this->settings->get( 'swarmify_default_playsinline' );
+		$default_responsive  = 'on' === $this->settings->get( 'swarmify_default_responsive' );
+
+		$sc_bool     = function ( $val, $default = false ) {
+			return '' !== $val ? 'true' === $val : $default;
+		};
+		$preload_raw = '' !== $atts['preload'] ? $atts['preload'] : 'auto';
+		$preload     = in_array( $preload_raw, array( 'auto', 'metadata', 'none' ), true ) ? $preload_raw : 'auto';
+
+		// Build attributes -- only include non-empty values.
+		$tag_attrs = [ 'src' => esc_url( $swarmify_url, array_merge( wp_allowed_protocols(), array( 'swarmify' ) ) ) ];
+		if ( '' !== $width ) {
+			$tag_attrs['width'] = esc_attr( $width );
+		}
+		if ( '' !== $height ) {
+			$tag_attrs['height'] = esc_attr( $height );
+		}
+		if ( $sc_bool( $atts['responsive'], $default_responsive ) ) {
+			$tag_attrs['class'] = 'swarm-fluid';
+		}
+		if ( '' !== $atts['poster'] ) {
+			$tag_attrs['poster'] = esc_url( $atts['poster'] );
+		}
+
+		$booleans = [];
+		if ( $sc_bool( $atts['autoplay'], $default_autoplay ) ) {
+			$booleans[] = 'autoplay';
+		}
+		if ( $sc_bool( $atts['muted'], $default_muted ) ) {
+			$booleans[] = 'muted';
+		}
+		if ( $sc_bool( $atts['loop'], $default_loop ) ) {
+			$booleans[] = 'loop';
+		}
+		if ( $sc_bool( $atts['controls'], $default_controls ) ) {
+			$booleans[] = 'controls';
+		}
+		if ( $sc_bool( $atts['playsinline'], $default_playsinline ) ) {
+			$booleans[] = 'playsinline';
+		}
+		if ( 'auto' !== $preload ) {
+			$tag_attrs['preload'] = esc_attr( $preload );
+		}
+
+		$parts = [];
+		foreach ( $tag_attrs as $key => $val ) {
+			$parts[] = $key . '="' . $val . '"';
+		}
+		$parts = array_merge( $parts, $booleans );
 
 		SchemaCollector::add( $swarmify_url, '' !== $atts['poster'] ? $atts['poster'] : '' );
 
-		return '<smartvideo src="' . esc_url($swarmify_url) . '" width="' . esc_attr($width) . '" height="' . esc_attr($height) . '" class="' . esc_attr($unresponsive) . '" ' . $poster . ' ' . esc_attr($autoplay) . ' ' . esc_attr($muted) . ' ' . esc_attr($loop) . ' ' . esc_attr($controls) . ' ' . esc_attr($video_inline) . ' ' . $preload_attr . '></smartvideo>';
+		return '<smartvideo ' . implode( ' ', $parts ) . '></smartvideo>';
 	}
 
 	/**
@@ -214,8 +260,9 @@ class Swarmify {
 
 		add_filter( 'plugin_action_links_' . plugin_basename( SMARTVIDEO_PLUGIN_FILE ), [ $admin, 'plugin_action_links' ] );
 
-		// Per-page disable toggle.
-		add_action( 'init', [ $this->post_meta, 'register_meta' ] );
+		// Per-page disable toggle. register_meta is registered in public hooks
+		// (REST API requests are not is_admin()) — only the classic-editor
+		// meta box + save handler belong here.
 		add_action( 'add_meta_boxes', [ $this->post_meta, 'add_meta_box' ] );
 		add_action( 'save_post', [ $this->post_meta, 'save_meta_box' ] );
 
@@ -237,18 +284,21 @@ class Swarmify {
 		add_action( 'wp_footer', [ 'Swarmify\Smartvideo\SchemaCollector', 'output_schema' ], 20 );
 		add_action( 'template_redirect', [ $this, 'check_should_load_script' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_swarmify_script' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_swarmify_script' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_swarmify_script_admin' ] );
 		add_filter( 'script_loader_tag', [ $this, 'add_async_swarmdetect_script_attributes' ], 10, 2 );
 
 		// This should be an admin hook really, but REST API calls return false for is_admin()
 		add_action( 'rest_api_init', [ $this->settings, 'register_plugin_settings_routes' ] );
 
-		add_action( 'widgets_init', [ $this, 'load_widget' ] );
+		// Per-page disable toggle: register_post_meta needs to fire on REST requests
+		// too (Gutenberg sidebar reads/writes _smartvideo_disabled via the REST API).
+		add_action( 'init', [ $this->post_meta, 'register_meta' ] );
 
-		add_filter( 'kses_allowed_protocols', [ $this, 'add_swarmify_url_protocol' ] );
+		add_action( 'widgets_init', [ $this, 'load_widget' ] );
 
 		// Collect schema from Gutenberg static block output (no server-side render_callback).
 		add_filter( 'render_block_smartvideo/block-smartvideo-guten', [ $this, 'collect_gutenberg_schema' ], 10, 2 );
+		add_filter( 'render_block_smartvideo/smartvideo', [ $this, 'collect_gutenberg_schema' ], 10, 2 );
 	}
 
 
@@ -256,44 +306,36 @@ class Swarmify {
 	/**
 	 * Determine whether the current page needs the SmartVideo script.
 	 * Runs on template_redirect so the queried object is available.
+	 *
+	 * Gate of record for frontend assets: any new frontend enqueue must
+	 * consult $this->should_load_script (see enqueue_swarmify_script()).
 	 */
 	public function check_should_load_script() {
+		$is_singular = is_singular();
 		// Per-page disable only applies to singular pages (not archives).
-		if ( is_singular() && PostMeta::is_disabled() ) {
-			$this->should_load_script = false;
-			return;
-		}
+		$is_disabled = $is_singular && PostMeta::is_disabled();
 
 		// Conditional loading modes:
 		//   'off'      — always load (default)
 		//   'standard' — load on pages with any video content
 		//   'strict'   — load only when enabled features will act on the content
 		$mode = $this->settings->get( 'swarmify_toggle_conditional_loading' );
-		if ( 'off' === $mode ) {
-			$this->should_load_script = true;
-			return;
-		}
 
-		// Allow themes/plugins to force-load the script.
-		if ( apply_filters( 'smartvideo_force_load_script', false ) ) {
-			$this->should_load_script = true;
-			return;
-		}
-
-		// Check for an active SmartVideo widget.
-		if ( is_active_widget( false, false, 'smartvideo_widget' ) ) {
-			$this->should_load_script = true;
-			return;
-		}
+		// Feature flags — strict mode needs to know which content
+		// types the player will convert, not just explicit SmartVideo tags.
+		$auto_yt  = 'on' === $this->settings->get( 'swarmify_toggle_youtube' );
+		$bg_video = 'on' === $this->settings->get( 'swarmify_toggle_bgvideo' );
 
 		// Build the list of content to scan — singular pages use the queried
 		// object; archive/index pages check every post in the main query.
 		$contents = array();
-		if ( is_singular() ) {
+		$post_id  = 0;
+		if ( $is_singular ) {
 			$post = get_queried_object();
 			if ( $post instanceof \WP_Post ) {
-				$contents[] = $post->post_content;
+				$contents[] = get_post_field( 'post_content', $post->ID );
 			}
+			$post_id = get_queried_object_id();
 		} else {
 			global $wp_query;
 			if ( ! empty( $wp_query->posts ) ) {
@@ -303,188 +345,261 @@ class Swarmify {
 			}
 		}
 
-		// Feature flags — strict mode needs to know which content
-		// types the player will convert, not just explicit SmartVideo tags.
-		$auto_yt  = 'on' === $this->settings->get( 'swarmify_toggle_youtube' );
-		$bg_video = 'on' === $this->settings->get( 'swarmify_toggle_bgvideo' );
+		// A page using a synced pattern carries only `wp:block {"ref":N}` in its
+		// raw content — resolve the referenced patterns so they get scanned too.
+		$contents = self::expand_block_refs( $contents );
+
+		// Page builders store content in postmeta, not post_content. Gather the
+		// raw builder data here (only when its builder is active) and let
+		// evaluate_should_load() make the decision.
+		$elementor_data = '';
+		$bb_data        = null;
+		$bricks_data    = null;
+		if ( $is_singular && $post_id ) {
+			if ( class_exists( '\Elementor\Plugin' ) ) {
+				$elementor_data = (string) get_post_meta( $post_id, '_elementor_data', true );
+			}
+			if ( class_exists( 'FLBuilder' ) ) {
+				$bb_raw  = get_post_meta( $post_id, '_fl_builder_data', true );
+				$bb_data = is_array( $bb_raw ) ? $bb_raw : null;
+			}
+			if ( defined( 'BRICKS_VERSION' ) ) {
+				$bricks_raw  = get_post_meta( $post_id, '_bricks_page_content_2', true );
+				$bricks_data = is_array( $bricks_raw ) ? $bricks_raw : null;
+			}
+		}
+
+		$this->should_load_script = $this->evaluate_should_load(
+			$contents,
+			$mode,
+			$auto_yt,
+			$bg_video,
+			$is_disabled,
+			$elementor_data,
+			$bb_data,
+			$bricks_data
+		);
+	}
+
+	/**
+	 * Append the content of synced patterns (wp:block refs) to the scan list.
+	 *
+	 * Patterns can nest, so newly-resolved content is queued for another pass;
+	 * the seen-set and cap bound the work on pathological content.
+	 *
+	 * @param string[] $contents Post-content strings gathered for the scan.
+	 * @return string[] Original contents plus each referenced pattern's content.
+	 */
+	protected static function expand_block_refs( array $contents ) {
+		$seen  = array();
+		$queue = $contents;
+		while ( $queue ) {
+			$content = array_shift( $queue );
+			if ( ! is_string( $content ) ||
+				! preg_match_all( '/wp:block\s+{[^}]*"ref"\s*:\s*(\d+)/', $content, $matches ) ) {
+				continue;
+			}
+			foreach ( $matches[1] as $ref_id ) {
+				if ( isset( $seen[ $ref_id ] ) || count( $seen ) >= 20 ) {
+					continue;
+				}
+				$seen[ $ref_id ] = true;
+				$ref_content     = get_post_field( 'post_content', (int) $ref_id );
+				if ( is_string( $ref_content ) && '' !== $ref_content ) {
+					$contents[] = $ref_content;
+					$queue[]    = $ref_content;
+				}
+			}
+		}
+		return $contents;
+	}
+
+	/**
+	 * Decide whether the swarmdetect script should load for the current request,
+	 * given already-gathered context. Extracted from check_should_load_script()
+	 * so the decision is directly callable and unit-testable without the main
+	 * query or instance state; behavior matches the original hook.
+	 *
+	 * @param string[]   $contents       Post-content strings to scan.
+	 * @param string     $mode           Conditional-loading mode: '', 'off', 'standard', 'strict'.
+	 * @param bool       $auto_yt        YouTube auto-convert feature enabled.
+	 * @param bool       $bg_video       Background-video auto-convert feature enabled.
+	 * @param bool       $is_disabled    Per-page disable toggle (singular pages only).
+	 * @param string     $elementor_data Raw _elementor_data JSON ('' when none / Elementor inactive).
+	 * @param array|null $bb_data        _fl_builder_data node array (null when none / Beaver inactive).
+	 * @param array|null $bricks_data    _bricks_page_content_2 element array (null when none / Bricks inactive).
+	 * @return bool
+	 */
+	protected function evaluate_should_load( array $contents, $mode, $auto_yt, $bg_video, $is_disabled, $elementor_data = '', $bb_data = null, $bricks_data = null ) {
+		// Per-page disable wins over everything.
+		if ( $is_disabled ) {
+			return false;
+		}
+
+		if ( 'off' === $mode ) {
+			return true;
+		}
+
+		// Allow themes/plugins to force-load the script.
+		if ( apply_filters( 'smartvideo_force_load_script', false ) ) {
+			return true;
+		}
+
+		// Check for an active SmartVideo widget.
+		if ( is_active_widget( false, false, 'smartvideo_widget' ) ) {
+			return true;
+		}
 
 		// --- Content scan ---
-		// Both modes check for native SmartVideo markers.
+		// Combined regex for SmartVideo markers (covers shortcodes, blocks, and custom element).
+		// Single preg_match replaces 7 separate strpos/has_shortcode/has_block calls per post.
+		static $smartvideo_marker_re = '/\[smartvideo[\s\]]|\[smartvideo_divi_module|wp:smartvideo\/|<smartvideo[\s>]/';
+		static $video_url_re         = '/youtube\.com|youtu\.be|vimeo\.com/';
+		static $video_element_re     = '/<video[\s>]/i';
+		static $divi_video_re        = '/\[et_pb_video|wp:divi\/video/';
+		// Standard-mode union: collapses the 5-OR preg_match chain to one engine
+		// pass. /i is safe — all sub-patterns are already lowercase markers or
+		// hostnames where case-insensitivity only adds matches (never removes).
+		static $standard_union_re = '/youtube\.com|youtu\.be|vimeo\.com|wp:core\/embed|\[et_pb_video|wp:divi\/video|<iframe[^>]*\ssrc=["\'][^"\']*(?:youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com)[^"\']*["\']|<video[\s>]/i';
+
 		foreach ( $contents as $content ) {
-			if ( has_shortcode( $content, 'smartvideo' ) ||
-				 has_shortcode( $content, 'smartvideo_divi_module' ) ||
-				 // strpos fallback — has_shortcode() needs the shortcode registered,
-				 // which requires the builder theme to be active and loaded.
-				 strpos( $content, '[smartvideo_divi_module' ) !== false ||
-				 has_block( 'smartvideo/block-smartvideo-guten', $content ) ||
-				 has_block( 'smartvideo/smartvideo', $content ) ||
-				 preg_match( '/<smartvideo[\s>]/', $content ) ) {
-				$this->should_load_script = true;
-				return;
+			if ( preg_match( $smartvideo_marker_re, $content ) ) {
+				return true;
 			}
 
 			// Strict mode: also check for content the player will
 			// auto-convert, based on which features are enabled.
 			if ( 'strict' === $mode ) {
-				if ( $auto_yt && preg_match( '/youtube\.com|youtu\.be|vimeo\.com/', $content ) ) {
-					$this->should_load_script = true;
-					return;
+				if ( $auto_yt && preg_match( $video_url_re, $content ) ) {
+					return true;
 				}
 				if ( $bg_video &&
-					( preg_match( '/<video[\s>]/i', $content ) ||
-					  has_block( 'divi/video', $content ) ||
-					  has_shortcode( $content, 'et_pb_video' ) ||
-					  strpos( $content, '[et_pb_video' ) !== false ) ) {
-					$this->should_load_script = true;
-					return;
+					( preg_match( $video_element_re, $content ) ||
+						preg_match( $divi_video_re, $content ) ) ) {
+					return true;
 				}
 			}
 
 			// Standard mode: load on any video content (safe default).
 			if ( 'standard' === $mode ) {
-				if ( preg_match( '/youtube\.com|youtu\.be|vimeo\.com/', $content ) ||
-					 has_block( 'core/embed', $content ) ||
-					 has_block( 'divi/video', $content ) ||
-					 has_shortcode( $content, 'et_pb_video' ) ||
-					 strpos( $content, '[et_pb_video' ) !== false ||
-					 preg_match( '/<iframe[\s>]/i', $content ) ||
-					 preg_match( '/<video[\s>]/i', $content ) ) {
-					$this->should_load_script = true;
-					return;
+				if ( preg_match( $standard_union_re, $content ) ) {
+					return true;
+				}
+				// A post-content block (query loops) renders OTHER posts'
+				// content, which can't be scanned here — load, safe default.
+				if ( preg_match( '/wp:post-content/', $content ) ) {
+					return true;
 				}
 			}
 		}
 
 		// --- Builder metadata scan ---
-		// Page builders store content in postmeta, not post_content.
-		// Each builder has its own format, so we check natively first,
-		// then fall back to a concatenated string scan for video content.
-		if ( is_singular() ) {
-			$post_id = get_queried_object_id();
-			if ( $post_id ) {
-				$meta_content = '';
+		// Page builders store content in postmeta, not post_content. The raw
+		// data was gathered by the caller (only for active builders); here we
+		// check natively first, then fall back to a concatenated string scan.
+		$fallback_data = array();
 
-				// Elementor: JSON widget data in _elementor_data.
-				if ( class_exists( '\Elementor\Plugin' ) ) {
-					$elementor_data = (string) get_post_meta( $post_id, '_elementor_data', true );
-					if ( $elementor_data ) {
-						// Parsed natively below — don't add to $meta_content
-						// to avoid false positives from default field values.
-						$el_decoded = json_decode( $elementor_data, true );
-						if ( is_array( $el_decoded ) &&
-							 $this->scan_elementor_widgets( $el_decoded, $mode, $auto_yt, $bg_video ) ) {
-							$this->should_load_script = true;
-							return;
-						}
-					}
+		// Elementor: JSON widget data from _elementor_data.
+		if ( $elementor_data ) {
+			// Parsed natively — don't add to $fallback_data to avoid false
+			// positives from default field values.
+			$el_decoded = json_decode( $elementor_data, true );
+			if ( is_array( $el_decoded ) &&
+				$this->scan_elementor_widgets( $el_decoded, $mode, $auto_yt, $bg_video ) ) {
+				return true;
+			}
+		}
+
+		// Beaver Builder: serialized module data from _fl_builder_data.
+		if ( is_array( $bb_data ) ) {
+			$fallback_data[] = $bb_data;
+			foreach ( $bb_data as $node ) {
+				if ( ! isset( $node->type ) || 'module' !== $node->type || ! isset( $node->settings->type ) ) {
+					continue;
 				}
-
-				// Beaver Builder: serialized module data in _fl_builder_data.
-				if ( class_exists( 'FLBuilder' ) ) {
-					$bb_data = get_post_meta( $post_id, '_fl_builder_data', true );
-					if ( is_array( $bb_data ) ) {
-						$meta_content .= maybe_serialize( $bb_data );
-						foreach ( $bb_data as $node ) {
-							if ( ! isset( $node->type ) || 'module' !== $node->type || ! isset( $node->settings->type ) ) {
-								continue;
-							}
-							// BB stores the module file slug, not the class name.
-							if ( 'class-beaverbuilder-smartvideo' === $node->settings->type ) {
-								$this->should_load_script = true;
-								return;
-							}
-							// Native BB video module — check video_type against
-							// enabled features, same pattern as Bricks.
-							if ( 'video' === $node->settings->type ) {
-								$vtype = $node->settings->video_type ?? '';
-								if ( $bg_video && in_array( $vtype, [ 'media_library', '' ], true ) ) {
-									$this->should_load_script = true;
-									return;
-								}
-								if ( $auto_yt && 'embed' === $vtype ) {
-									$this->should_load_script = true;
-									return;
-								}
-								if ( 'standard' === $mode ) {
-									$this->should_load_script = true;
-									return;
-								}
-							}
-						}
-					}
+				// BB may store either the file slug or the class name,
+				// depending on the BB version and when the data was saved.
+				if ( in_array( $node->settings->type, [ 'class-beaverbuilder-smartvideo', 'SmartVideo' ], true ) ) {
+					return true;
 				}
-
-				// Bricks: element array in _bricks_page_content_2.
-				if ( defined( 'BRICKS_VERSION' ) ) {
-					$bricks_data = get_post_meta( $post_id, '_bricks_page_content_2', true );
-					if ( is_array( $bricks_data ) ) {
-						$meta_content .= maybe_serialize( $bricks_data );
-						foreach ( $bricks_data as $element ) {
-							if ( ! isset( $element['name'] ) ) {
-								continue;
-							}
-							if ( 'smartvideo' === $element['name'] ) {
-								$this->should_load_script = true;
-								return;
-							}
-							// Native Bricks video element — stores YouTube ID
-							// without a URL, so the string scan won't catch it.
-							if ( 'video' === $element['name'] ) {
-								$vtype = $element['settings']['videoType'] ?? '';
-								if ( $bg_video && 'file' === $vtype ) {
-									$this->should_load_script = true;
-									return;
-								}
-								if ( $auto_yt && in_array( $vtype, [ 'youtube', 'vimeo' ], true ) ) {
-									$this->should_load_script = true;
-									return;
-								}
-								if ( 'standard' === $mode ) {
-									$this->should_load_script = true;
-									return;
-								}
-							}
-						}
+				// Native BB video module — check video_type against
+				// enabled features, same pattern as Bricks.
+				if ( 'video' === $node->settings->type ) {
+					$vtype = $node->settings->video_type ?? '';
+					if ( $bg_video && in_array( $vtype, [ 'media_library', '' ], true ) ) {
+						return true;
 					}
-				}
-
-					if ( $meta_content ) {
-					// Both modes: check for SmartVideo shortcodes/tags in
-					// builder metadata (catches raw embeds in HTML blocks).
-					if ( strpos( $meta_content, '[smartvideo' ) !== false ||
-						 strpos( $meta_content, '<smartvideo' ) !== false ) {
-						$this->should_load_script = true;
-						return;
+					if ( $auto_yt && 'embed' === $vtype ) {
+						return true;
 					}
-
-					// Strict mode: check for auto-convert targets
-					// based on enabled features.
-					if ( 'strict' === $mode ) {
-						if ( $auto_yt && preg_match( '/youtube\.com|youtu\.be|vimeo\.com/', $meta_content ) ) {
-							$this->should_load_script = true;
-							return;
-						}
-						if ( $bg_video &&
-							stripos( $meta_content, '<video' ) !== false ) {
-							$this->should_load_script = true;
-							return;
-						}
-					}
-
-					// Standard mode: load on any video content (safe default).
 					if ( 'standard' === $mode ) {
-						if ( preg_match( '/youtube\.com|youtu\.be|vimeo\.com/', $meta_content ) ||
-							 stripos( $meta_content, '<video' ) !== false ||
-							 stripos( $meta_content, '<iframe' ) !== false ) {
-							$this->should_load_script = true;
-							return;
-						}
+						return true;
 					}
 				}
 			}
 		}
 
-		$this->should_load_script = false;
+		// Bricks: element array from _bricks_page_content_2.
+		if ( is_array( $bricks_data ) ) {
+			$fallback_data[] = $bricks_data;
+			foreach ( $bricks_data as $element ) {
+				if ( ! isset( $element['name'] ) ) {
+					continue;
+				}
+				if ( 'smartvideo' === $element['name'] ) {
+					return true;
+				}
+				// Native Bricks video element — stores YouTube ID
+				// without a URL, so the string scan won't catch it.
+				if ( 'video' === $element['name'] ) {
+					$vtype = $element['settings']['videoType'] ?? '';
+					if ( $bg_video && 'file' === $vtype ) {
+						return true;
+					}
+					if ( $auto_yt && in_array( $vtype, [ 'youtube', 'vimeo' ], true ) ) {
+						return true;
+					}
+					if ( 'standard' === $mode ) {
+						return true;
+					}
+				}
+			}
+		}
+
+		if ( $fallback_data ) {
+			$meta_content = '';
+			foreach ( $fallback_data as $data ) {
+				$meta_content .= maybe_serialize( $data );
+			}
+			// Both modes: check for SmartVideo shortcodes/tags in
+			// builder metadata (catches raw embeds in HTML blocks).
+			if ( preg_match( $smartvideo_marker_re, $meta_content ) ) {
+				return true;
+			}
+
+			// Strict mode: check for auto-convert targets
+			// based on enabled features.
+			if ( 'strict' === $mode ) {
+				if ( $auto_yt && preg_match( $video_url_re, $meta_content ) ) {
+					return true;
+				}
+				if ( $bg_video &&
+					preg_match( $video_element_re, $meta_content ) ) {
+					return true;
+				}
+			}
+
+			// Standard mode: load on any video content (safe default).
+			// Reuses $standard_union_re from the content scan above —
+			// keeps both standard-mode paths in lock-step coverage.
+			if ( 'standard' === $mode ) {
+				if ( preg_match( $standard_union_re, $meta_content ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -498,9 +613,15 @@ class Swarmify {
 	 * @param string $mode     'standard' or 'strict'.
 	 * @param bool   $auto_yt  Whether YouTube auto-conversion is on.
 	 * @param bool   $bg_video Whether background video conversion is on.
+	 * @param int    $depth    Current recursion depth.
 	 * @return bool True if the script should load.
 	 */
-	private function scan_elementor_widgets( $elements, $mode, $auto_yt, $bg_video ) {
+	private function scan_elementor_widgets( $elements, $mode, $auto_yt, $bg_video, $depth = 0 ) {
+		// _elementor_data is DB-stored and attacker-plantable; cap recursion so a
+		// pathological tree can't blow the PHP stack on public page renders.
+		if ( $depth > 32 ) {
+			return false;
+		}
 		foreach ( $elements as $element ) {
 			$widget_type = $element['widgetType'] ?? '';
 
@@ -523,12 +644,14 @@ class Swarmify {
 				}
 			}
 
-			// HTML, shortcode, and text-editor widgets can contain arbitrary
-			// video embeds. Scan their settings for video content strings.
-			if ( in_array( $widget_type, [ 'html', 'shortcode', 'text-editor' ], true ) ) {
+			// HTML, shortcode, text-editor, and the accordion/toggle/tabs
+			// widgets (their WYSIWYG item content runs shortcodes on render)
+			// can contain arbitrary video embeds. Scan their settings for
+			// video content strings.
+			if ( in_array( $widget_type, [ 'html', 'shortcode', 'text-editor', 'accordion', 'toggle', 'tabs' ], true ) ) {
 				$settings_text = wp_json_encode( $element['settings'] ?? [] );
 				if ( strpos( $settings_text, '<smartvideo' ) !== false ||
-					 strpos( $settings_text, '[smartvideo' ) !== false ) {
+					strpos( $settings_text, '[smartvideo' ) !== false ) {
 					return true;
 				}
 				if ( 'standard' === $mode || $auto_yt ) {
@@ -538,7 +661,7 @@ class Swarmify {
 				}
 				if ( 'standard' === $mode || $bg_video ) {
 					if ( stripos( $settings_text, '<video' ) !== false ||
-						 stripos( $settings_text, '<iframe' ) !== false ) {
+						preg_match( self::VIDEO_IFRAME_RE, $settings_text ) ) {
 						return true;
 					}
 				}
@@ -553,7 +676,7 @@ class Swarmify {
 
 			// Recurse into child elements (sections → columns → widgets).
 			if ( ! empty( $element['elements'] ) ) {
-				if ( $this->scan_elementor_widgets( $element['elements'], $mode, $auto_yt, $bg_video ) ) {
+				if ( $this->scan_elementor_widgets( $element['elements'], $mode, $auto_yt, $bg_video, $depth + 1 ) ) {
 					return true;
 				}
 			}
@@ -561,12 +684,22 @@ class Swarmify {
 		return false;
 	}
 
+	public function enqueue_swarmify_script_admin( $hook_suffix ) {
+		if ( ! in_array( $hook_suffix, [ 'post.php', 'post-new.php' ], true ) ) {
+			return;
+		}
+
+		// Load in the block editor too: edit() appends a live <smartvideo> the
+		// loader converts in-place (block is apiVersion 1, so the canvas isn't iframed).
+		$this->enqueue_swarmify_script();
+	}
+
 	/**
 	 * Enqueue the swarmdetect settings and script
 	 */
 	public function enqueue_swarmify_script() {
-		$cdn_key            = $this->settings->get( 'swarmify_cdn_key' );
-		$swarmify_status    = $this->settings->get( 'swarmify_status' );
+		$cdn_key         = $this->settings->get( 'swarmify_cdn_key' );
+		$swarmify_status = $this->settings->get( 'swarmify_status' );
 
 		if ( 'on' === $swarmify_status && '' !== $cdn_key ) {
 
@@ -575,9 +708,9 @@ class Swarmify {
 			if ( ! is_admin() && false === $this->should_load_script ) {
 				// Builder edit modes load as frontend pages — always load the script.
 				$in_builder = ( function_exists( 'et_core_is_fb_enabled' ) && et_core_is_fb_enabled() ) ||
-				              ( class_exists( '\FLBuilderModel' ) && \FLBuilderModel::is_builder_active() ) ||
-				              ( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) ||
-				              ( class_exists( '\Elementor\Plugin' ) && isset( $_GET['elementor-preview'] ) );
+								( class_exists( '\FLBuilderModel' ) && \FLBuilderModel::is_builder_active() ) ||
+								( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) ||
+								( class_exists( '\Elementor\Plugin' ) && isset( $_GET['elementor-preview'] ) );
 				if ( ! $in_builder ) {
 					return;
 				}
@@ -595,29 +728,11 @@ class Swarmify {
 			// Configure `autoreplace` object
 			$autoreplaceObject = new \stdClass();
 
-			if ( 'on' === $youtube ) {
-				$autoreplaceObject->youtube = true;
-			} else {
-				$autoreplaceObject->youtube = false;
-			}
-			
-			if ('on' === $youtube_cc ) {
-				$autoreplaceObject->youtubecaptions = true;
-			} else {
-				$autoreplaceObject->youtubecaptions = false;
-			}
-			
-			if ('on' === $bgoptimize) {
-				$autoreplaceObject->videotag = true;
-			} else {
-				$autoreplaceObject->videotag = false;
-			}
-			
-			if ('on' === $layout) {
-				$layout_status = 'iframe';
-			} else {
-				$layout_status = 'video';
-			}
+			$autoreplaceObject->youtube         = ( 'on' === $youtube );
+			$autoreplaceObject->youtubecaptions = ( 'on' === $youtube_cc );
+			$autoreplaceObject->videotag        = ( 'on' === $bgoptimize );
+
+			$layout_status = ( 'on' === $layout ) ? 'iframe' : 'video';
 
 			// Configure `theme` object
 			$themeObject = new \stdClass();
@@ -646,9 +761,9 @@ class Swarmify {
 
 			// Configure `plugins->watermark` object
 			if ( $watermark && '' !== $watermark ) {
-				// Create the `swarmads` subobject
-				$watermarkObject = new \stdClass();
-				$watermarkObject->file = $watermark;
+				// Create the `watermark` subobject
+				$watermarkObject          = new \stdClass();
+				$watermarkObject->file    = $watermark;
 				$watermarkObject->opacity = 0.75;
 				$watermarkObject->xpos    = 100;
 				$watermarkObject->ypos    = 100;
@@ -657,19 +772,19 @@ class Swarmify {
 				$pluginsObject->watermark = $watermarkObject;
 			}
 
-			$swarmoptions = array(
-				'swarmcdnkey'        => $cdn_key,
-				'autoreplace'        => $autoreplaceObject,
-				'theme'              => $themeObject,
-				'plugins'            => $pluginsObject,
-				'iframeReplacement'  => $layout_status,
+			$swarmoptions    = array(
+				'swarmcdnkey'       => $cdn_key,
+				'autoreplace'       => $autoreplaceObject,
+				'theme'             => $themeObject,
+				'plugins'           => $pluginsObject,
+				'iframeReplacement' => $layout_status,
 			);
 			$swarmoptions_js = 'var swarmoptions = ' . wp_json_encode( $swarmoptions ) . ';';
 
 			$this->use_beta_player = 'on' === $this->settings->get( 'swarmify_toggle_beta_player' );
 			$script_src            = $this->use_beta_player
 				? 'https://assets.swarmcdn.com/beta/swarmcdn.js'
-				: 'https://assets.swarmcdn.com/cross/swarmdetect.js';
+				: 'https://assets.swarmcdn.com/cross/swarmcdn.js';
 
 			wp_enqueue_script(
 				$this->swarmdetect_handle,
@@ -685,18 +800,24 @@ class Swarmify {
 			// When swarmdetect keeps the iframe (iframeReplacement: "iframe"),
 			// it stays at those small dimensions. Make it responsive across
 			// all builder video wrappers.
-			if ( 'on' === $youtube ) {
-				wp_register_style( 'smartvideo-frontend', false );
-				wp_enqueue_style( 'smartvideo-frontend' );
-				wp_add_inline_style( 'smartvideo-frontend',
-					'iframe.swarm-iframe'
-					. '{ width: 100% !important; height: auto !important; aspect-ratio: auto 16/9; }'
-				);
-			}
+			wp_register_style( 'smartvideo-frontend', false, array(), $this->version );
+			wp_enqueue_style( 'smartvideo-frontend' );
+			wp_add_inline_style( 'smartvideo-frontend',
+				'smartvideo{display:block}'
+				. 'smartvideo.swarm-fluid{width:100%;aspect-ratio:16/9}'
+				. 'smartvideo:not(.swarm-fluid){max-width:100%}'
+				. 'iframe.swarm-iframe'
+				. '{ width: 100% !important; height: auto !important; aspect-ratio: auto 16/9; }'
+			);
 
 		}
 	}
 
+	/**
+	 * Print preconnect/dns-prefetch link tags for the SwarmCDN asset host.
+	 *
+	 * @return void
+	 */
 	public function add_preconnect_link() {
 		// Skip preconnect if the script won't load on this page.
 		if ( false === $this->should_load_script ) {
@@ -707,30 +828,31 @@ class Swarmify {
 		if ( 'on' !== $swarmify_status || '' === $cdn_key ) {
 			return;
 		}
-		echo '<link rel="preconnect" href="https://assets.swarmcdn.com">';
+		echo '<link rel="preconnect" href="https://assets.swarmcdn.com" crossorigin>' . "\n";
+		echo '<link rel="dns-prefetch" href="https://assets.swarmcdn.com">' . "\n";
 	}
 
-	// This fn exists primarily to appease the QIT linter rules, since we have 
-	// to use wp_enqueue_script, which lacks support for custom <script> attrs
+	/**
+	 * Add async and cache-plugin exclusion attributes to the swarmdetect <script> tag.
+	 *
+	 * Exists primarily to appease the QIT linter rules, since wp_enqueue_script
+	 * lacks support for custom <script> attributes.
+	 *
+	 * @param  string $tag    Original <script> HTML tag.
+	 * @param  string $handle Registered script handle being filtered.
+	 * @return string Modified script tag for the swarmdetect handle, otherwise unchanged.
+	 */
 	public function add_async_swarmdetect_script_attributes( $tag, $handle ) {
-		// Add async and data-cfasync attributes for linter
+		// Add async and cache-plugin exclusion attributes
 		if ( $this->swarmdetect_handle === $handle ) {
-			$src_replacement = $this->use_beta_player
-				? ' async fetchpriority="high" src='
-				: ' async src=';
 			return str_replace(
 				array( ' src=', '<script ' ),
-				array( $src_replacement, '<script data-cfasync="false" ' ),
+				array( ' async src=', '<script data-cfasync="false" data-no-defer data-no-optimize ' ),
 				$tag
 			);
 		}
 
 		return $tag;
-	}
-
-	public function add_swarmify_url_protocol( $protocols ) {
-		$protocols[] = 'swarmify';
-		return $protocols;
 	}
 
 	/**
@@ -741,46 +863,19 @@ class Swarmify {
 		if ( preg_match( '/<smartvideo[^>]+src="([^"]*)"/', $block_content, $src_match ) ) {
 			$poster = '';
 			if ( preg_match( '/poster="([^"]*)"/', $block_content, $poster_match ) ) {
-				$poster = $poster_match[1];
+				$poster = esc_url_raw( $poster_match[1] );
 			}
-			SchemaCollector::add( $src_match[1], $poster );
+			SchemaCollector::add( esc_url_raw( $src_match[1] ), $poster );
 		}
 		return $block_content;
 	}
 
+	/**
+	 * Register the SmartVideo widget with WordPress.
+	 *
+	 * @return void
+	 */
 	public function load_widget() {
 		register_widget( 'Swarmify\Smartvideo\AdminWidget' );
 	}
-
-
-	/**
-	 * Public entry point — kept for backward compatibility with the main plugin file.
-	 * Hooks are now registered directly in the constructor.
-	 *
-	 * @since    1.0.0
-	 */
-	public function run() {
-		// Hooks registered in constructor via define_admin_hooks / define_public_hooks.
-	}
-
-	public function log_debug_info() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php'; // needed for get_plugins()
-
-		$info = var_export(
-			array(
-				'this->plugin_name'          => $this->plugin_name,
-				'plugin_basename'            => plugin_basename( SMARTVIDEO_PLUGIN_FILE ),
-				'plugin_dir_path'            => plugin_dir_path( SMARTVIDEO_PLUGIN_FILE ),
-				'dirname(plugin_dir_path())' => dirname( plugin_dir_path( SMARTVIDEO_PLUGIN_FILE ) ),
-				'dirname(plugin_basename())' => dirname( plugin_basename( SMARTVIDEO_PLUGIN_FILE ) ),
-				'plugin_basename(dirname())' => plugin_basename( dirname( SMARTVIDEO_PLUGIN_FILE ) ),
-				'plugin_dir_url'             => plugin_dir_url( SMARTVIDEO_PLUGIN_FILE ),
-			// 'get_plugins' => get_plugins(),
-			),
-			true
-		);
-
-		error_log( $info );
-	}
-
 }

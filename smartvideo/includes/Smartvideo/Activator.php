@@ -20,8 +20,16 @@ namespace Swarmify\Smartvideo;
  */
 class Activator {
 
+	/**
+	 * Run plugin activation tasks.
+	 *
+	 * Sets the redirect transient, seeds default options, and deactivates the
+	 * legacy swarm-cdn plugin if it is currently active.
+	 *
+	 * @return void
+	 */
 	public static function activate() {
-		set_transient( 'smartvideo_activation_redirect', true, 30 );
+		set_transient( 'smartvideo_activation_redirect_' . get_current_user_id(), true, 30 );
 
 		add_option( 'swarmify_status', 'on' );
 		add_option( 'swarmify_cdn_key', '' );
@@ -45,7 +53,13 @@ class Activator {
 		add_option( 'swarmify_default_controls', 'on' );
 		add_option( 'swarmify_default_playsinline', 'off' );
 		add_option( 'swarmify_default_responsive', 'on' );
-		add_option( 'swarmify_default_preload', 'auto' );
+
+		// New installs default to 'standard' conditional loading (skip swarmdetect on
+		// pages without video). Existing installs keep their current setting since
+		// add_option() is a no-op when the option already exists.
+		add_option( 'swarmify_toggle_conditional_loading', 'standard' );
+
+		add_option( 'swarmify_toggle_beta_player', 'off' );
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -54,5 +68,4 @@ class Activator {
 			deactivate_plugins( 'swarm-cdn/swarmcdn.php' );
 		}
 	}
-
 }

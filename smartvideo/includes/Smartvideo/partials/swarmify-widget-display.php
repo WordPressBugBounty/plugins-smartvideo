@@ -35,7 +35,7 @@ if (isset( $instance['swarmify_controls'])) {
 if (isset( $instance['swarmify_video_inline'])) {
 	$swarmify_video_inline = $instance['swarmify_video_inline'];
 }
-	$swarmify_unresponsive = 1;
+	$swarmify_unresponsive = 0;
 if (isset( $instance['swarmify_unresponsive'])) {
 	$swarmify_unresponsive = $instance['swarmify_unresponsive'];
 }
@@ -49,10 +49,10 @@ if (isset( $instance['swarmify_width'])) {
 }
 ?>
 <div class="swarmify-widget-div">
-	<div class="swarmify-tabs">
-		<span class="swarmify-main-tab active">Content</span>
-		<span class="swarmify-basic-tab">Basic options</span>
-		<span class="swarmify-advanced-tab">Advanced options</span>
+	<div class="swarmify-tabs" role="tablist">
+		<button type="button" role="tab" aria-selected="true" class="swarmify-main-tab active"><?php esc_html_e( 'Content', 'swarmify' ); ?></button>
+		<button type="button" role="tab" aria-selected="false" class="swarmify-basic-tab"><?php esc_html_e( 'Basic options', 'swarmify' ); ?></button>
+		<button type="button" role="tab" aria-selected="false" class="swarmify-advanced-tab"><?php esc_html_e( 'Advanced options', 'swarmify' ); ?></button>
 	</div>
 	<div class="swarmify-main">
 		<p>
@@ -61,38 +61,38 @@ if (isset( $instance['swarmify_width'])) {
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_url')); ?>" style="display: block;">
 				<?php esc_html_e( 'Add a video:', 'swarmify'); ?>
 			</label>
-			<button class="swarmify_add_video button">Add video from WordPress Media Library</button>
-			<button data-fancybox data-src="#<?php echo esc_attr($this->get_field_id( 'lightbox')); ?>" class="swarmify_fancybox swarmify_add_youtube button">Add video from YouTube</button>
-			<button data-fancybox data-src="#<?php echo esc_attr($this->get_field_id( 'lightbox')); ?>" class="swarmify_add_source button">Add video from another source</button>
+			<button type="button" class="swarmify_add_video button"><?php esc_html_e( 'Add video from WordPress Media Library', 'swarmify' ); ?></button>
+			<button type="button" class="swarmify_add_youtube button"><?php esc_html_e( 'Add video from YouTube', 'swarmify' ); ?></button>
+			<button type="button" class="swarmify_add_source button"><?php esc_html_e( 'Add video from another source', 'swarmify' ); ?></button>
 			<!-- Fancybox URL -->
 			<div class="video_url_fancybox" id="<?php echo esc_attr($this->get_field_id( 'lightbox')); ?>" style="display: none;">
-				<p class="yt" style="display: none;">Head to YouTube, view your video, click "Share", click "Copy", and paste the URL here:</p>
-				<p class="other" style="display: none;">To add a video from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL ending in ".mp4" here:</p>
-				<input class="swarmify_url widefat" id="<?php echo esc_attr($this->get_field_id( 'swarmify_url')); ?>" name="<?php echo esc_attr($this->get_field_name( 'swarmify_url')); ?>" placeholder="Video URL" type="text" value="<?php echo esc_url($swarmify_url); ?>"/>
-				<button class="swarmify-lightbox-button">Save</button>
+				<p class="yt" style="display: none;"><?php esc_html_e( 'Head to YouTube, view your video, click "Share", click "Copy", and paste the URL here:', 'swarmify' ); ?></p>
+				<p class="other" style="display: none;"><?php esc_html_e( 'To add a video from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL ending in ".mp4" here:', 'swarmify' ); ?></p>
+				<input class="swarmify_url widefat" id="<?php echo esc_attr($this->get_field_id( 'swarmify_url')); ?>" name="<?php echo esc_attr($this->get_field_name( 'swarmify_url')); ?>" placeholder="<?php esc_attr_e( 'Video URL', 'swarmify' ); ?>" type="text" value="<?php echo esc_url( $swarmify_url, array_merge( wp_allowed_protocols(), array( 'swarmify' ) ) ); ?>"/>
+				<button type="button" class="swarmify-lightbox-button"><?php esc_html_e( 'Save', 'swarmify' ); ?></button>
 			</div>
 		</p>
 		<p>
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">Designates an image to be shown until playback begins. We recommend using a PNG or JPEG to be compatible with all browsers. Click the "Add Image" button to choose an image from your WordPress media library. To add an image from another source, paste the URL into the field below.</small>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'Designates an image to be shown until playback begins. We recommend using a PNG or JPEG to be compatible with all browsers. Click the "Add Image" button to choose an image from your WordPress media library. To add an image from another source, paste the URL into the field below.', 'swarmify' ); ?></small>
 			<label
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_poster')); ?>">
 				<?php esc_html_e( 'Add an optional poster image:', 'swarmify'); ?>
 			</label>
-			<button class="swarmify_add_image button ">Add image from WordPress Media Library</button>
-			<button data-fancybox data-src="#<?php echo esc_attr($this->get_field_id( 'lightbox_image')); ?>" class="swarmify_add_source button ">Add image from another source</button>
+			<button type="button" class="swarmify_add_image button "><?php esc_html_e( 'Add image from WordPress Media Library', 'swarmify' ); ?></button>
+			<button type="button" class="swarmify_add_source button "><?php esc_html_e( 'Add image from another source', 'swarmify' ); ?></button>
 			<!-- Fancybox URL -->
 			<div class="image_url_fancybox" id="<?php echo esc_attr($this->get_field_id( 'lightbox_image')); ?>" style="display: none;">
-				<p>Add an image from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL here.</p>
+				<p><?php esc_html_e( 'Add an image from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL here.', 'swarmify' ); ?></p>
 				<input class="swarmify_poster widefat" id="<?php echo esc_attr($this->get_field_id( 'swarmify_poster')); ?>"
-				name="<?php echo esc_attr($this->get_field_name( 'swarmify_poster')); ?>" placeholder="Image URL" type="text"
+				name="<?php echo esc_attr($this->get_field_name( 'swarmify_poster')); ?>" placeholder="<?php esc_attr_e( 'Image URL', 'swarmify' ); ?>" type="text"
 				value="<?php echo esc_url( $swarmify_poster ); ?>"/>
-				<button data-fancybox-close class="swarmify-lightbox-button-img">Save</button>
+				<button type="button" class="swarmify-lightbox-button-img"><?php esc_html_e( 'Save', 'swarmify' ); ?></button>
 			</div>
 		</p>
 		<p id="<?php echo esc_attr($this->get_field_id( 'lightbox_title')); ?>">
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">Places a title above the video. If you do not want one, leave this field blank.</small>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'Places a title above the video. If you do not want one, leave this field blank.', 'swarmify' ); ?></small>
 			<label
 			for="<?php echo esc_attr($this->get_field_id( 'title')); ?>"><?php esc_html_e( 'Add a title above video:', 'swarmify'); ?></label>
 			<input class="widefat swarmify_title" id="<?php echo esc_attr($this->get_field_id( 'title')); ?>"
@@ -122,7 +122,7 @@ if (isset( $instance['swarmify_width'])) {
 	<div class="swarmify-basic">
 		<p>
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">Player will begin playback automatically as soon as possible. Pro tip: unless combined with Muted toggled on, many browsers will restrict Autoplay. We recommend only using Autoplay in combination with Muted.</small>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'Player will begin playback automatically as soon as possible. Pro tip: unless combined with Muted toggled on, many browsers will restrict Autoplay. We recommend only using Autoplay in combination with Muted.', 'swarmify' ); ?></small>
 			<label
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_autoplay')); ?>">
 				<?php esc_html_e( 'Autoplay:', 'swarmify'); ?>
@@ -134,19 +134,19 @@ if (isset( $instance['swarmify_width'])) {
 					echo 'checked="checked"';
 				} 
 				?>
-				 name="<?php echo esc_attr($this->get_field_name( 'swarmify_autoplay')); ?>" 
-				 id="<?php echo esc_attr($this->get_field_id( 'swarmify_autoplay')); ?>"
-				 value="<?php echo '' === $swarmify_autoplay ? 1 : esc_attr($swarmify_autoplay); ?>">
+				name="<?php echo esc_attr($this->get_field_name( 'swarmify_autoplay')); ?>" 
+				id="<?php echo esc_attr($this->get_field_id( 'swarmify_autoplay')); ?>"
+				value="1">
 				<span class="wp_slider round"></span>
 			</label>
 			
 		</p>
 		<p>
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">Player will begin playback with audio muted.</small>
-			<?php esc_html_e( 'Muted:', 'swarmify'); ?>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'Player will begin playback with audio muted.', 'swarmify' ); ?></small>
 			<label
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_muted')); ?>">
+				<?php esc_html_e( 'Muted:', 'swarmify'); ?>
 			</label>
 			<label class="wp_switch">
 				<input type="checkbox" 
@@ -155,15 +155,15 @@ if (isset( $instance['swarmify_width'])) {
 					echo 'checked="checked"';
 				} 
 				?>
-				 name="<?php echo esc_attr($this->get_field_name( 'swarmify_muted')); ?>" 
-				 id="<?php echo esc_attr($this->get_field_id( 'swarmify_muted')); ?>"
-				 value="<?php echo '' === $swarmify_muted ? 1 : esc_attr($swarmify_muted); ?>">
+				name="<?php echo esc_attr($this->get_field_name( 'swarmify_muted')); ?>" 
+				id="<?php echo esc_attr($this->get_field_id( 'swarmify_muted')); ?>"
+				value="1">
 				<span class="wp_slider round"></span>
 			</label>
 		</p>
 		<p>
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">Player will restart the video once it ends.</small>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'Player will restart the video once it ends.', 'swarmify' ); ?></small>
 			<label
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_loop')); ?>">
 				<?php esc_html_e( 'Loop:', 'swarmify'); ?>
@@ -175,9 +175,9 @@ if (isset( $instance['swarmify_width'])) {
 					echo 'checked="checked"';
 				} 
 				?>
-				 name="<?php echo esc_attr($this->get_field_name( 'swarmify_loop')); ?>" 
-				 id="<?php echo esc_attr($this->get_field_id( 'swarmify_loop')); ?>"
-				 value="<?php echo '' === $swarmify_loop ? 1 : esc_attr($swarmify_loop); ?>">
+				name="<?php echo esc_attr($this->get_field_name( 'swarmify_loop')); ?>" 
+				id="<?php echo esc_attr($this->get_field_id( 'swarmify_loop')); ?>"
+				value="1">
 				<span class="wp_slider round"></span>
 			</label>
 		</p>
@@ -185,7 +185,7 @@ if (isset( $instance['swarmify_width'])) {
 	<div class="swarmify-advanced">
 		<p>
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">Controls are on by default. Pro tip: if you toggle Controls off, make sure to toggle Autoplay on (and Muted to make sure Autoplay works). If you do not, the user will have no way of beginning video playback.</small>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'Controls are on by default. Pro tip: if you toggle Controls off, make sure to toggle Autoplay on (and Muted to make sure Autoplay works). If you do not, the user will have no way of beginning video playback.', 'swarmify' ); ?></small>
 			<label
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_controls')); ?>">
 				<?php esc_html_e( 'Controls:', 'swarmify'); ?>
@@ -197,18 +197,18 @@ if (isset( $instance['swarmify_width'])) {
 					echo 'checked="checked"';
 				} 
 				?>
-				 name="<?php echo esc_attr($this->get_field_name( 'swarmify_controls')); ?>" 
-				 id="<?php echo esc_attr($this->get_field_id( 'swarmify_controls')); ?>"
-				 value="<?php echo '' === $swarmify_controls ? 1 : esc_attr($swarmify_controls); ?>">
+				name="<?php echo esc_attr($this->get_field_name( 'swarmify_controls')); ?>" 
+				id="<?php echo esc_attr($this->get_field_id( 'swarmify_controls')); ?>"
+				value="1">
 				<span class="wp_slider round"></span>
 			</label>
 		</p>
 		<p>
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">Safari on iOS forces videos to fullscreen. Toggle this option on to keep the video from automatically being forced to fullscreen.</small>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'Safari on iOS forces videos to fullscreen. Toggle this option on to keep the video from automatically being forced to fullscreen.', 'swarmify' ); ?></small>
 			<label
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_video_inline')); ?>">
-				<?php esc_html_e( 'Play video inline:', 'swarmify'); ?>
+				<?php esc_html_e( 'Play inline:', 'swarmify'); ?>
 			</label>
 			<label class="wp_switch">
 				<input type="checkbox" 
@@ -217,15 +217,15 @@ if (isset( $instance['swarmify_width'])) {
 					echo 'checked="checked"';
 				} 
 				?>
-				 name="<?php echo esc_attr($this->get_field_name( 'swarmify_video_inline')); ?>" 
-				 id="<?php echo esc_attr($this->get_field_id( 'swarmify_video_inline')); ?>"
-				 value="<?php echo '' === $swarmify_video_inline ? 1 : esc_attr($swarmify_video_inline); ?>">
+				name="<?php echo esc_attr($this->get_field_name( 'swarmify_video_inline')); ?>" 
+				id="<?php echo esc_attr($this->get_field_id( 'swarmify_video_inline')); ?>"
+				value="1">
 				<span class="wp_slider round"></span>
 			</label>
 		</p>
 		<p>
 			<i class="swarmify_info">i</i>
-			<small class="swarmify_info_tooltip">The player is responsive by default. If you toggle this option off, the player will maintain height and width no matter what changes are made to the size of the browser window.</small>
+			<small class="swarmify_info_tooltip"><?php esc_html_e( 'The player is responsive by default. If you toggle this option off, the player will maintain height and width no matter what changes are made to the size of the browser window.', 'swarmify' ); ?></small>
 			<label
 				for="<?php echo esc_attr($this->get_field_id( 'swarmify_unresponsive')); ?>">
 				<?php esc_html_e( 'Responsive:', 'swarmify'); ?>
@@ -237,9 +237,9 @@ if (isset( $instance['swarmify_width'])) {
 					echo 'checked="checked"';
 				} 
 				?>
-				 name="<?php echo esc_attr($this->get_field_name( 'swarmify_unresponsive')); ?>" 
-				 id="<?php echo esc_attr($this->get_field_id( 'swarmify_unresponsive')); ?>"
-				 value="<?php echo '' === $swarmify_unresponsive ? 1 : esc_attr($swarmify_unresponsive); ?>">
+				name="<?php echo esc_attr($this->get_field_name( 'swarmify_unresponsive')); ?>" 
+				id="<?php echo esc_attr($this->get_field_id( 'swarmify_unresponsive')); ?>"
+				value="1">
 				<span class="wp_slider round"></span>
 			</label>
 		</p>

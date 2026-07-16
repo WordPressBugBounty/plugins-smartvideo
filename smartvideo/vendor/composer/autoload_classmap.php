@@ -6,6 +6,16 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator' => $vendorDir . '/automattic/jetpack-autoloader/src/AutoloadGenerator.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'Swarmify\\Smartvideo\\Activator' => $baseDir . '/includes/Smartvideo/Activator.php',
+    'Swarmify\\Smartvideo\\Admin' => $baseDir . '/includes/Smartvideo/Admin.php',
+    'Swarmify\\Smartvideo\\AdminWidget' => $baseDir . '/includes/Smartvideo/AdminWidget.php',
+    'Swarmify\\Smartvideo\\AspectRatio' => $baseDir . '/includes/Smartvideo/AspectRatio.php',
+    'Swarmify\\Smartvideo\\DashboardWidget' => $baseDir . '/includes/Smartvideo/DashboardWidget.php',
+    'Swarmify\\Smartvideo\\PostMeta' => $baseDir . '/includes/Smartvideo/PostMeta.php',
+    'Swarmify\\Smartvideo\\SchemaCollector' => $baseDir . '/includes/Smartvideo/SchemaCollector.php',
+    'Swarmify\\Smartvideo\\Settings' => $baseDir . '/includes/Smartvideo/Settings.php',
+    'Swarmify\\Smartvideo\\Swarmify' => $baseDir . '/includes/Smartvideo/Swarmify.php',
+    'Swarmify\\Smartvideo\\UploadAccelerator' => $baseDir . '/includes/Smartvideo/UploadAccelerator.php',
+    'Swarmify\\Smartvideo\\VideoUrl' => $baseDir . '/includes/Smartvideo/VideoUrl.php',
 );

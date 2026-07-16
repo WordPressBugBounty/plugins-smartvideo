@@ -2,8 +2,8 @@
 /**
  * Plugin Name: SmartVideo
  * Description: SmartVideo makes building a beautiful, professional video experience for your site effortless.
- * Version: 2.2.2
- * Requires at least: 6.0
+ * Version: 2.3.0
+ * Requires at least: 6.6
  * Requires PHP: 7.3
  * Author: Swarmify
  * Author URI: https://swarmify.com/?smartvideo_wordpress_plugin
@@ -12,9 +12,10 @@
  * Text Domain: swarmify
  * Domain Path: /languages
  *
- * License: GNU Affero General Public License v3.0
- * License URI: https://www.gnu.org/licenses/agpl-3.0.en.html
+ * License: AGPL-3.0-or-later
+ * License URI: https://www.gnu.org/licenses/agpl-3.0.html
  *
+ * @package SmartVideo
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -24,24 +25,38 @@ if ( ! defined( 'SMARTVIDEO_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'SWARMIFY_PLUGIN_VERSION' ) ) {
-	define( 'SWARMIFY_PLUGIN_VERSION', '2.2.2' );
+	define( 'SWARMIFY_PLUGIN_VERSION', '2.3.0' );
 }
 
-require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
-use Swarmify\Smartvideo as Smartvideo;
+use Swarmify\Smartvideo;
 
 
 // phpcs:disable WordPress.Files.FileName
 
 
 if ( ! function_exists( 'activate_smartvideo' ) ) {
+	/**
+	 * Activates SmartVideo.
+	 */
 	function activate_smartvideo() {
 		Smartvideo\Activator::activate();
 	}
 }
 
 register_activation_hook( __FILE__, 'activate_smartvideo' );
+
+if ( ! function_exists( 'deactivate_smartvideo' ) ) {
+	/**
+	 * Deactivates SmartVideo.
+	 */
+	function deactivate_smartvideo() {
+		delete_transient( 'smartvideo_activation_redirect_' . get_current_user_id() );
+	}
+}
+
+register_deactivation_hook( __FILE__, 'deactivate_smartvideo' );
 
 
 if ( ! class_exists( 'SmartVideo_Bootstrap' ) ) {
@@ -60,25 +75,21 @@ if ( ! class_exists( 'SmartVideo_Bootstrap' ) ) {
 		 * Constructor.
 		 */
 		public function __construct() {
-			// $plugin_name = dirname( plugin_basename( SMARTVIDEO_PLUGIN_FILE ) );
-			// $plugin      = new Smartvideo\Swarmify( $plugin_name );
-
-			$plugin      = new Smartvideo\Swarmify( 'SmartVideo' );
-			$plugin->run();
+			new Smartvideo\Swarmify( 'SmartVideo' );
 		}
 
 		/**
 		 * Cloning is forbidden.
 		 */
 		public function __clone() {
-			_doing_it_wrong( __FUNCTION__, __( 'Cloning is forbidden.', 'swarmify' ), SWARMIFY_PLUGIN_VERSION );
+			_doing_it_wrong( __FUNCTION__, esc_html__( 'Cloning is forbidden.', 'swarmify' ), esc_html( SWARMIFY_PLUGIN_VERSION ) );
 		}
 
 		/**
 		 * Unserializing instances of this class is forbidden.
 		 */
 		public function __wakeup() {
-			_doing_it_wrong( __FUNCTION__, __( 'Unserializing instances of this class is forbidden.', 'swarmify' ), SWARMIFY_PLUGIN_VERSION );
+			_doing_it_wrong( __FUNCTION__, esc_html__( 'Unserializing instances of this class is forbidden.', 'swarmify' ), esc_html( SWARMIFY_PLUGIN_VERSION ) );
 		}
 
 		/**
@@ -110,6 +121,9 @@ if ( ! class_exists( 'SmartVideo_Bootstrap' ) ) {
 
 // Elementor — only load when Elementor has fired its init hook.
 if ( ! function_exists( 'smartvideo_load_elementor' ) ) {
+	/**
+	 * Loads the Elementor SmartVideo widget when Elementor is active.
+	 */
 	function smartvideo_load_elementor() {
 		if ( did_action( 'elementor/loaded' ) ) {
 			require_once plugin_dir_path( __FILE__ ) . 'includes/page-builders/elementor/class-elementor-swarmify.php';
@@ -120,6 +134,9 @@ if ( ! function_exists( 'smartvideo_load_elementor' ) ) {
 
 // Gutenberg — core since WP 5.0, but only load block assets when block editor is available.
 if ( ! function_exists( 'smartvideo_load_gutenberg' ) ) {
+	/**
+	 * Loads Gutenberg integration assets when Gutenberg is active.
+	 */
 	function smartvideo_load_gutenberg() {
 		if ( function_exists( 'register_block_type' ) ) {
 			require_once plugin_dir_path( __FILE__ ) . 'includes/page-builders/gutenberg/src/init.php';
@@ -130,6 +147,9 @@ if ( ! function_exists( 'smartvideo_load_gutenberg' ) ) {
 
 // Beaver Builder — only load when FL Builder is active.
 if ( ! function_exists( 'smartvideo_load_beaver_builder' ) ) {
+	/**
+	 * Loads the Beaver Builder SmartVideo module when Beaver Builder is active.
+	 */
 	function smartvideo_load_beaver_builder() {
 		if ( class_exists( 'FLBuilder' ) ) {
 			require plugin_dir_path( __FILE__ ) . 'includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php';
@@ -142,6 +162,11 @@ if ( ! function_exists( 'smartvideo_load_beaver_builder' ) ) {
 // The D4-era divi_extensions_init hook fires too late for D5's module registry,
 // so we hook directly into the dependency tree action and load our files there.
 if ( ! function_exists( 'smartvideo_load_divi5_builder' ) ) {
+	/**
+	 * Loads the Divi 5 SmartVideo module.
+	 *
+	 * @param object $dependency_tree The dependency tree.
+	 */
 	function smartvideo_load_divi5_builder( $dependency_tree ) {
 		if ( ! function_exists( 'et_builder_d5_enabled' ) || ! et_builder_d5_enabled() ) {
 			return;
@@ -154,17 +179,24 @@ if ( ! function_exists( 'smartvideo_load_divi5_builder' ) ) {
 	add_action( 'divi_module_library_modules_dependency_tree', 'smartvideo_load_divi5_builder', 10 );
 
 	// Also load on divi_extensions_init for VB asset enqueuing (styles/scripts).
-	add_action( 'divi_extensions_init', function () {
-		if ( function_exists( 'et_builder_d5_enabled' ) && et_builder_d5_enabled() ) {
-			if ( ! defined( 'SMARTVIDEO_DIVI5_PATH' ) ) {
-				require_once plugin_dir_path( __FILE__ ) . 'includes/page-builders/divi5-builder/divi5-smartvideo.php';
+	add_action(
+		'divi_extensions_init',
+		function () {
+			if ( function_exists( 'et_builder_d5_enabled' ) && et_builder_d5_enabled() ) {
+				if ( ! defined( 'SMARTVIDEO_DIVI5_PATH' ) ) {
+					require_once plugin_dir_path( __FILE__ ) . 'includes/page-builders/divi5-builder/divi5-smartvideo.php';
+				}
 			}
-		}
-	}, 5 );
+		},
+		5
+	);
 }
 
 // Divi 4 — only load when Divi 5 is NOT enabled.
 if ( ! function_exists( 'smartvideo_load_divi_builder' ) ) {
+	/**
+	 * Loads the Divi 4 SmartVideo builder integration when Divi 5 is not enabled.
+	 */
 	function smartvideo_load_divi_builder() {
 		if ( function_exists( 'et_builder_d5_enabled' ) && et_builder_d5_enabled() ) {
 			return; // D5 module handles this.
@@ -176,6 +208,9 @@ if ( ! function_exists( 'smartvideo_load_divi_builder' ) ) {
 
 // Bricks — only load when Bricks theme is active.
 if ( ! function_exists( 'smartvideo_load_bricks' ) ) {
+	/**
+	 * Loads the Bricks SmartVideo element when Bricks is active.
+	 */
 	function smartvideo_load_bricks() {
 		if ( defined( 'BRICKS_VERSION' ) ) {
 			require_once plugin_dir_path( __FILE__ ) . 'includes/page-builders/bricks/class-bricks-smartvideo.php';
@@ -191,10 +226,10 @@ if ( ! function_exists( 'smartvideo_load_bricks' ) ) {
  *
  * @since 2.1.0
  */
-function SmartVideo_init() {
-	load_plugin_textdomain( 'swarmify', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
+function smart_video_init() {
+	load_plugin_textdomain( 'swarmify', false, plugin_basename( __DIR__ ) . '/languages' );
 
 	SmartVideo_Bootstrap::instance();
 }
 
-add_action( 'plugins_loaded', 'SmartVideo_init', 10 );
+add_action( 'plugins_loaded', 'smart_video_init', 10 );

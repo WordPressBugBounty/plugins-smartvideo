@@ -7,4 +7,4 @@
 
 /* Style the <smartvideo> custom element before the player JS replaces it. */
 .smartvideo_divi_module smartvideo { display: block; max-width: 100%; }
-.smartvideo_divi_module smartvideo.swarm-fluid { width: 100%; height: auto; }
+.smartvideo_divi_module smartvideo.swarm-fluid { width: 100%; height: auto; aspect-ratio: 16/9; }

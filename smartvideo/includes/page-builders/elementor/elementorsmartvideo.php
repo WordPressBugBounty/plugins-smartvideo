@@ -2,32 +2,71 @@
 
 namespace Elementor;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 class ElementorSmartvideo extends \Elementor\Widget_Base {
 
+	/**
+	 * Get the unique widget machine name used by Elementor.
+	 *
+	 * @return string Widget identifier.
+	 */
 	public function get_name() {
 		return 'smartvideo';
 	}
 
+	/**
+	 * Get the human-readable widget title shown in the Elementor panel.
+	 *
+	 * @return string Localized widget title.
+	 */
 	public function get_title() {
 		return esc_html__( 'SmartVideo', 'swarmify' );
 	}
 
+	/**
+	 * Get the Elementor panel icon CSS class for this widget.
+	 *
+	 * @return string Icon class name.
+	 */
 	public function get_icon() {
 		return 'smartvideo-icon';
 	}
 
+	/**
+	 * Get the categories the widget appears under in the Elementor panel.
+	 *
+	 * @return string[] Category slugs.
+	 */
 	public function get_categories() {
 		return array( 'Smart_video', 'basic' );
 	}
 
+	/**
+	 * Get search keywords for the Elementor widget panel.
+	 *
+	 * @return string[] Keyword list used to surface this widget via search.
+	 */
 	public function get_keywords() {
 		return array( 'video', 'player', 'embed', 'youtube', 'vimeo', 'smartvideo' );
 	}
 
+	/**
+	 * Declare frontend script dependencies for this Elementor widget.
+	 *
+	 * @return string[] Registered script handles.
+	 */
 	public function get_script_depends() {
 		return array( 'smartvideo-elementor-frontend' );
 	}
 
+	/**
+	 * Register editor controls (settings sections and fields) for this widget.
+	 *
+	 * @return void
+	 */
 	protected function register_controls() {
 
 		$this->start_controls_section(
@@ -40,9 +79,15 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 		// Legacy controls — HIDDEN so Elementor preserves old saved values
 		// in the settings model for backward compat + JS migration.
 		foreach ( array( 'video_type', 'youtube', 'vimeo', 'swarmify_url' ) as $legacy ) {
-			$this->add_control( $legacy, array( 'type' => Controls_Manager::HIDDEN, 'default' => '' ) );
+			$this->add_control( $legacy, array(
+				'type'    => Controls_Manager::HIDDEN,
+				'default' => '',
+			) );
 		}
-		$this->add_control( 'another_source', array( 'type' => Controls_Manager::HIDDEN, 'default' => '' ) );
+		$this->add_control( 'another_source', array(
+			'type'    => Controls_Manager::HIDDEN,
+			'default' => '',
+		) );
 
 		$this->add_control(
 			'video_source_type',
@@ -62,7 +107,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 			array(
 				'label'       => __( 'Video URL', 'swarmify' ),
 				'type'        => Controls_Manager::TEXT,
-				'placeholder' => 'https://www.youtube.com/watch?v=... or any video URL',
+				'placeholder' => __( 'https://www.youtube.com/watch?v=... or any video URL', 'swarmify' ),
 				'description' => __( 'YouTube, Vimeo, Swarmify, or direct video URL', 'swarmify' ),
 				'label_block' => true,
 				'dynamic'     => array(
@@ -286,10 +331,15 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 	/*
 	 * End style section
 	 * */
+	/**
+	 * Render the SmartVideo Elementor widget on the front end and in the editor.
+	 *
+	 * @return void
+	 */
 	protected function render() {
 		// Disabled warning — only in Elementor editor, not on the frontend.
 		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() &&
-		     ( 'on' !== get_option( 'swarmify_status' ) || '' === get_option( 'swarmify_cdn_key', '' ) ) ) {
+			( 'on' !== get_option( 'swarmify_status' ) || '' === get_option( 'swarmify_cdn_key', '' ) ) ) {
 			printf(
 				'<div style="background:#fcf0c0;border:1px solid #d4a72c;border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:13px;color:#6b5900">%s</div>',
 				esc_html__( 'SmartVideo is currently disabled. Go to the SmartVideo settings page to enable it.', 'swarmify' )
@@ -315,58 +365,78 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 			} elseif ( 'youtube' === $video_type && ! empty( $settings['youtube'] ) ) {
 				$swarmify_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['youtube'] );
 			} elseif ( 'vimeo' === $video_type && ! empty( $settings['vimeo'] ) ) {
-				$swarmify_url = $settings['vimeo'];
+				$swarmify_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['vimeo'] );
 			} elseif ( 'swarmify_url' === $video_type && ! empty( $settings['swarmify_url'] ) ) {
-				$swarmify_url = $settings['swarmify_url'];
+				$swarmify_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['swarmify_url'] );
 			} elseif ( 'another_source' === $video_type && ! empty( $settings['another_source']['url'] ) ) {
-				$swarmify_url = $settings['another_source']['url'];
+				$swarmify_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['another_source']['url'] );
 			}
 		}
 
 		if ( empty( $swarmify_url ) ) {
-			echo \Swarmify\Smartvideo\AspectRatio::empty_placeholder();
+			// Show the "No video selected" placeholder only in the Elementor
+			// editor. Frontend visitors must not see authoring chrome on
+			// empty widgets.
+			if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static self-built markup; the only dynamic value is escaped via esc_html__() in empty_placeholder(), and wp_kses would lowercase the SVG viewBox.
+				echo \Swarmify\Smartvideo\AspectRatio::empty_placeholder();
+			}
 			return;
 		}
 
-		$aspect_ratio = isset( $settings['aspect_ratio'] ) ? $settings['aspect_ratio'] : '';
+		// Elementor strips conditional control values from get_settings_for_display()
+		// when their condition isn't met (video_width/video_height require
+		// aspect_ratio=custom; switchers may also be absent on legacy saves), so
+		// every read here needs a ?? default to avoid PHP 8 undefined-key warnings
+		// and the 0×0 fallback that AspectRatio::resolve produces from null input.
+		$aspect_ratio           = $settings['aspect_ratio'] ?? '';
 		list( $width, $height ) = \Swarmify\Smartvideo\AspectRatio::resolve(
 			$aspect_ratio,
-			$settings['video_width'],
-			$settings['video_height']
+			$settings['video_width'] ?? 1280,
+			$settings['video_height'] ?? 720
 		);
-		$responsive = 'yes' === $settings['responsive'] ? 'class="' . esc_attr( 'swarm-fluid' ) . '"' : '';
-		$poster_url = null;
-		if ( 'none' !== $settings['poster'] ) {
-			$poster_url = 'media_library' === $settings['poster']
+		$responsive             = 'yes' === ( $settings['responsive'] ?? '' ) ? 'class="swarm-fluid"' : '';
+		$poster_url             = null;
+		$poster_type            = $settings['poster'] ?? 'none';
+		if ( 'none' !== $poster_type ) {
+			$poster_url = 'media_library' === $poster_type
 				? ( $settings['poster_media_library']['url'] ?? null )
 				: ( $settings['poster_another_src']['url'] ?? null );
 		}
-		$poster     = ! empty( $poster_url ) ? sprintf( 'poster="%s"', esc_url( $poster_url )) : '';
-
-		$autoplay    = 'yes' === $settings['autoplay'] ? 'autoplay' : '';
-		$muted       = 'yes' === $settings['muted'] ? 'muted' : '';
-		$loop        = 'yes' === $settings['loop'] ? 'loop' : '';
-		$controls    = 'yes' === $settings['controls'] ? 'controls' : '';
-		$playsinline  = 'yes' === $settings['playsinline'] ? 'playsinline' : '';
-		$preload_val  = isset( $settings['preload'] ) ? $settings['preload'] : 'auto';
-		$preload_attr = ( 'auto' !== $preload_val ) ? sprintf( 'preload="%s"', esc_attr( $preload_val ) ) : '';
+		$poster = ! empty( $poster_url ) ? sprintf( 'poster="%s"', esc_url( $poster_url )) : '';
 
 		\Swarmify\Smartvideo\SchemaCollector::add( $swarmify_url, $poster_url ?: '' );
 
-		printf(
-			'<smartvideo src="%s" width="%s" height="%s" %s %s %s %s %s %s %s %s></smartvideo>',
-			esc_url( $swarmify_url ),
-			esc_attr( $width ),
-			esc_attr( $height ),
-			$poster,
-			$responsive,
-			esc_attr( $autoplay ),
-			esc_attr( $muted ),
-			esc_attr( $loop ),
-			esc_attr( $controls ),
-			esc_attr( $playsinline ),
-			$preload_attr
-		);
-	}
+		// Build attribute list — empty/disabled attrs are skipped so we never
+		// emit double-space runs inside the tag. Canonical order:
+		// src, poster, autoplay, muted, loop, controls, playsinline, width, height, class.
+		$attrs   = array();
+		$attrs[] = 'src="' . esc_url( $swarmify_url, array_merge( wp_allowed_protocols(), array( 'swarmify' ) ) ) . '"';
+		if ( ! empty( $poster ) ) {
+			$attrs[] = $poster;
+		}
+		if ( 'yes' === ( $settings['autoplay'] ?? '' ) ) {
+			$attrs[] = 'autoplay';
+		}
+		if ( 'yes' === ( $settings['muted'] ?? '' ) ) {
+			$attrs[] = 'muted';
+		}
+		if ( 'yes' === ( $settings['loop'] ?? '' ) ) {
+			$attrs[] = 'loop';
+		}
+		if ( 'yes' === ( $settings['controls'] ?? '' ) ) {
+			$attrs[] = 'controls';
+		}
+		if ( 'yes' === ( $settings['playsinline'] ?? '' ) ) {
+			$attrs[] = 'playsinline';
+		}
+		$attrs[] = 'width="' . esc_attr( $width ) . '"';
+		$attrs[] = 'height="' . esc_attr( $height ) . '"';
+		if ( ! empty( $responsive ) ) {
+			$attrs[] = $responsive;
+		}
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); <smartvideo> is a custom element wp_kses_post would strip.
+		echo '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
+	}
 }

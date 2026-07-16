@@ -65,12 +65,6 @@
             "render": true,
             "label": "Video URL",
             "description": "Paste a YouTube, Vimeo, Swarmify, or direct video URL",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/text",
               "type": "field",
@@ -101,12 +95,6 @@
             "render": true,
             "label": "Choose from Media Library",
             "description": "Upload a video from your media library.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/upload",
               "type": "field",
@@ -139,12 +127,6 @@
             "render": true,
             "label": "Poster source",
             "description": "Choose where the poster image comes from, or use the automatic default.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/select",
               "type": "field",
@@ -185,12 +167,6 @@
             "render": true,
             "label": "Poster image",
             "description": "Upload a poster image from your media library. Used when poster source is 'Media library'.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/upload",
               "type": "field"
@@ -218,12 +194,6 @@
             "render": true,
             "label": "Poster link",
             "description": "Direct URL to a poster image. Used when poster source is 'Other'.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/text",
               "type": "field",
@@ -254,12 +224,6 @@
             "render": true,
             "label": "Aspect Ratio",
             "description": "Select a standard aspect ratio or choose Custom to set exact dimensions.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/select",
               "type": "field",
@@ -309,12 +273,6 @@
             "render": true,
             "label": "Width",
             "description": "Video width in pixels.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/range",
               "type": "field",
@@ -349,12 +307,6 @@
             "render": true,
             "label": "Height",
             "description": "Video height in pixels.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/range",
               "type": "field",
@@ -389,12 +341,6 @@
             "render": true,
             "label": "Autoplay",
             "description": "Automatically start playing when the video is visible. Most browsers require 'Muted' to be enabled.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/toggle",
               "type": "field"
@@ -422,12 +368,6 @@
             "render": true,
             "label": "Muted",
             "description": "Start playback with audio muted.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/toggle",
               "type": "field"
@@ -455,12 +395,6 @@
             "render": true,
             "label": "Loop",
             "description": "Restart the video automatically when it reaches the end.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/toggle",
               "type": "field"
@@ -488,12 +422,6 @@
             "render": true,
             "label": "Controls",
             "description": "Show player controls (play, pause, volume, etc.).",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/toggle",
               "type": "field"
@@ -521,12 +449,6 @@
             "render": true,
             "label": "Play inline",
             "description": "Keep the video inline on iOS instead of opening in fullscreen.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/toggle",
               "type": "field"
@@ -554,12 +476,6 @@
             "render": true,
             "label": "Responsive",
             "description": "Make the video responsive to fill its container width while maintaining aspect ratio.",
-            "features": {
-              "sticky": false,
-              "responsive": false,
-              "hover": false,
-              "dynamicContent": false
-            },
             "component": {
               "name": "divi/toggle",
               "type": "field"

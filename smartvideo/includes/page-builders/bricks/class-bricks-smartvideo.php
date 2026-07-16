@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 // Register the element.
-add_action( 'init', function() {
+add_action( 'init', function () {
 	if ( ! class_exists( '\Bricks\Elements' ) ) {
 		return;
 	}
@@ -22,7 +22,7 @@ add_action( 'init', function() {
 }, 11 );
 
 // Inject custom icon CSS for the Bricks panel.
-add_action( 'wp_enqueue_scripts', function() {
+add_action( 'wp_enqueue_scripts', function () {
 	if ( ! function_exists( 'bricks_is_builder' ) || ! bricks_is_builder() ) {
 		return;
 	}

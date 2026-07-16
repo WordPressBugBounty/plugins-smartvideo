@@ -9,7 +9,7 @@ class SMARTVIDEO_DiviBuilder extends DiviExtension {
 	 *
 	 * @var string
 	 */
-	public $gettext_domain = 'smartvideo-divi-builder';
+	public $gettext_domain = 'swarmify';
 
 	/**
 	 * The extension's WP Plugin name.
@@ -44,15 +44,25 @@ class SMARTVIDEO_DiviBuilder extends DiviExtension {
 		add_action( 'wp_head', array( $this, 'pass_status_to_builder' ), 1 );
 	}
 
+	/**
+	 * Print SmartVideo status data into <head> so the Divi builder JS can read it.
+	 *
+	 * @return void
+	 */
 	public function pass_status_to_builder() {
+		if ( ! et_core_is_fb_enabled() ) {
+			return;
+		}
 		printf(
-			'<script>window.smartvideoBlockData = %s;</script>',
-			wp_json_encode( array(
-				'isActive' => ( 'on' === get_option( 'swarmify_status' ) && '' !== get_option( 'swarmify_cdn_key', '' ) ),
-			) )
+			'<script>window.smartvideoBlockData = Object.assign(window.smartvideoBlockData || {}, %s);</script>',
+			wp_json_encode(
+				array(
+					'isActive' => ( 'on' === get_option( 'swarmify_status' ) && '' !== get_option( 'swarmify_cdn_key', '' ) ),
+				),
+				JSON_HEX_TAG
+			)
 		);
 	}
-
 }
 
 new SMARTVIDEO_DiviBuilder();

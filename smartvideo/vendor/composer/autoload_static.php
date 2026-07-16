@@ -4,41 +4,43 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit931bf72f9c7c2de8ce9eca99aef07850
+class ComposerStaticInit096e08826a5304a311da4149d9a8031c
 {
     public static $prefixLengthsPsr4 = array (
         'S' =>
         array (
-            'Swarmify\\' => 9,
-        ),
-        'A' =>
-        array (
-            'Automattic\\Jetpack\\Autoloader\\' => 30,
+            'Swarmify\\Smartvideo\\' => 20,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Swarmify\\' =>
+        'Swarmify\\Smartvideo\\' =>
         array (
-            0 => __DIR__ . '/../..' . '/includes',
-        ),
-        'Automattic\\Jetpack\\Autoloader\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-autoloader/src',
+            0 => __DIR__ . '/../..' . '/includes/Smartvideo',
         ),
     );
 
     public static $classMap = array (
-        'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator' => __DIR__ . '/..' . '/automattic/jetpack-autoloader/src/AutoloadGenerator.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Swarmify\\Smartvideo\\Activator' => __DIR__ . '/../..' . '/includes/Smartvideo/Activator.php',
+        'Swarmify\\Smartvideo\\Admin' => __DIR__ . '/../..' . '/includes/Smartvideo/Admin.php',
+        'Swarmify\\Smartvideo\\AdminWidget' => __DIR__ . '/../..' . '/includes/Smartvideo/AdminWidget.php',
+        'Swarmify\\Smartvideo\\AspectRatio' => __DIR__ . '/../..' . '/includes/Smartvideo/AspectRatio.php',
+        'Swarmify\\Smartvideo\\DashboardWidget' => __DIR__ . '/../..' . '/includes/Smartvideo/DashboardWidget.php',
+        'Swarmify\\Smartvideo\\PostMeta' => __DIR__ . '/../..' . '/includes/Smartvideo/PostMeta.php',
+        'Swarmify\\Smartvideo\\SchemaCollector' => __DIR__ . '/../..' . '/includes/Smartvideo/SchemaCollector.php',
+        'Swarmify\\Smartvideo\\Settings' => __DIR__ . '/../..' . '/includes/Smartvideo/Settings.php',
+        'Swarmify\\Smartvideo\\Swarmify' => __DIR__ . '/../..' . '/includes/Smartvideo/Swarmify.php',
+        'Swarmify\\Smartvideo\\UploadAccelerator' => __DIR__ . '/../..' . '/includes/Smartvideo/UploadAccelerator.php',
+        'Swarmify\\Smartvideo\\VideoUrl' => __DIR__ . '/../..' . '/includes/Smartvideo/VideoUrl.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit931bf72f9c7c2de8ce9eca99aef07850::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit931bf72f9c7c2de8ce9eca99aef07850::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit931bf72f9c7c2de8ce9eca99aef07850::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit096e08826a5304a311da4149d9a8031c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit096e08826a5304a311da4149d9a8031c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit096e08826a5304a311da4149d9a8031c::$classMap;
 
         }, null, ClassLoader::class);
     }

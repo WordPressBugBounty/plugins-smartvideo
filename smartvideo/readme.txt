@@ -1,12 +1,12 @@
 === SmartVideo - Video Player and CDN ===
 Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
-Requires at least: 6.0
-Tested up to: 6.9.1
-Stable tag: 2.2.2
-Requires PHP: 7.4
-License: AGPL-3.0
-License URI: https://www.gnu.org/licenses/agpl.txt
+Requires at least: 6.6
+Tested up to: 7.0
+Stable tag: 2.3.0
+Requires PHP: 7.3
+License: AGPL-3.0-or-later
+License URI: https://www.gnu.org/licenses/agpl-3.0.html
 
 Lightweight HTML5 video player and video hosting with CDN built for WordPress
 
@@ -156,11 +156,39 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 
 == Changelog ==
 
+= 2.3.0 =
+* Feature: Enhanced Video SEO — JSON-LD VideoObject schema now auto-fills description, thumbnail, duration, page URL, and publisher from your existing content (post excerpts, SEO plugin meta — Yoast, Rank Math, AIOSEO, SEOPress, and more — featured images, Media Library), with a new `smartvideo_schema_data` developer filter. The classic widget and Divi modules now emit schema too, joining the other builders.
+* Feature: Divi 5 modules now render on the live site (previously editor-only) — modules you've already built start appearing to visitors automatically, no changes needed.
+* Feature: Modernized classic-editor video dialog — redesigned popup with live YouTube/Vimeo thumbnail preview, a poster-source dropdown, keyboard-navigable tabs, and fields pre-filled from your site defaults.
+* Feature: Quick link to your Swarmify dashboard from the plugin settings.
+* Security: Chunked uploads now accumulate in a private, server-only directory (closing an attack vector on shared hosting), with permission and nonce checks before any file handling, bounds-checked chunk indices, and hourly cleanup of stale chunks. Nothing changes in how you upload videos.
+* Security: REST settings writes hardened — inputs restricted to known settings keys, and every setting now runs both validate and sanitize callbacks; `swarmify://` dropped from the global `wp_kses` allowlist; Vimeo oEmbed thumbnails validated and fetched via `wp_safe_remote_get`; plus broad input-validation, output-escaping, capability-check, and nonce hardening from extensive code review.
+* Fix: Empty SmartVideo blocks/modules no longer show the "No video selected" placeholder to site visitors — it now appears only in the builder editor (all builders + shortcode).
+* Fix: Upload accelerator — fixed silent corruption on chunk-0 retries and same-filename collisions between browser tabs; added a server-side upload size cap based on free disk space; failed uploads now report a reason.
+* Fix: Pages with Beaver Builder videos picked from the Media Library now load the player script, so those videos play; Beaver Builder/Elementor modules missing width/height no longer render 0×0 or trigger PHP 8 warnings; Divi 5 responsive modules reserve a 16:9 ratio to prevent layout shift.
+* Fix: Conditional loading now reads post content from the database (so Divi 5 runtime swaps are detected) and no longer false-loads on non-video iframes such as Google Maps.
+* Fix: YouTube Shorts and live-stream URLs are now recognized, and `?t=`/`?start=` start times are preserved when links are converted via the shortcode or page-builder modules; negative dimensions are clamped.
+* Fix: Responsive iframe CSS now applies even when YouTube auto-conversion is off, so converted Vimeo embeds are responsive.
+* Fix: The Gutenberg per-page "disable" toggle now saves, and the classic widget's Controls toggle now sticks when unchecked.
+* Fix: Settings polish — unsaved edits persist on navigation, the CDN key field trims whitespace, the status panel now probes `swarmcdn.js` (the script the player actually loads), the conflict-plugin check covers more plugins, and the dashboard help link is fixed.
+* Fix: Complete data cleanup on uninstall, including multisite.
+* Compatibility: Tested with WordPress 7.0; minimum supported version raised to 6.6.
+* Compatibility: Stable player loads `swarmcdn.js` directly (replacing the deprecated `swarmdetect.js` proxy), fixing playback on sites where the proxy was blocked.
+* Accessibility: Improved ARIA roles, keyboard navigation, focus management, and contrast across the admin settings and the classic-editor dialog.
+* Internationalization: All user-facing strings audited and made translatable; the translation template is now populated.
+* Note: `[smartvideo]` shortcodes without explicit attributes now follow your site-level defaults (autoplay/muted/loop/controls/playsinline/responsive) instead of fixed built-in values, so existing bare shortcodes may behave differently after updating. Add attributes to any individual shortcode to pin its behavior.
+* Note: Per-module `preload` settings have been removed from all builders — the player now manages preloading itself, and any preload value you previously set in a builder is ignored. The shortcode still accepts an explicit `preload` attribute for backward compatibility.
+* Note: Classic-editor SmartVideo Widget instances saved before the controls setting was tracked now render with player controls enabled, restoring the historical default. Widgets saved with controls explicitly unchecked since 2.x are unaffected.
+
 = 2.2.2 =
 * **Beta player toggle**
-  * New "Beta player" toggle under Advanced settings loads the pre-release SmartVideo player build (`assets.swarmcdn.com/beta/swarmcdn.js`) for testing upcoming fixes/features
-  * Off by default — stable build still ships to all users unless explicitly enabled
-  * Beta script is loaded async with `fetchpriority="high"` for faster startup
+  * Added beta player toggle in Advanced settings for testing upcoming player builds
+  * Hardened build pipeline for more reliable releases
+
+= 2.2.1 =
+* **Bug fixes for 2.2.0**
+  * Fixed conditional loading edge cases introduced in the 2.2.0 overhaul
+  * Fixed block migration issues when editing legacy Gutenberg blocks
 
 = 2.2.0 =
 * **Divi 5 + Bricks Builder support**
@@ -363,6 +391,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Adds Video SEO schema markup, security hardening (REST settings sanitization, kses scope tightening, Vimeo transient validation), and cache plugin compatibility improvements. Recommended for all users.
 
 = 2.2.0 =
 Major release: Divi 5 and Bricks Builder support, conditional script loading overhaul, modernized settings UI, Gutenberg block improvements, per-page disable, security fixes. Recommended for all users.

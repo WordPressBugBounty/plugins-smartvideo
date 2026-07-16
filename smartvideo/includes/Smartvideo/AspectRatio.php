@@ -33,7 +33,7 @@ class AspectRatio {
 		if ( isset( self::PRESETS[ $ratio ] ) ) {
 			return self::PRESETS[ $ratio ];
 		}
-		return array( (int) $width, (int) $height );
+		return array( max( 0, (int) $width ), max( 0, (int) $height ) );
 	}
 
 	/**

@@ -42,11 +42,18 @@ export interface SmartVideoAttrs extends InternalAttrs {
 	};
 
 	// Video source settings.
-	videoSource?: StringAttr;
+	// New schema (declared in module.json, source of truth for new modules).
+	videoUrl?: StringAttr;
 	mediaLibrary?: StringAttr;
+	// Legacy schema (NOT in module.json; populated only via D4→D5 conversion).
+	// edit.tsx and RenderCallbackTrait.php still read these as a fallback so
+	// converted-from-D4 modules continue to render. Full removal is deferred
+	// (CHANGELOG-unreleased.md) — needs a content migration step.
+	videoSource?: StringAttr;
 	youtubeUrl?: StringAttr;
 	vimeoUrl?: StringAttr;
 	anotherSource?: StringAttr;
+	swarmifyUrl?: StringAttr;
 
 	// Poster settings.
 	posterSource?: StringAttr;
@@ -54,6 +61,7 @@ export interface SmartVideoAttrs extends InternalAttrs {
 	posterUrl?: StringAttr;
 
 	// Dimensions.
+	aspectRatio?: StringAttr;
 	videoWidth?: StringAttr;
 	videoHeight?: StringAttr;
 

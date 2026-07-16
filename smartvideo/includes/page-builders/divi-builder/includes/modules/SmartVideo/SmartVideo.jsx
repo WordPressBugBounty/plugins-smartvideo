@@ -1,10 +1,10 @@
 // External Dependencies
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 
 // Internal Dependencies
 import './style.css';
 
-class SmartVideoDivi extends Component {
+class SmartVideoDivi extends PureComponent {
 
 	constructor() {
 		super( ...arguments );
@@ -90,34 +90,13 @@ class SmartVideoDivi extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-    if( 
-      // too many silly check as simple this.props !== prevProps not working for some reason :(
-      this.props.video_src !== prevProps.video_src ||
-      this.props.media_library !== prevProps.media_library ||
-      this.props.youtube !== prevProps.youtube ||
-      this.props.vimeo !== prevProps.vimeo ||
-      this.props.another_source !== prevProps.another_source ||
-      this.props.video_width !== prevProps.video_width ||
-      this.props.video_height !== prevProps.video_height ||
-      this.props.poster_src !== prevProps.poster_src ||
-      this.props.internal_poster !== prevProps.internal_poster ||
-      this.props.external_poster !== prevProps.external_poster ||
-      this.props.autoplay !== prevProps.autoplay ||
-      this.props.muted !== prevProps.muted ||
-      this.props.loop !== prevProps.loop ||
-      this.props.controls !== prevProps.controls ||
-      this.props.playsinline !== prevProps.playsinline ||
-      this.props.responsive !== prevProps.responsive
-      ) {
-        // console.log('componentDidMounted');
-  			const containDiv = this.container;
-        while(containDiv.firstChild) {
-          containDiv.removeChild(containDiv.firstChild);
-        }
-        const newSmartVideo = this.getSmartVideoElem(this.props);
-        containDiv.append(newSmartVideo);
-        // console.log('did-update', containDiv);
+		// PureComponent shallow-compares props, so this only fires when a prop actually changed.
+		const containDiv = this.container;
+		while(containDiv.firstChild) {
+			containDiv.removeChild(containDiv.firstChild);
 		}
+		const newSmartVideo = this.getSmartVideoElem(this.props);
+		containDiv.append(newSmartVideo);
 	}
 
 	componentDidMount(){

@@ -6,6 +6,19 @@ namespace Swarmify\Smartvideo;
  * Smartvideo Admin Class
  */
 class Admin {
+	/**
+	 * WP script/style handle for the admin settings page bundle.
+	 * Prefixed to avoid collisions with other plugins.
+	 */
+	private const ADMIN_HANDLE = 'smartvideo-admin';
+
+	/**
+	 * WP script/style handle for the classic-editor bundle.
+	 * Byte-identical to the former `$this->plugin_name . '-swarmify-admin'`
+	 * (plugin_name is the fixed literal 'SmartVideo').
+	 */
+	private const CLASSIC_EDITOR_HANDLE = 'SmartVideo-swarmify-admin';
+
 	protected $plugin_name;
 	protected $version;
 	protected $settings;
@@ -27,7 +40,7 @@ class Admin {
 	 * @since 1.0.0
 	 */
 	public function activation_redirect() {
-		if ( ! get_transient( 'smartvideo_activation_redirect' ) ) {
+		if ( ! get_transient( 'smartvideo_activation_redirect_' . get_current_user_id() ) ) {
 			return;
 		}
 
@@ -36,12 +49,18 @@ class Admin {
 			return;
 		}
 
-		delete_transient( 'smartvideo_activation_redirect' );
+		delete_transient( 'smartvideo_activation_redirect_' . get_current_user_id() );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=SmartVideo.php' ) );
 		exit;
 	}
 
+	/**
+	 * Register and enqueue admin scripts and styles for the SmartVideo settings page.
+	 *
+	 * @param  string $hook Current admin page hook suffix.
+	 * @return void
+	 */
 	public function register_scripts( $hook ) {
 		if ( 'toplevel_page_SmartVideo' !== $hook ) {
 			return;
@@ -58,7 +77,7 @@ class Admin {
 		$script_url        = plugins_url( $script_path, SMARTVIDEO_PLUGIN_FILE );
 
 		wp_register_script(
-			$this->plugin_name,
+			self::ADMIN_HANDLE,
 			$script_url,
 			$script_asset['dependencies'],
 			$script_asset['version'],
@@ -69,23 +88,24 @@ class Admin {
 			'smartvideo-google-fonts',
 			'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap',
 			array(),
-			null
+			$this->version
 		);
 
 		wp_register_style(
-			$this->plugin_name,
+			self::ADMIN_HANDLE,
 			plugins_url( '/build/index.css', SMARTVIDEO_PLUGIN_FILE ),
 			array( 'wp-components', 'smartvideo-google-fonts' ),
-			'2.1.0'
+			$this->version
 		);
 
-		wp_enqueue_media(); // necessary to ensure wp.media exists in Js	
+		wp_enqueue_media(); // necessary to ensure wp.media exists in Js    
 
-		wp_enqueue_script( $this->plugin_name );
-		wp_enqueue_style( $this->plugin_name );
+		wp_enqueue_script( self::ADMIN_HANDLE );
+		wp_set_script_translations( self::ADMIN_HANDLE, 'swarmify' );
+		wp_enqueue_style( self::ADMIN_HANDLE );
 
 		wp_localize_script(
-			$this->plugin_name,
+			self::ADMIN_HANDLE,
 			'smartvideoPlugin',
 			array(
 				'baseUrl'         => plugins_url( '', SMARTVIDEO_PLUGIN_FILE ),
@@ -106,7 +126,7 @@ class Admin {
 	public function register_page() {
 
 		// base64-encoded from assets/icon.svg, but modified for the menu
-		$menu_icon = <<<EOSVG
+		$menu_icon = <<<'EOSVG'
         <svg viewBox="0 0 47 47" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" version="1.1" width="47" height="47" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
             <path fill="#000" d="M 23.050781,0 23.044922,0.00390625 23.039062,0 Z m 20.988281,11.519531 v 23.041016 l -21,11.519531 L 2.0390625,34.560547 V 11.519531 L 23.044922,0.00390625 Z m -28.519531,1.910157 v 19.390624 c 0,1.999998 1.319689,2.869687 2.929688,1.929688 L 35.5,24.820312 c 1.619998,-0.939999 1.619998,-2.460391 0,-3.40039 L 18.449219,11.5 c -0.4025,-0.2375 -0.786563,-0.362188 -1.136719,-0.382812 -1.050468,-0.06188 -1.792969,0.805001 -1.792969,2.3125 z" />
         </svg>
@@ -116,13 +136,17 @@ EOSVG;
 			__( 'SmartVideo', 'swarmify' ),
 			__( 'SmartVideo', 'swarmify' ),
 			'manage_options',
-			$this->plugin_name.'.php',
-			// 'smartvideo-admin',
-			array($this, 'admin_display'), 
+			$this->plugin_name . '.php',
+			array( $this, 'admin_display' ),
 			'data:image/svg+xml;base64,' . base64_encode( $menu_icon ),
 		);
 	}
 
+	/**
+	 * Render the SmartVideo admin page wrapper for the React app.
+	 *
+	 * @return void
+	 */
 	public function admin_display() {
 		?>
 		<div class="wrap">
@@ -131,28 +155,71 @@ EOSVG;
 		<?php
 	}
 
+	/**
+	 * Whether the current admin screen is the block editor (classic-editor
+	 * assets and UI should be skipped there).
+	 *
+	 * @return bool
+	 */
+	private function is_block_editor_screen() {
+		$screen = get_current_screen();
+		return $screen && $screen->is_block_editor();
+	}
+
+	/**
+	 * Enqueue classic editor styles on post edit screens.
+	 *
+	 * @param  string $hook Current admin page hook suffix.
+	 * @return void
+	 */
 	public function enqueue_classic_editor_styles( $hook ) {
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
 
-		wp_enqueue_style( $this->plugin_name . '-fancybox', plugin_dir_url( __FILE__ ) . 'css/jquery.fancybox.min.css', array(), $this->version, 'all' );
+		if ( $this->is_block_editor_screen() ) {
+			return;
+		}
+
+		// Fancybox CSS removed — classic editor modal now uses native <dialog>
 
 		// Add the color picker css file
 		wp_enqueue_style( 'wp-color-picker' );
 
-		wp_enqueue_style( $this->plugin_name . '-swarmify-admin', plugin_dir_url( __FILE__ ) . 'css/swarmify-admin.css', array(), $this->version, 'all' );
-
+		wp_enqueue_style( self::CLASSIC_EDITOR_HANDLE, plugin_dir_url( __FILE__ ) . 'css/swarmify-admin.css', array(), $this->version, 'all' );
 	}
 
+	/**
+	 * Enqueue classic editor scripts and localize SmartVideo defaults.
+	 *
+	 * @param  string $hook Current admin page hook suffix.
+	 * @return void
+	 */
 	public function enqueue_classic_editor_scripts( $hook ) {
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
 
-		wp_enqueue_script( $this->plugin_name . '-fancybox', plugin_dir_url( __FILE__ ) . 'js/jquery.fancybox.min.js', array( 'jquery' ), $this->version, false );
+		if ( $this->is_block_editor_screen() ) {
+			return;
+		}
 
-		wp_enqueue_script( $this->plugin_name . '-swarmify-admin', plugin_dir_url( __FILE__ ) . 'js/swarmify-admin.js', array( 'jquery', 'wp-color-picker' ), $this->version, false );
+		// Fancybox JS removed — classic editor modal now uses native <dialog>
+
+		wp_enqueue_script( self::CLASSIC_EDITOR_HANDLE, plugin_dir_url( __FILE__ ) . 'js/swarmify-admin.js', array( 'jquery', 'wp-color-picker' ), $this->version, false );
+
+		wp_localize_script(
+			self::CLASSIC_EDITOR_HANDLE,
+			'smartvideoDefaults',
+			array(
+				'autoplay'    => ( 'on' === $this->settings->get( 'swarmify_default_autoplay' ) ),
+				'muted'       => ( 'on' === $this->settings->get( 'swarmify_default_muted' ) ),
+				'loop'        => ( 'on' === $this->settings->get( 'swarmify_default_loop' ) ),
+				'controls'    => ( 'on' === $this->settings->get( 'swarmify_default_controls' ) ),
+				'playsinline' => ( 'on' === $this->settings->get( 'swarmify_default_playsinline' ) ),
+				'responsive'  => ( 'on' === $this->settings->get( 'swarmify_default_responsive' ) ),
+			)
+		);
 	}
 
 	/**
@@ -173,6 +240,11 @@ EOSVG;
 
 
 
+	/**
+	 * Render dismissible admin notices when the CDN key is missing or features are disabled.
+	 *
+	 * @return void
+	 */
 	public function admin_notices() {
 		// Don't show notices on the SmartVideo settings page itself.
 		$screen = get_current_screen();
@@ -180,35 +252,72 @@ EOSVG;
 			return;
 		}
 
-		$cdn_key = $this->settings->get( 'swarmify_cdn_key' );
-		$status  = $this->settings->get( 'swarmify_status' );
+		$cdn_key      = $this->settings->get( 'swarmify_cdn_key' );
+		$status       = $this->settings->get( 'swarmify_status' );
 		$settings_url = esc_url( admin_url( 'admin.php?page=SmartVideo.php' ) );
 
 		if ( '' === $cdn_key ) {
 			printf(
-				'<div class="notice notice-warning is-dismissible"><p><strong>SmartVideo</strong> needs your CDN key to work. <a href="%s">Set it up now</a></p></div>',
-				$settings_url
+				'<div class="notice notice-warning is-dismissible"><p>%s</p></div>',
+				sprintf(
+					/* translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a> */
+					esc_html__( '%1$sSmartVideo%2$s needs your CDN key to work. %3$sSet it up now%4$s', 'swarmify' ),
+					'<strong>',
+					'</strong>',
+					'<a href="' . esc_url( $settings_url ) . '">',
+					'</a>'
+				)
 			);
 		} elseif ( 'on' !== $status ) {
 			printf(
-				'<div class="notice notice-info is-dismissible"><p><strong>SmartVideo</strong> is currently disabled. <a href="%s">Enable it</a> to start optimizing your videos.</p></div>',
-				$settings_url
+				'<div class="notice notice-info is-dismissible"><p>%s</p></div>',
+				sprintf(
+					/* translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a> */
+					esc_html__( '%1$sSmartVideo%2$s is currently disabled. %3$sEnable it%4$s to start optimizing your videos.', 'swarmify' ),
+					'<strong>',
+					'</strong>',
+					'<a href="' . esc_url( $settings_url ) . '">',
+					'</a>'
+				)
 			);
 		} elseif ( 'on' !== $this->settings->get( 'swarmify_toggle_youtube' ) ) {
 			printf(
-				'<div class="notice notice-info is-dismissible"><p><strong>SmartVideo</strong> can automatically replace YouTube and Vimeo embeds with a faster, ad-free player. <a href="%s">Turn it on</a></p></div>',
-				$settings_url
+				'<div class="notice notice-info is-dismissible"><p>%s</p></div>',
+				sprintf(
+					/* translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a> */
+					esc_html__( '%1$sSmartVideo%2$s can automatically replace YouTube and Vimeo embeds with a faster, ad-free player. %3$sTurn it on%4$s', 'swarmify' ),
+					'<strong>',
+					'</strong>',
+					'<a href="' . esc_url( $settings_url ) . '">',
+					'</a>'
+				)
 			);
 		}
 	}
 
+	/**
+	 * Output the "Add SmartVideo" button for the classic editor media bar.
+	 *
+	 * @return void
+	 */
 	public function add_video_button() {
-		echo '<a href="" data-fancybox data-src="#swarmify-modal-content" class="button swarmify_add_button"><img src="' . esc_url( plugin_dir_url( __FILE__ ) ) . 'images/smartvideo_icon.png" alt="">' . esc_html__( 'Add SmartVideo', 'swarmify' ) . '</a>';
+		if ( $this->is_block_editor_screen() ) {
+			return;
+		}
+		echo '<a href="" class="button swarmify_add_button" onclick="event.preventDefault();document.getElementById(\'swarmify-dialog\').showModal();"><img src="' . esc_url( plugin_dir_url( __FILE__ ) ) . 'images/smartvideo_icon.png" alt="">' . esc_html__( 'Add SmartVideo', 'swarmify' ) . '</a>';
 	}
 
+	/**
+	 * Output the "Add SmartVideo" lightbox markup in the admin footer on post edit screens.
+	 *
+	 * @return void
+	 */
 	public function add_video_lightbox_html() {
 		global $pagenow;
 		if ( ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+		if ( $this->is_block_editor_screen() ) {
 			return;
 		}
 		require __DIR__ . '/partials/add-video-lightbox-display.php';

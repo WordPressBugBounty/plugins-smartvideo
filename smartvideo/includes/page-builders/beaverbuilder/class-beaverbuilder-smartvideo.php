@@ -1,6 +1,13 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 class SmartVideo extends FLBuilderModule {
+	/**
+	 * Register the SmartVideo Beaver Builder module with FLBuilderModule.
+	 */
 	public function __construct() {
 		parent::__construct(
 			array(
@@ -29,6 +36,14 @@ class SmartVideo extends FLBuilderModule {
 		$video_type = isset( $settings->video_type ) ? $settings->video_type : '';
 
 		switch ( $video_type ) {
+			case 'media_library':
+				if ( ! empty( $settings->video ) && class_exists( 'FLBuilderPhoto' ) ) {
+					$photo = FLBuilderPhoto::get_attachment_data( $settings->video );
+					if ( $photo && ! empty( $photo->url ) ) {
+						$settings->video_url = $photo->url;
+					}
+				}
+				break;
 			case 'youtube':
 				$settings->video_url = isset( $settings->youtube ) ? $settings->youtube : '';
 				break;
@@ -62,7 +77,7 @@ FLBuilder::register_module(
 						'video_url'       => array(
 							'type'        => 'text',
 							'label'       => __( 'Video URL', 'swarmify' ),
-							'placeholder' => 'https://www.youtube.com/watch?v=... or any video URL',
+							'placeholder' => __( 'https://www.youtube.com/watch?v=... or any video URL', 'swarmify' ),
 							'help'        => __( 'Paste a YouTube, Vimeo, Swarmify, or direct video URL', 'swarmify' ),
 						),
 						'video'           => array(
@@ -96,7 +111,7 @@ FLBuilder::register_module(
 						),
 						'poster_external' => array(
 							'type'        => 'text',
-							'label'       => 'Poster link',
+							'label'       => __( 'Poster link', 'swarmify' ),
 							'placeholder' => 'https://example.com/poster.jpg',
 						),
 					),
@@ -105,7 +120,7 @@ FLBuilder::register_module(
 			),
 		),
 		'basic_options' => array(
-			'title'    => 'Basic options',
+			'title'    => __( 'Basic options', 'swarmify' ),
 			'sections' => array(
 				'basic_options' => array(
 					'fields' => array(
@@ -120,19 +135,19 @@ FLBuilder::register_module(
 								),
 							),
 						),
-						'height'     => array(
+						'height'       => array(
 							'type'    => 'text',
 							'label'   => __( 'Height', 'swarmify' ),
 							'default' => '720',
 							'class'   => 'height',
 						),
-						'width'      => array(
+						'width'        => array(
 							'type'    => 'text',
 							'label'   => __( 'Width', 'swarmify' ),
 							'default' => '1280',
 							'class'   => 'width',
 						),
-						'autoplay'   => array(
+						'autoplay'     => array(
 							'type'    => 'select',
 							'label'   => __( 'Autoplay', 'swarmify' ),
 							'help'    => __( "Automatically start playing when the video is visible. Most browsers require 'Muted' to be enabled.", 'swarmify' ),
@@ -145,7 +160,7 @@ FLBuilder::register_module(
 								'type' => 'none',
 							),
 						),
-						'muted'      => array(
+						'muted'        => array(
 							'type'    => 'select',
 							'label'   => __( 'Muted', 'swarmify' ),
 							'help'    => __( 'Start playback with audio muted.', 'swarmify' ),
@@ -158,7 +173,7 @@ FLBuilder::register_module(
 								'type' => 'none',
 							),
 						),
-						'loop'       => array(
+						'loop'         => array(
 							'type'    => 'select',
 							'label'   => __( 'Loop', 'swarmify' ),
 							'help'    => __( 'Restart the video automatically when it reaches the end.', 'swarmify' ),
@@ -171,7 +186,7 @@ FLBuilder::register_module(
 								'type' => 'none',
 							),
 						),
-						'controls'   => array(
+						'controls'     => array(
 							'type'    => 'select',
 							'label'   => __( 'Controls', 'swarmify' ),
 							'help'    => __( 'Show player controls (play, pause, volume, etc.).', 'swarmify' ),
@@ -184,7 +199,7 @@ FLBuilder::register_module(
 								'type' => 'none',
 							),
 						),
-					'inline'     => array(
+						'inline'       => array(
 							'type'    => 'select',
 							'label'   => __( 'Play inline', 'swarmify' ),
 							'help'    => __( 'Keep the video inline on iOS instead of opening in fullscreen.', 'swarmify' ),
@@ -197,7 +212,7 @@ FLBuilder::register_module(
 								'type' => 'none',
 							),
 						),
-						'responsive' => array(
+						'responsive'   => array(
 							'type'    => 'select',
 							'label'   => __( 'Responsive', 'swarmify' ),
 							'help'    => __( 'Make the video responsive to fill its container width while maintaining aspect ratio.', 'swarmify' ),

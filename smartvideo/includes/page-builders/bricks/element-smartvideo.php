@@ -10,14 +10,29 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 	public $name     = 'smartvideo';
 	public $icon     = 'smartvideo-bricks-icon';
 
+	/**
+	 * Get the human-readable label shown in the Bricks element picker.
+	 *
+	 * @return string Localized element label.
+	 */
 	public function get_label() {
 		return esc_html__( 'SmartVideo', 'swarmify' );
 	}
 
+	/**
+	 * Get search keywords for the Bricks element picker.
+	 *
+	 * @return string[] Keyword list used to surface this element via search.
+	 */
 	public function get_keywords() {
 		return array( 'video', 'player', 'embed', 'youtube', 'vimeo', 'smartvideo' );
 	}
 
+	/**
+	 * Define control groups (tabs/sections) for this Bricks element.
+	 *
+	 * @return void
+	 */
 	public function set_control_groups() {
 		$this->control_groups['source'] = array(
 			'title' => esc_html__( 'Video source', 'swarmify' ),
@@ -40,6 +55,11 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 		);
 	}
 
+	/**
+	 * Define individual editor controls (fields) for this Bricks element.
+	 *
+	 * @return void
+	 */
 	public function set_controls() {
 
 		// -- Video Source --
@@ -49,7 +69,7 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 			'group'       => 'source',
 			'label'       => esc_html__( 'Video URL', 'swarmify' ),
 			'type'        => 'text',
-			'placeholder' => 'https://www.youtube.com/watch?v=... or any video URL',
+			'placeholder' => esc_html__( 'https://www.youtube.com/watch?v=... or any video URL', 'swarmify' ),
 			'description' => esc_html__( 'Paste a YouTube, Vimeo, Swarmify, or direct video URL', 'swarmify' ),
 		);
 
@@ -178,15 +198,19 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 			'default'     => 'on' === get_option( 'swarmify_default_responsive', 'on' ),
 			'description' => esc_html__( 'Make the video responsive to fill its container width while maintaining aspect ratio.', 'swarmify' ),
 		);
-
 	}
 
+	/**
+	 * Render the SmartVideo element on the front end and in the Bricks editor.
+	 *
+	 * @return void
+	 */
 	public function render() {
 		$settings = $this->settings;
 
 		// Disabled warning — only in Bricks editor, not on the frontend.
 		if ( bricks_is_builder() &&
-		     ( 'on' !== get_option( 'swarmify_status' ) || '' === get_option( 'swarmify_cdn_key', '' ) ) ) {
+			( 'on' !== get_option( 'swarmify_status' ) || '' === get_option( 'swarmify_cdn_key', '' ) ) ) {
 			printf(
 				'<div style="background:#fcf0c0;border:1px solid #d4a72c;border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:13px;color:#6b5900">%s</div>',
 				esc_html__( 'SmartVideo is currently disabled. Go to the SmartVideo settings page to enable it.', 'swarmify' )
@@ -208,11 +232,11 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 			} elseif ( 'youtube' === $source && ! empty( $settings['youtube_url'] ) ) {
 				$video_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['youtube_url'] );
 			} elseif ( 'vimeo' === $source && ! empty( $settings['vimeo_url'] ) ) {
-				$video_url = $settings['vimeo_url'];
+				$video_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['vimeo_url'] );
 			} elseif ( 'swarmify_url' === $source && ! empty( $settings['swarmify_url'] ) ) {
-				$video_url = $settings['swarmify_url'];
+				$video_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['swarmify_url'] );
 			} elseif ( 'another_source' === $source && ! empty( $settings['another_source_url'] ) ) {
-				$video_url = $settings['another_source_url'];
+				$video_url = \Swarmify\Smartvideo\VideoUrl::normalize( $settings['another_source_url'] );
 			}
 		}
 
@@ -222,7 +246,13 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 		}
 
 		if ( empty( $video_url ) ) {
-			echo \Swarmify\Smartvideo\AspectRatio::empty_placeholder();
+			// Show the "No video selected" placeholder only in the Bricks
+			// builder. Frontend visitors must not see authoring chrome on
+			// empty elements.
+			if ( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static self-built markup; the only dynamic value is escaped via esc_html__() in empty_placeholder(), and wp_kses would lowercase the SVG viewBox.
+				echo \Swarmify\Smartvideo\AspectRatio::empty_placeholder();
+			}
 			return;
 		}
 
@@ -238,44 +268,49 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 		}
 
 		// Dimensions — resolve from aspect ratio preset.
-		$aspect_ratio = isset( $settings['aspect_ratio'] ) ? $settings['aspect_ratio'] : '';
+		$aspect_ratio           = isset( $settings['aspect_ratio'] ) ? $settings['aspect_ratio'] : '';
 		list( $width, $height ) = \Swarmify\Smartvideo\AspectRatio::resolve(
 			$aspect_ratio,
 			isset( $settings['video_width'] ) ? $settings['video_width'] : 1280,
 			isset( $settings['video_height'] ) ? $settings['video_height'] : 720
 		);
 
-		// Boolean attributes.
-		$attrs = array();
-		if ( ! empty( $settings['autoplay'] ) )      $attrs[] = 'autoplay';
-		if ( ! empty( $settings['muted'] ) )          $attrs[] = 'muted';
-		if ( ! empty( $settings['loop'] ) )           $attrs[] = 'loop';
-		if ( ! empty( $settings['show_controls'] ) )  $attrs[] = 'controls';
-		if ( ! empty( $settings['playsinline'] ) )    $attrs[] = 'playsinline';
-
-		$preload_val  = isset( $settings['preload'] ) ? $settings['preload'] : 'auto';
-		$preload_attr = ( 'auto' !== $preload_val ) ? sprintf( 'preload="%s"', esc_attr( $preload_val ) ) : '';
-
-		// Responsive class.
-		$responsive_class = ! empty( $settings['responsive'] ) ? 'class="' . esc_attr( 'swarm-fluid' ) . '"' : '';
-
-		// Poster attribute.
-		$poster_attr = ! empty( $poster_url ) ? sprintf( 'poster="%s"', esc_url( $poster_url ) ) : '';
-
 		\Swarmify\Smartvideo\SchemaCollector::add( $video_url, $poster_url ?: '' );
 
+		// Build attribute list — empty/disabled attrs are skipped so we never
+		// emit double-space runs inside the tag. Canonical order:
+		// src, poster, autoplay, muted, loop, controls, playsinline, width, height, class.
+		$attrs   = array();
+		$attrs[] = 'src="' . esc_url( $video_url, array_merge( wp_allowed_protocols(), array( 'swarmify' ) ) ) . '"';
+		if ( ! empty( $poster_url ) ) {
+			$attrs[] = 'poster="' . esc_url( $poster_url ) . '"';
+		}
+		if ( ! empty( $settings['autoplay'] ) ) {
+			$attrs[] = 'autoplay';
+		}
+		if ( ! empty( $settings['muted'] ) ) {
+			$attrs[] = 'muted';
+		}
+		if ( ! empty( $settings['loop'] ) ) {
+			$attrs[] = 'loop';
+		}
+		if ( ! empty( $settings['show_controls'] ) ) {
+			$attrs[] = 'controls';
+		}
+		if ( ! empty( $settings['playsinline'] ) ) {
+			$attrs[] = 'playsinline';
+		}
+		$attrs[] = 'width="' . esc_attr( $width ) . '"';
+		$attrs[] = 'height="' . esc_attr( $height ) . '"';
+		if ( ! empty( $settings['responsive'] ) ) {
+			$attrs[] = 'class="swarm-fluid"';
+		}
+
 		// Render.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Bricks::render_attributes() output is already escaped by Bricks; wp_kses_post would drop framework data-* attributes.
 		echo "<div {$this->render_attributes( '_root' )}>";
-		printf(
-			'<smartvideo src="%s" width="%s" height="%s" %s %s %s %s></smartvideo>',
-			esc_url( $video_url ),
-			esc_attr( $width ),
-			esc_attr( $height ),
-			$poster_attr,
-			$responsive_class,
-			$preload_attr,
-			implode( ' ', array_map( 'esc_attr', $attrs ) )
-		);
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); <smartvideo> is a custom element wp_kses_post would strip.
+		echo '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
 		echo '</div>';
 	}
 }

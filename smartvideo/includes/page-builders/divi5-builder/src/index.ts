@@ -1,4 +1,3 @@
-import { omit } from 'lodash';
 import { addAction } from '@wordpress/hooks';
 import { registerModule } from '@divi/module-library';
 
@@ -11,9 +10,7 @@ addAction(
 	'divi.moduleLibrary.registerModuleLibraryStore.after',
 	'smartvideo',
 	() => {
-		registerModule(
-			smartVideoModule.metadata,
-			omit(smartVideoModule, 'metadata')
-		);
+		const { metadata, ...rest } = smartVideoModule;
+		registerModule( metadata, rest );
 	}
 );

@@ -16,9 +16,9 @@ import { ModuleScriptData } from './module-script-data';
  */
 const parseYouTubeId = (url: string): string | null => {
 	const match = url.match(
-		/^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?)\??v?=?([^#&?]*).*/
+		/^(?:https?:\/\/)?(?:(?:www|m|music)\.)?(?:youtube(?:-nocookie)?\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/
 	);
-	return match && match[1].length === 11 ? match[1] : null;
+	return match ? match[1] : null;
 };
 
 /**
@@ -201,26 +201,16 @@ const SmartVideoEdit = (props: SmartVideoEditProps): ReactElement => {
 		if (poster && posterSource !== 'none') {
 			el.setAttribute('poster', poster);
 		}
-
 		if (responsive === 'on') {
 			el.setAttribute('class', 'swarm-fluid');
 		}
 
-		if (autoplay === 'on') {
-			el.setAttribute('autoplay', 'autoplay');
-		}
-		if (muted === 'on') {
-			el.setAttribute('muted', 'muted');
-		}
-		if (loop === 'on') {
-			el.setAttribute('loop', 'loop');
-		}
-		if (controls === 'on') {
-			el.setAttribute('controls', 'controls');
-		}
-		if (playsinline === 'on') {
-			el.setAttribute('playsinline', 'playsinline');
-		}
+		const toggles: Record<string, string> = {
+			autoplay, muted, loop, controls, playsinline,
+		};
+		Object.keys(toggles).forEach((k) => {
+			if (toggles[k] === 'on') el.setAttribute(k, k);
+		});
 
 		container.appendChild(el);
 	}, [
@@ -292,10 +282,6 @@ const SmartVideoEdit = (props: SmartVideoEditProps): ReactElement => {
 			targetDoc.head.appendChild(styleEl);
 		}
 		styleEl.textContent = css;
-
-		return () => {
-			styleEl?.remove();
-		};
 	}, [posterSource, aspectRatio]);
 
 	return (

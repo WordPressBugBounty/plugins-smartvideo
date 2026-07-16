@@ -3,16 +3,15 @@ import { SmartVideoAttrs } from './types';
 /**
  * Placeholder content shown when the module is first added.
  * Uses a sample SmartVideo URL so users can see the module working immediately.
+ *
+ * Uses the new schema (videoUrl, declared in module.json). The legacy
+ * (videoSource + mediaLibrary) shape used previously did not round-trip
+ * through D5 storage because module.json doesn't declare videoSource —
+ * it worked only by accident via the mediaLibrary short-circuit in
+ * edit.tsx and RenderCallbackTrait.php.
  */
 export const placeholderContent: SmartVideoAttrs = {
-	videoSource: {
-		innerContent: {
-			desktop: {
-				value: 'media_library',
-			},
-		},
-	},
-	mediaLibrary: {
+	videoUrl: {
 		innerContent: {
 			desktop: {
 				value: 'https://swarmify.com/wp-content/uploads/SmartVideoIntroMain.mp4',

@@ -24,41 +24,28 @@ namespace Swarmify\Smartvideo;
 class AdminWidget extends \WP_Widget {
 
 	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	// private $plugin_name;
-
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	// private $version;
-
-	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string $plugin_name       The name of the plugin.
-	 * @param      string $version    The version of this plugin.
 	 */
-
 	public function __construct() {
-		 $widget_ops = array(
-			 'classname'   => 'smartvideo_widget',
-			 'description' => __( 'SmartVideo Widget', 'swarmify'),
-		 );
+		$widget_ops = array(
+			'classname'   => 'smartvideo_widget',
+			'description' => __( 'SmartVideo Widget', 'swarmify'),
+		);
 
-		 parent::__construct( 'smartvideo_widget', __( 'SmartVideo Widget', 'swarmify'), $widget_ops);
+		parent::__construct( 'smartvideo_widget', __( 'SmartVideo Widget', 'swarmify'), $widget_ops);
 	}
 
 
-	// Widgets
-	public function widget( $args, $instance) {
+	/**
+	 * Render the widget on the front end.
+	 *
+	 * @param  array $args     Display arguments including before/after_widget and before/after_title.
+	 * @param  array $instance Saved widget instance values.
+	 * @return void
+	 */
+	public function widget( $args, $instance ) {
 		if (empty( $instance)) {
 			$instance = array(
 				'title'                 => '',
@@ -76,62 +63,79 @@ class AdminWidget extends \WP_Widget {
 		}
 		$cdn_key         = get_option( 'swarmify_cdn_key');
 		$swarmify_status = get_option( 'swarmify_status');
-		$title           = apply_filters( 'widget_title', $instance['title']);
-		$output          = $args['before_widget'];
-		if ( ! empty( $title)) {
-			$output .= $args['before_title'] . esc_html( $title ) . $args['after_title'];
-		}
-		$swarmify_url = $instance['swarmify_url'];
+		$title           = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
+		$swarmify_url    = $instance['swarmify_url'] ?? '';
 
-		$swarmify_poster       = $instance['swarmify_poster'];
-		$swarmify_autoplay     = intval( $instance['swarmify_autoplay']);
-		$swarmify_muted        = intval( $instance['swarmify_muted']);
-		$swarmify_loop         = intval( $instance['swarmify_loop']);
-		$swarmify_controls     = intval( $instance['swarmify_controls']);
-		$swarmify_video_inline = intval( $instance['swarmify_video_inline']);
-		$swarmify_unresponsive = intval( $instance['swarmify_unresponsive']);
-		$swarmify_height       = intval( $instance['swarmify_height']);
-		$swarmify_width        = intval( $instance['swarmify_width']);
+		$swarmify_poster   = $instance['swarmify_poster'] ?? '';
+		$swarmify_autoplay = intval( $instance['swarmify_autoplay'] ?? 0 );
+		$swarmify_muted    = intval( $instance['swarmify_muted'] ?? 0 );
+		$swarmify_loop     = intval( $instance['swarmify_loop'] ?? 0 );
+		// Legacy widget instances saved before update() persisted an
+		// explicit boolean may have null/missing swarmify_controls.
+		// Defaulting to 1 matches the form partial's own default
+		// (swarmify-widget-display.php line 30) rather than letting
+		// intval(null) silently disable them.
+		$swarmify_controls     = ( isset( $instance['swarmify_controls'] ) && '' !== $instance['swarmify_controls'] )
+			? intval( $instance['swarmify_controls'] )
+			: 1;
+		$swarmify_video_inline = intval( $instance['swarmify_video_inline'] ?? 0 );
+		$swarmify_unresponsive = intval( $instance['swarmify_unresponsive'] ?? 0 );
+		$swarmify_height       = intval( $instance['swarmify_height'] ?? 720 );
+		$swarmify_width        = intval( $instance['swarmify_width'] ?? 1280 );
 		$errors                = array();
 		if ('' === $cdn_key) {
-			$errors[] = 'CDN Key field is required.';
+			$errors[] = __( 'CDN Key field is required.', 'swarmify' );
 		}
 		if ('on' !== $swarmify_status) {
-			$errors[] = 'SmartVideo is disabled.';
+			$errors[] = __( 'SmartVideo is disabled.', 'swarmify' );
 		}
 
 		if ('' === $swarmify_url) {
-			$errors[] = 'SmartVideo URL is missing.';
+			$errors[] = __( 'SmartVideo URL is missing.', 'swarmify' );
 		}
 
+		$inner_output = '';
 		if (empty( $errors)) {
-			// if ( ! empty( $swarmify_poster)) {
-			// 	$poster = 'poster="' . esc_url( $swarmify_poster ) . '"';
-			// } else {
-			// 	$poster = '';
-			// }
-
 			$autoplay     = ( 1 === $swarmify_autoplay ? 'autoplay' : '' );
 			$muted        = ( 1 === $swarmify_muted ? 'muted' : '' );
 			$loop         = ( 1 === $swarmify_loop ? 'loop' : '' );
 			$controls     = ( 1 === $swarmify_controls ? 'controls' : '' );
 			$video_inline = ( 1 === $swarmify_video_inline ? 'playsinline' : '' );
-			$unresponsive = ( 1 === $swarmify_unresponsive ? 'class="' . esc_attr( 'swarm-fluid' ) . '"' : '' );
+			$unresponsive = ( 1 === $swarmify_unresponsive ? 'class="swarm-fluid"' : '' );
 
-			$output .= '<smartvideo src="' . esc_url( $swarmify_url ) . '" width="' . $swarmify_width . '" height="' . $swarmify_height . '" ' . $unresponsive . ' poster="' . esc_url( $swarmify_poster ) . '" ' . $autoplay . ' ' . $muted . ' ' . $loop . ' ' . $controls . ' ' . $video_inline . '></smartvideo>';
+			\Swarmify\Smartvideo\SchemaCollector::add( $swarmify_url, $swarmify_poster ?: '' );
+
+			$inner_output = '<smartvideo src="' . esc_url( $swarmify_url, array_merge( wp_allowed_protocols(), array( 'swarmify' ) ) ) . '" width="' . $swarmify_width . '" height="' . $swarmify_height . '" ' . $unresponsive . ' poster="' . esc_url( $swarmify_poster ) . '" ' . $autoplay . ' ' . $muted . ' ' . $loop . ' ' . $controls . ' ' . $video_inline . '></smartvideo>';
 		} else {
-			$output .= '<ul>';
+			$inner_output = '<ul>';
 			foreach ($errors as $error) {
-				$output .= '<li>' . $error . '</li>';
+				$inner_output .= '<li>' . $error . '</li>';
 			}
-			$output .= '</ul>';
+			$inner_output .= '</ul>';
 		}
-		$output .= $args['after_widget'];
+		// Theme wrapper args (before/after_widget, before/after_title) come from
+		// register_sidebar() and are trusted — echo them directly, matching the
+		// pattern used by WordPress core widgets.  Only the inner content we
+		// build ourselves is run through wp_kses.
 
-		$output = preg_replace( '/\bet_pb_widget\b/', '', $output );
+		// Strip the Divi-specific "et_pb_widget" class that some themes inject
+		// into before_widget — preserves pre-existing behaviour.
+		$before_widget = preg_replace( '/\bet_pb_widget\b/', '', $args['before_widget'] );
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- theme-controlled wrapper
+		echo $before_widget;
+
+		if ( ! empty( $title ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- theme-controlled wrapper
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		}
+
+		// Pass swarmify protocol explicitly — the plugin no longer registers
+		// it via kses_allowed_protocols site-wide, so wp_kses_post() on user
+		// content correctly strips href="swarmify://..." but our own widget
+		// output here still preserves <smartvideo src="swarmify://...">.
 		echo wp_kses(
-			$output, 
+			$inner_output,
 			array(
 				'smartvideo' => array(
 					'src'         => true,
@@ -145,16 +149,22 @@ class AdminWidget extends \WP_Widget {
 					'controls'    => true,
 					'playsinline' => true,
 				),
-				'aside' => array(
-					'id'    => true,
-					'class' => true,
-				),
-				'ul' => array(),
-				'li' => array(),
-			)
+				'ul'         => array(),
+				'li'         => array(),
+			),
+			array_merge( wp_allowed_protocols(), array( 'swarmify' ) )
 		);
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- theme-controlled wrapper
+		echo $args['after_widget'];
 	}
 
+	/**
+	 * Render the widget configuration form in the admin.
+	 *
+	 * @param  array $instance Current saved widget instance values.
+	 * @return void
+	 */
 	public function form( $instance ) {
 		$title = isset( $instance['title']) ? $instance['title'] : '';
 		$page  = isset( $instance['page']) ? $instance['page'] : '';
@@ -162,6 +172,13 @@ class AdminWidget extends \WP_Widget {
 	}
 
 
+	/**
+	 * Sanitize widget settings before they are saved.
+	 *
+	 * @param  array $new_instance New settings submitted from the form.
+	 * @param  array $old_instance Previously saved settings.
+	 * @return array Sanitized instance values to persist.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance                      = array();
 		$instance['title']             = ! empty( $new_instance['title']) ? sanitize_text_field( $new_instance['title']) : '';
@@ -170,18 +187,12 @@ class AdminWidget extends \WP_Widget {
 		$instance['swarmify_autoplay'] = ! empty( $new_instance['swarmify_autoplay']) ? intval( $new_instance['swarmify_autoplay']) : 0;
 		$instance['swarmify_muted']    = ! empty( $new_instance['swarmify_muted']) ? intval( $new_instance['swarmify_muted']) : 0;
 		$instance['swarmify_loop']     = ! empty( $new_instance['swarmify_loop']) ? intval( $new_instance['swarmify_loop']) : 0;
-		$instance['swarmify_controls'] = ! empty( $new_instance['swarmify_controls']) ? intval( $new_instance['swarmify_controls']) : 1;
+		$instance['swarmify_controls'] = ! empty( $new_instance['swarmify_controls']) ? intval( $new_instance['swarmify_controls']) : 0;
 		$instance['swarmify_height']   = ! empty( $new_instance['swarmify_height']) ? intval( $new_instance['swarmify_height']) : 720;
 		$instance['swarmify_width']    = ! empty( $new_instance['swarmify_width']) ? intval( $new_instance['swarmify_width']) : 1280;
 
-		if (array_key_exists( 'swarmify_controls', $old_instance) && null === $old_instance['swarmify_controls']) {
-			$instance['swarmify_controls'] = 1;
-		}
 		$instance['swarmify_video_inline'] = ! empty( $new_instance['swarmify_video_inline']) ? intval( $new_instance['swarmify_video_inline']) : 0;
 		$instance['swarmify_unresponsive'] = ! empty( $new_instance['swarmify_unresponsive']) ? intval( $new_instance['swarmify_unresponsive']) : 0;
-		if (array_key_exists( 'swarmify_unresponsive', $old_instance) && null === $old_instance['swarmify_unresponsive']) {
-			$instance['swarmify_unresponsive'] = 0;
-		}
 		return $instance;
 	}
 }

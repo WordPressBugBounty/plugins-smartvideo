@@ -11,10 +11,20 @@ class SmartvideoDiviWidget extends ET_Builder_Module {
 		'author_uri' => 'https://swarmify.com',
 	);
 
+	/**
+	 * Initialize the Divi module by setting its display name.
+	 *
+	 * @return void
+	 */
 	public function init() {
 		$this->name = esc_html__( 'SmartVideo', 'swarmify' );
 	}
 
+	/**
+	 * Configure the Divi advanced fields panel for this module.
+	 *
+	 * @return array<string, mixed> Advanced field configuration consumed by Divi.
+	 */
 	public function get_advanced_fields_config() {
 		return array(
 			'background'   => array(
@@ -31,6 +41,11 @@ class SmartvideoDiviWidget extends ET_Builder_Module {
 		);
 	}
 
+	/**
+	 * Define the editor fields exposed by this Divi module.
+	 *
+	 * @return array<string, mixed> Divi field definitions.
+	 */
 	public function get_fields() {
 		return array(
 			'video_src'       => array(
@@ -98,6 +113,18 @@ class SmartvideoDiviWidget extends ET_Builder_Module {
 				'description'     => esc_html__( 'Input the destination URL for your video.', 'swarmify' ),
 				'show_if'         => array(
 					'video_src' => 'another_source',
+				),
+				'toggle_slug'     => 'smartvideo',
+				'sub_toggle'      => 'source',
+			),
+
+			// Not a video_src select option — hidden in the VB, kept only for old shortcode content.
+			'swarmify_url'    => array(
+				'label'           => esc_html__( 'Video URL', 'swarmify' ),
+				'type'            => 'text',
+				'option_category' => 'basic_option',
+				'show_if'         => array(
+					'video_src' => 'swarmify_url',
 				),
 				'toggle_slug'     => 'smartvideo',
 				'sub_toggle'      => 'source',
@@ -250,6 +277,11 @@ class SmartvideoDiviWidget extends ET_Builder_Module {
 		);
 	}
 
+	/**
+	 * Define the settings-modal toggles (tabs) for this Divi module.
+	 *
+	 * @return array<string, mixed> Toggle configuration for the Divi settings modal.
+	 */
 	public function get_settings_modal_toggles() {
 		return array(
 			'advanced' => array(
@@ -275,33 +307,71 @@ class SmartvideoDiviWidget extends ET_Builder_Module {
 		);
 	}
 
+	/**
+	 * Render the SmartVideo Divi module to a <smartvideo> HTML string.
+	 *
+	 * @param  array       $attrs       Module attributes from the builder.
+	 * @param  string|null $content     Inner content (unused).
+	 * @param  string|null $render_slug Render slug (unused).
+	 * @return string|void Rendered markup, or nothing when no video URL is configured.
+	 */
 	public function render( $attrs, $content = null, $render_slug = null ) {
-		// extract youtube id for use
+		// Resolve video URL from the selected source type
+		$swarmify_url = '';
 		if ( 'media_library' === $this->props['video_src'] && $this->props['media_library'] ) {
 			$swarmify_url = $this->props['media_library'];
 		} elseif ( 'youtube' === $this->props['video_src'] && $this->props['youtube'] ) {
-			preg_match( '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $this->props['youtube'], $youtubeId );
-			$swarmify_url = sprintf( 'https://www.youtube.com/embed/%s', $youtubeId[1] );
+			$swarmify_url = \Swarmify\Smartvideo\VideoUrl::normalize( $this->props['youtube'] );
 		} elseif ( 'vimeo' === $this->props['video_src'] && $this->props['vimeo'] ) {
-			$swarmify_url = $this->props['vimeo'];
+			$swarmify_url = \Swarmify\Smartvideo\VideoUrl::normalize( $this->props['vimeo'] );
 		} elseif ( 'another_source' === $this->props['video_src'] && $this->props['another_source'] ) {
-			$swarmify_url = $this->props['another_source'];
+			$swarmify_url = \Swarmify\Smartvideo\VideoUrl::normalize( $this->props['another_source'] );
+		} elseif ( 'swarmify_url' === $this->props['video_src'] && $this->props['swarmify_url'] ) {
+			$swarmify_url = $this->props['swarmify_url'];
 		}
 
 		if ( empty( $swarmify_url ) ) {
 			return;
 		}
 
-		$poster_url  = $this->props['external_poster'] ? $this->props['external_poster'] : $this->props['internal_poster'];
-		$poster      = 'none' !== $this->props['poster_src'] ? sprintf( 'poster=%s', $poster_url ) : '';
-		$autoplay    = 'on' === $this->props['autoplay'] ? 'autoplay' : '';
-		$muted       = 'on' === $this->props['muted'] ? 'muted' : '';
-		$loop        = 'on' === $this->props['loop'] ? 'loop' : '';
-		$controls    = 'on' === $this->props['controls'] ? 'controls' : '';
-		$playsinline = 'on' === $this->props['playsinline'] ? 'playsinline' : '';
-		$responsive  = ( 'on' === $this->props['responsive'] ) ? 'class="swarm-fluid"' : '';
+		$poster_url = 'media_library' === $this->props['poster_src'] ? $this->props['internal_poster'] : $this->props['external_poster'];
+		$has_poster = 'none' !== $this->props['poster_src'] && ! empty( $poster_url );
+		$width      = absint( $this->props['video_width'] );
+		$height     = absint( $this->props['video_height'] );
 
-		return sprintf( '<smartvideo src="%s" width="%s" height="%s" %s %s %s %s %s %s %s></smartvideo>', $swarmify_url, $this->props['video_width'], $this->props['video_height'], $poster, $responsive, $autoplay, $muted, $loop, $controls, $playsinline );
+		$schema_poster = 'none' !== $this->props['poster_src'] ? $poster_url : '';
+		\Swarmify\Smartvideo\SchemaCollector::add( $swarmify_url, $schema_poster );
+
+		// Build attribute list — empty/disabled attrs are skipped so we never
+		// emit double-space runs inside the tag. Canonical order:
+		// src, poster, autoplay, muted, loop, controls, playsinline, width, height, class.
+		$attrs   = array();
+		$attrs[] = 'src="' . esc_url( $swarmify_url, array_merge( wp_allowed_protocols(), array( 'swarmify' ) ) ) . '"';
+		if ( $has_poster ) {
+			$attrs[] = 'poster="' . esc_url( $poster_url ) . '"';
+		}
+		if ( 'on' === $this->props['autoplay'] ) {
+			$attrs[] = 'autoplay';
+		}
+		if ( 'on' === $this->props['muted'] ) {
+			$attrs[] = 'muted';
+		}
+		if ( 'on' === $this->props['loop'] ) {
+			$attrs[] = 'loop';
+		}
+		if ( 'on' === $this->props['controls'] ) {
+			$attrs[] = 'controls';
+		}
+		if ( 'on' === $this->props['playsinline'] ) {
+			$attrs[] = 'playsinline';
+		}
+		$attrs[] = 'width="' . esc_attr( $width ) . '"';
+		$attrs[] = 'height="' . esc_attr( $height ) . '"';
+		if ( 'on' === $this->props['responsive'] ) {
+			$attrs[] = 'class="swarm-fluid"';
+		}
+
+		return '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
 	}
 }
 

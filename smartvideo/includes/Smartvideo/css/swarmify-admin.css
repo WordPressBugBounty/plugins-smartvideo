@@ -1,31 +1,24 @@
-/* Classic editor lightbox — fixed size so tabs don't jump */
-#swarmify-modal-content {
-	width: 520px;
-	max-width: 90vw;
-	box-sizing: border-box;
-}
+/* ==========================================================================
+   Widget + settings page shared styles (legacy sidebar widget)
+   ========================================================================== */
 
-#swarmify-modal-content .swarmify-main,
-#swarmify-modal-content .swarmify-basic,
-#swarmify-modal-content .swarmify-advanced {
-	min-height: 320px;
-}
-
-/* Widget + lightbox shared styles */
 .swarmify-tabs {
 	margin-top: 15px;
 }
 
-.swarmify-tabs span {
+.swarmify-tabs button {
 	display: inline-block;
 	background: #ededed;
 	color: #000;
 	padding: 6px;
 	cursor: pointer;
 	font-size: 12px;
+	border: none;
+	font-family: inherit;
+	line-height: inherit;
 }
 
-.swarmify-tabs span.active {
+.swarmify-tabs button.active {
 	background: #ffde17;
 	color: #000;
 }
@@ -53,7 +46,6 @@
 	right: 0;
 	bottom: 0;
 	background-color: #ccc;
-	-webkit-transition: .4s;
 	transition: .4s;
 }
 
@@ -65,7 +57,6 @@
 	left: 4px;
 	bottom: 4px;
 	background-color: white;
-	-webkit-transition: .4s;
 	transition: .4s;
 }
 
@@ -78,8 +69,6 @@
 }
 
 .swarmify-widget-div input:checked + .wp_slider:before {
-	-webkit-transform: translateX(26px);
-	-ms-transform: translateX(26px);
 	transform: translateX(26px);
 }
 
@@ -130,38 +119,454 @@
 
 .wp-media-buttons .swarmify_add_button img{
     padding: 0;
-    margin-right: 3px;
+    margin-inline-end: 3px;
     margin-bottom: 2px;
 }
-.swarmify_insert_button{background-color:#ffde17;color:#000; }
 .swarmify-widget-div .button{
     display: block;
     font-size: 12px;
     margin-bottom: 3px;
 }
 
-.swarmify-lightbox-button,.swarmify-lightbox-button-img{
-    background-color: #FFDE17;
-    display: inline-block;
-    border-radius: 4px;
-    padding: 5px 10px;
-    font-weight: bold;
-    color: #000;
-    cursor: pointer;
-    border: none;
-    margin-top: 6px;
-}
-.video_url_fancybox p,.image_url_fancybox p{
-	margin-bottom: 10px;
+/* ==========================================================================
+   SmartVideo Classic Editor Dialog (sv-* design system)
+   Design tokens:
+     charcoal: #0f172a   slate: #334155   gray: #64748b   muted: #94a3b8
+     border: #e2e8f0     bg: #f8fafc      white: #ffffff
+     gold: #FFD84D       gold-hover: #f5cc2a   gold-light: #fef9e7
+     dark: #212529       dark-hover: #1a1d21
+   ========================================================================== */
+
+/* --- Dialog shell --- */
+
+#swarmify-dialog {
+	border: none;
+	border-radius: 8px;
+	padding: 0;
+	box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+	max-width: 560px;
+	width: 90vw;
+	overflow: visible;
 }
 
-.wp-customizer .fancybox-container{
-	z-index: 560000;
+#swarmify-dialog::backdrop {
+	background: rgba(0,0,0,0.5);
 }
 
-/**
-	Removed as it conflicts with media library popup
-**/
-/* .fancybox-container {
-    z-index: 2147483647;
-} */
+.sv-dialog {
+	background: #ffffff;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 13px;
+	color: #0f172a;
+}
+
+/* --- Header --- */
+
+.sv-dialog-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 20px;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+.sv-dialog-header-left {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.sv-dialog-icon {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.sv-dialog-title {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.sv-dialog-close {
+	background: none;
+	border: none;
+	font-size: 20px;
+	color: #64748b;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 4px;
+	line-height: 1;
+}
+
+.sv-dialog-close:hover {
+	background: #f8fafc;
+	color: #0f172a;
+}
+
+/* --- Tabs --- */
+
+.sv-dialog-tabs {
+	display: flex;
+	border-bottom: 1px solid #e2e8f0;
+	padding: 0 20px;
+}
+
+.sv-tab {
+	padding: 10px 18px;
+	font-size: 13px;
+	color: #64748b;
+	border-bottom: 2px solid transparent;
+	cursor: pointer;
+	background: none;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	font-family: inherit;
+	font-weight: 400;
+}
+
+.sv-tab::after {
+	content: attr(data-label);
+	display: block;
+	height: 0;
+	font-weight: 600;
+	overflow: hidden;
+	visibility: hidden;
+}
+
+.sv-tab:hover {
+	color: #334155;
+}
+
+.sv-tab.active {
+	color: #0f172a;
+	font-weight: 600;
+	border-bottom-color: #FFD84D;
+}
+
+/* --- Body / Panels --- */
+
+.sv-dialog-body {
+	padding: 20px;
+}
+
+.sv-panel {
+	display: none;
+}
+
+.sv-panel.active {
+	display: block;
+	min-height: 420px;
+	box-sizing: border-box;
+}
+
+/* --- Field groups --- */
+
+.sv-field-group {
+	margin-bottom: 18px;
+}
+
+.sv-field-group:last-child {
+	margin-bottom: 0;
+}
+
+.sv-field-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+	color: #0f172a;
+	font-size: 13px;
+}
+
+.sv-field-hint {
+	display: block;
+	font-size: 11.5px;
+	color: #64748b;
+	margin-top: 4px;
+	line-height: 1.4;
+}
+
+/* --- URL row --- */
+
+.sv-url-row {
+	display: flex;
+	gap: 8px;
+	align-items: stretch;
+}
+
+/* --- Inputs --- */
+
+.sv-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 2px solid #e2e8f0;
+	border-radius: 6px;
+	font-size: 13px;
+	color: #0f172a;
+	transition: border-color 0.15s, box-shadow 0.15s;
+	min-width: 0;
+}
+
+.sv-input:focus {
+	border-color: #6b5500;
+	box-shadow: 0 0 0 1px #6b5500;
+	outline: none;
+}
+
+.sv-input::placeholder {
+	color: #94a3b8;
+}
+
+/* --- Select --- */
+
+.sv-select {
+	width: 100%;
+	padding: 8px 12px;
+	border: 2px solid #e2e8f0;
+	border-radius: 6px;
+	font-size: 13px;
+	color: #0f172a;
+	background: #ffffff;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.sv-select:focus {
+	border-color: #6b5500;
+	box-shadow: 0 0 0 1px #6b5500;
+	outline: none;
+}
+
+/* --- Media button --- */
+
+.sv-media-btn {
+	padding: 8px 14px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	border: 2px solid #e2e8f0;
+	background: #ffffff;
+	color: #334155;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+}
+
+.sv-media-btn:hover {
+	border-color: #FFD84D;
+	background: #fef9e7;
+}
+
+/* --- Preview --- */
+
+.sv-preview {
+	margin-top: 12px;
+	background: #f8fafc;
+	border: 2px dashed #e2e8f0;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 6px;
+	color: #64748b;
+	font-size: 12px;
+	aspect-ratio: 16 / 9;
+	max-height: 160px;
+	overflow: hidden;
+}
+
+.sv-preview.has-thumbnail {
+	border: none;
+	background: #000000;
+}
+
+.sv-preview.has-thumbnail img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 4px;
+}
+
+.sv-preview-icon {
+	opacity: 0.7;
+}
+
+.sv-preview-filename {
+	font-size: 11px;
+	color: #64748b;
+	word-break: break-all;
+	max-width: 80%;
+	text-align: center;
+}
+
+/* --- Poster preview --- */
+
+.sv-poster-preview {
+	margin-top: 8px;
+	max-width: 160px;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.sv-poster-preview img {
+	width: 100%;
+	height: auto;
+	display: block;
+	border-radius: 4px;
+}
+
+/* --- Toggle rows --- */
+
+.sv-toggle-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 0;
+	border-bottom: 1px solid #e2e8f0;
+	gap: 20px;
+}
+
+.sv-toggle-row:last-child {
+	border-bottom: none;
+}
+
+.sv-toggle-label {
+	font-weight: 500;
+	color: #0f172a;
+	font-size: 13px;
+}
+
+.sv-toggle-hint {
+	font-size: 11.5px;
+	color: #64748b;
+	margin-top: 3px;
+	line-height: 1.4;
+}
+
+/* --- Toggle switch --- */
+
+.sv-switch {
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 22px;
+	flex-shrink: 0;
+}
+
+.sv-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.sv-slider {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #e2e8f0;
+	border: 2px solid #e2e8f0;
+	border-radius: 11px;
+	cursor: pointer;
+	transition: background 0.2s, border-color 0.2s;
+}
+
+.sv-slider::before {
+	content: "";
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	background: #ffffff;
+	top: 1px;
+	left: 1px;
+	border-radius: 50%;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+	transition: transform 0.2s;
+}
+
+input:checked + .sv-slider {
+	background: #FFD84D;
+	border-color: #f5cc2a;
+}
+
+input:checked + .sv-slider::before {
+	transform: translateX(18px);
+}
+
+.sv-switch:hover .sv-slider {
+	border-color: #FFD84D;
+}
+
+/* --- Separator --- */
+
+.sv-separator {
+	border: none;
+	border-top: 1px solid #e2e8f0;
+	margin: 18px 0;
+}
+
+/* --- Dimensions row --- */
+
+.sv-dimensions-row {
+	display: flex;
+	gap: 12px;
+}
+
+.sv-dimensions-row > * {
+	flex: 1;
+}
+
+/* --- Poster spacing --- */
+
+.sv-poster-media-library,
+.sv-poster-other {
+	margin-top: 8px;
+}
+
+/* --- Footer --- */
+
+.sv-dialog-footer {
+	padding: 14px 20px;
+	border-top: 1px solid #e2e8f0;
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	background: #f8fafc;
+	border-radius: 0 0 8px 8px;
+}
+
+.sv-btn-cancel {
+	padding: 8px 16px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	border: 2px solid #e2e8f0;
+	background: #ffffff;
+	color: #334155;
+	cursor: pointer;
+}
+
+.sv-btn-cancel:hover {
+	border-color: #94a3b8;
+}
+
+.sv-btn-insert {
+	padding: 8px 20px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	border: none;
+	background: #212529;
+	color: #fef9e7;
+	cursor: pointer;
+}
+
+.sv-btn-insert:hover {
+	background: #1a1d21;
+}

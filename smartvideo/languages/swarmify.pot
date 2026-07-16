@@ -1,0 +1,1422 @@
+# Copyright (C) 2026 Swarmify
+# This file is distributed under the AGPL-3.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: SmartVideo 2.3.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/swarmify\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: swarmify\n"
+
+#. Plugin Name of the plugin
+#: SmartVideo.php
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:14
+#: includes/page-builders/bricks/element-smartvideo.php:19
+#: includes/page-builders/elementor/class-elementor-swarmify.php:110
+#: includes/page-builders/elementor/elementorsmartvideo.php:26
+#: includes/page-builders/gutenberg/src/init.php:112
+#: includes/Smartvideo/Admin.php:136
+#: includes/Smartvideo/Admin.php:137
+#: includes/Smartvideo/DashboardWidget.php:31
+#: includes/Smartvideo/PostMeta.php:49
+#: src/gutenberg-block/index.js:106
+#: src/gutenberg-sidebar.js:25
+#: src/index.js:1827
+msgid "SmartVideo"
+msgstr ""
+
+#. Description of the plugin
+#: SmartVideo.php
+#: src/gutenberg-block/index.js:107
+msgid "SmartVideo makes building a beautiful, professional video experience for your site effortless."
+msgstr ""
+
+#. Author of the plugin
+#: SmartVideo.php
+msgid "Swarmify"
+msgstr ""
+
+#. Author URI of the plugin
+#: SmartVideo.php
+msgid "https://swarmify.com/?smartvideo_wordpress_plugin"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:15
+msgid "Effortless, unlimited video player"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:17
+msgid "Basic"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:72
+msgid "General"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:79
+#: includes/page-builders/bricks/element-smartvideo.php:70
+#: includes/page-builders/elementor/elementorsmartvideo.php:108
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:25
+#: includes/Smartvideo/partials/swarmify-widget-display.php:71
+#: src/gutenberg-block/edit.js:264
+msgid "Video URL"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:80
+#: includes/page-builders/bricks/element-smartvideo.php:72
+#: includes/page-builders/elementor/elementorsmartvideo.php:110
+msgid "https://www.youtube.com/watch?v=... or any video URL"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:81
+#: includes/page-builders/bricks/element-smartvideo.php:73
+msgid "Paste a YouTube, Vimeo, Swarmify, or direct video URL"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:85
+#: includes/page-builders/bricks/element-smartvideo.php:79
+#: src/gutenberg-block/edit.js:285
+msgid "Choose from Media Library"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:86
+msgid "A video in the MP4 format. Most modern browsers support this format."
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:91
+msgid "Add a poster"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:93
+#: includes/page-builders/bricks/element-smartvideo.php:91
+#: includes/page-builders/elementor/elementorsmartvideo.php:154
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:42
+#: src/gutenberg-block/edit.js:302
+msgid "Automatic"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:94
+#: includes/page-builders/bricks/element-smartvideo.php:92
+#: includes/page-builders/elementor/elementorsmartvideo.php:155
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:28
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:43
+#: src/gutenberg-block/edit.js:306
+msgid "Media library"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:95
+#: includes/page-builders/bricks/element-smartvideo.php:93
+#: includes/page-builders/elementor/elementorsmartvideo.php:156
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:44
+#: src/gutenberg-block/edit.js:310
+msgid "Other"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:110
+msgctxt "Video preview/fallback image."
+msgid "Poster"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:114
+msgid "Poster link"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:123
+#: includes/page-builders/elementor/elementorsmartvideo.php:238
+#: includes/Smartvideo/partials/swarmify-widget-display.php:54
+#: src/gutenberg-block/edit.js:343
+msgid "Basic options"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:129
+#: includes/page-builders/bricks/element-smartvideo.php:121
+#: includes/page-builders/elementor/elementorsmartvideo.php:200
+#: src/gutenberg-block/edit.js:347
+msgid "Aspect Ratio"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:140
+#: includes/page-builders/bricks/element-smartvideo.php:140
+#: includes/page-builders/elementor/elementorsmartvideo.php:211
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:75
+#: src/gutenberg-block/edit.js:386
+msgid "Height"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:146
+#: includes/page-builders/bricks/element-smartvideo.php:131
+#: includes/page-builders/elementor/elementorsmartvideo.php:223
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:71
+#: src/gutenberg-block/edit.js:379
+msgid "Width"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:152
+#: includes/page-builders/bricks/element-smartvideo.php:151
+#: includes/page-builders/elementor/elementorsmartvideo.php:246
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:85
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:89
+#: src/gutenberg-block/edit.js:393
+#: src/index.js:1326
+#: src/index.js:1338
+msgid "Autoplay"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:153
+#: includes/page-builders/bricks/element-smartvideo.php:154
+#: includes/page-builders/elementor/elementorsmartvideo.php:247
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:86
+#: src/gutenberg-block/edit.js:394
+msgid "Automatically start playing when the video is visible. Most browsers require 'Muted' to be enabled."
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:156
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:169
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:182
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:195
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:208
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:221
+#: includes/page-builders/elementor/elementorsmartvideo.php:250
+#: includes/page-builders/elementor/elementorsmartvideo.php:263
+#: includes/page-builders/elementor/elementorsmartvideo.php:275
+#: includes/page-builders/elementor/elementorsmartvideo.php:299
+#: includes/page-builders/elementor/elementorsmartvideo.php:312
+#: includes/page-builders/elementor/elementorsmartvideo.php:324
+msgid "No"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:157
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:170
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:183
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:196
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:209
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:222
+#: includes/page-builders/elementor/elementorsmartvideo.php:249
+#: includes/page-builders/elementor/elementorsmartvideo.php:262
+#: includes/page-builders/elementor/elementorsmartvideo.php:274
+#: includes/page-builders/elementor/elementorsmartvideo.php:298
+#: includes/page-builders/elementor/elementorsmartvideo.php:311
+#: includes/page-builders/elementor/elementorsmartvideo.php:323
+msgid "Yes"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:165
+#: includes/page-builders/bricks/element-smartvideo.php:160
+#: includes/page-builders/elementor/elementorsmartvideo.php:259
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:96
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:100
+#: src/gutenberg-block/edit.js:403
+#: src/index.js:1354
+#: src/index.js:1366
+msgid "Muted"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:166
+#: includes/page-builders/bricks/element-smartvideo.php:163
+#: includes/page-builders/elementor/elementorsmartvideo.php:260
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:97
+#: src/gutenberg-block/edit.js:404
+msgid "Start playback with audio muted."
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:178
+#: includes/page-builders/bricks/element-smartvideo.php:169
+#: includes/page-builders/elementor/elementorsmartvideo.php:271
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:107
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:111
+#: src/gutenberg-block/edit.js:413
+#: src/index.js:1382
+#: src/index.js:1394
+msgid "Loop"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:179
+#: includes/page-builders/bricks/element-smartvideo.php:172
+#: includes/page-builders/elementor/elementorsmartvideo.php:272
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:108
+#: src/gutenberg-block/edit.js:414
+msgid "Restart the video automatically when it reaches the end."
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:191
+#: includes/page-builders/bricks/element-smartvideo.php:178
+#: includes/page-builders/elementor/elementorsmartvideo.php:295
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:121
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:125
+#: src/gutenberg-block/edit.js:428
+#: src/index.js:1410
+#: src/index.js:1422
+msgid "Controls"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:192
+#: includes/page-builders/bricks/element-smartvideo.php:181
+#: includes/page-builders/elementor/elementorsmartvideo.php:296
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:122
+#: src/gutenberg-block/edit.js:429
+msgid "Show player controls (play, pause, volume, etc.)."
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:204
+#: includes/page-builders/bricks/element-smartvideo.php:187
+#: includes/page-builders/elementor/elementorsmartvideo.php:308
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:132
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:136
+#: src/gutenberg-block/edit.js:438
+#: src/index.js:1438
+#: src/index.js:1450
+msgid "Play inline"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:205
+#: includes/page-builders/bricks/element-smartvideo.php:190
+#: includes/page-builders/elementor/elementorsmartvideo.php:309
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:133
+#: src/gutenberg-block/edit.js:439
+msgid "Keep the video inline on iOS instead of opening in fullscreen."
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:217
+#: includes/page-builders/bricks/element-smartvideo.php:196
+#: includes/page-builders/elementor/elementorsmartvideo.php:320
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:143
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:147
+#: src/gutenberg-block/edit.js:448
+#: src/index.js:1466
+#: src/index.js:1478
+msgid "Responsive"
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:218
+#: includes/page-builders/bricks/element-smartvideo.php:199
+#: includes/page-builders/elementor/elementorsmartvideo.php:321
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:144
+#: src/gutenberg-block/edit.js:449
+msgid "Make the video responsive to fill its container width while maintaining aspect ratio."
+msgstr ""
+
+#: includes/page-builders/beaverbuilder/includes/frontend.php:12
+#: includes/page-builders/bricks/element-smartvideo.php:216
+#: includes/page-builders/elementor/elementorsmartvideo.php:345
+msgid "SmartVideo is currently disabled. Go to the SmartVideo settings page to enable it."
+msgstr ""
+
+#: includes/page-builders/bricks/element-smartvideo.php:38
+msgid "Video source"
+msgstr ""
+
+#: includes/page-builders/bricks/element-smartvideo.php:43
+#: includes/page-builders/elementor/elementorsmartvideo.php:141
+#: src/gutenberg-block/edit.js:294
+msgid "Poster"
+msgstr ""
+
+#: includes/page-builders/bricks/element-smartvideo.php:48
+msgid "Dimensions"
+msgstr ""
+
+#: includes/page-builders/bricks/element-smartvideo.php:53
+msgid "Playback"
+msgstr ""
+
+#: includes/page-builders/bricks/element-smartvideo.php:88
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:40
+msgid "Poster source"
+msgstr ""
+
+#: includes/page-builders/bricks/element-smartvideo.php:102
+msgid "Poster image"
+msgstr ""
+
+#: includes/page-builders/bricks/element-smartvideo.php:110
+#: includes/page-builders/elementor/elementorsmartvideo.php:179
+#: src/gutenberg-block/edit.js:335
+msgid "Poster URL"
+msgstr ""
+
+#: includes/page-builders/elementor/class-elementor-swarmify.php:155
+msgid "SmartVideo requires Elementor to be installed and activated."
+msgstr ""
+
+#. translators: 1: Plugin name, 2: Dependency name, 3: Minimum version.
+#: includes/page-builders/elementor/class-elementor-swarmify.php:174
+#: includes/page-builders/elementor/class-elementor-swarmify.php:197
+#, php-format
+msgid "\"%1$s\" requires \"%2$s\" version %3$s or greater."
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:75
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:15
+#: src/gutenberg-block/edit.js:262
+msgid "Video"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:95
+#: includes/page-builders/elementor/elementorsmartvideo.php:150
+#: src/gutenberg-block/edit.js:296
+msgid "Source"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:99
+msgid "URL"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:100
+msgid "Media Library"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:111
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:30
+#: src/gutenberg-block/edit.js:271
+msgid "YouTube, Vimeo, Swarmify, or direct video URL"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:125
+msgid "Choose Video"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:164
+msgid "Choose Poster Image"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:186
+msgid "https://example.com/poster.jpg"
+msgstr ""
+
+#: includes/page-builders/elementor/elementorsmartvideo.php:287
+#: includes/Smartvideo/partials/swarmify-widget-display.php:55
+#: src/gutenberg-block/edit.js:423
+msgid "Advanced options"
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:119
+msgid "Hero Video"
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:120
+msgid "Full-width background-style video with autoplay, muted, and loop."
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:132
+msgid "Video with Description"
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:133
+msgid "Two-column layout with video on the left and text on the right."
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:144
+msgid "Video Title"
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:148
+msgid "Add a description of your video here. Explain what viewers will learn or see."
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:159
+msgid "Video Showcase"
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:160
+msgid "Centered video with a heading above and description below."
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:163
+msgid "Watch Our Video"
+msgstr ""
+
+#: includes/page-builders/gutenberg/src/init.php:171
+msgid "A brief description of the video content goes here."
+msgstr ""
+
+#: includes/Smartvideo/Admin.php:234
+msgid "View SmartVideo settings"
+msgstr ""
+
+#: includes/Smartvideo/Admin.php:234
+#: includes/Smartvideo/DashboardWidget.php:79
+#: src/index.js:2020
+msgid "Settings"
+msgstr ""
+
+#. translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a>
+#: includes/Smartvideo/Admin.php:264
+#, php-format
+msgid "%1$sSmartVideo%2$s needs your CDN key to work. %3$sSet it up now%4$s"
+msgstr ""
+
+#. translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a>
+#: includes/Smartvideo/Admin.php:276
+#, php-format
+msgid "%1$sSmartVideo%2$s is currently disabled. %3$sEnable it%4$s to start optimizing your videos."
+msgstr ""
+
+#. translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a>
+#: includes/Smartvideo/Admin.php:288
+#, php-format
+msgid "%1$sSmartVideo%2$s can automatically replace YouTube and Vimeo embeds with a faster, ad-free player. %3$sTurn it on%4$s"
+msgstr ""
+
+#: includes/Smartvideo/Admin.php:307
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:8
+msgid "Add SmartVideo"
+msgstr ""
+
+#: includes/Smartvideo/AdminWidget.php:34
+#: includes/Smartvideo/AdminWidget.php:37
+msgid "SmartVideo Widget"
+msgstr ""
+
+#: includes/Smartvideo/AdminWidget.php:87
+msgid "CDN Key field is required."
+msgstr ""
+
+#: includes/Smartvideo/AdminWidget.php:90
+msgid "SmartVideo is disabled."
+msgstr ""
+
+#: includes/Smartvideo/AdminWidget.php:94
+msgid "SmartVideo URL is missing."
+msgstr ""
+
+#: includes/Smartvideo/AspectRatio.php:47
+msgid "No video selected"
+msgstr ""
+
+#: includes/Smartvideo/AspectRatio.php:58
+#: src/gutenberg-block/edit.js:353
+msgid "16:9 (Standard)"
+msgstr ""
+
+#: includes/Smartvideo/AspectRatio.php:59
+#: src/gutenberg-block/edit.js:357
+msgid "4:3 (Legacy)"
+msgstr ""
+
+#: includes/Smartvideo/AspectRatio.php:60
+#: src/gutenberg-block/edit.js:361
+msgid "21:9 (Ultrawide)"
+msgstr ""
+
+#: includes/Smartvideo/AspectRatio.php:61
+#: src/gutenberg-block/edit.js:365
+msgid "9:16 (Vertical)"
+msgstr ""
+
+#: includes/Smartvideo/AspectRatio.php:62
+#: src/gutenberg-block/edit.js:369
+msgid "1:1 (Square)"
+msgstr ""
+
+#: includes/Smartvideo/AspectRatio.php:63
+#: src/gutenberg-block/edit.js:373
+msgid "Custom"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:52
+msgid "Active"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:52
+msgid "Inactive"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:57
+msgid "CDN Key"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:59
+msgid "Connected"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:61
+#: src/index.js:734
+msgid "Missing"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:65
+msgid "YouTube/Vimeo auto-replace"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:67
+#: includes/Smartvideo/DashboardWidget.php:73
+msgid "On"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:67
+#: includes/Smartvideo/DashboardWidget.php:73
+#: src/index.js:1667
+msgid "Off"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:71
+msgid "Background video optimization"
+msgstr ""
+
+#: includes/Smartvideo/DashboardWidget.php:80
+msgid "Help & FAQs"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:10
+msgid "Close"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:16
+msgid "Options"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:17
+#: src/index.js:1498
+msgid "Advanced"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:27
+msgid "https:// or swarmify://"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:47
+#: src/gutenberg-block/edit.js:323
+msgid "Select poster image"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:60
+msgid "Aspect ratio"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:156
+#: src/index.js:175
+msgid "Cancel"
+msgstr ""
+
+#: includes/Smartvideo/partials/add-video-lightbox-display.php:157
+msgid "Insert into post"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:53
+msgid "Content"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:62
+msgid "Add a video:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:64
+msgid "Add video from WordPress Media Library"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:65
+msgid "Add video from YouTube"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:66
+msgid "Add video from another source"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:69
+msgid "Head to YouTube, view your video, click \"Share\", click \"Copy\", and paste the URL here:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:70
+msgid "To add a video from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL ending in \".mp4\" here:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:72
+#: includes/Smartvideo/partials/swarmify-widget-display.php:90
+msgid "Save"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:77
+msgid "Designates an image to be shown until playback begins. We recommend using a PNG or JPEG to be compatible with all browsers. Click the \"Add Image\" button to choose an image from your WordPress media library. To add an image from another source, paste the URL into the field below."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:80
+msgid "Add an optional poster image:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:82
+msgid "Add image from WordPress Media Library"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:83
+msgid "Add image from another source"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:86
+msgid "Add an image from another source (like Amazon S3, Google Drive, Dropbox, etc.), paste the URL here."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:88
+msgid "Image URL"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:95
+msgid "Places a title above the video. If you do not want one, leave this field blank."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:97
+msgid "Add a title above video:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:105
+msgid "Height:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:114
+msgid "Width:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:125
+msgid "Player will begin playback automatically as soon as possible. Pro tip: unless combined with Muted toggled on, many browsers will restrict Autoplay. We recommend only using Autoplay in combination with Muted."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:128
+msgid "Autoplay:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:146
+msgid "Player will begin playback with audio muted."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:149
+msgid "Muted:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:166
+msgid "Player will restart the video once it ends."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:169
+msgid "Loop:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:188
+msgid "Controls are on by default. Pro tip: if you toggle Controls off, make sure to toggle Autoplay on (and Muted to make sure Autoplay works). If you do not, the user will have no way of beginning video playback."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:191
+msgid "Controls:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:208
+msgid "Safari on iOS forces videos to fullscreen. Toggle this option on to keep the video from automatically being forced to fullscreen."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:211
+msgid "Play inline:"
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:228
+msgid "The player is responsive by default. If you toggle this option off, the player will maintain height and width no matter what changes are made to the size of the browser window."
+msgstr ""
+
+#: includes/Smartvideo/partials/swarmify-widget-display.php:231
+msgid "Responsive:"
+msgstr ""
+
+#: includes/Smartvideo/PostMeta.php:68
+#: src/gutenberg-sidebar.js:29
+msgid "Disable SmartVideo on this page"
+msgstr ""
+
+#: includes/Smartvideo/PostMeta.php:70
+msgid "Prevents the SmartVideo player script from loading on this page."
+msgstr ""
+
+#. translators: %s: site name.
+#: includes/Smartvideo/SchemaCollector.php:239
+#, php-format
+msgid "Video on %s"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:299
+msgid "Async JavaScript -- may re-order script loading"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:300
+msgid "Autoptimize -- may combine or defer SmartVideo scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:301
+msgid "Cloudways Breeze -- may defer or combine scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:302
+msgid "Cloudflare -- may rewrite CDN URLs or enable Rocket Loader script deferral"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:303
+msgid "FlyingPress -- may delay script execution until user interaction"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:304
+msgid "Hummingbird -- may defer or combine scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:305
+msgid "Jetpack Boost -- may defer non-critical scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:306
+msgid "LiteSpeed Cache -- may defer or combine scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:307
+msgid "NitroPack -- may defer scripts and rewrite resource URLs"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:308
+msgid "Perfmatters -- may defer or delay scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:309
+msgid "Phast -- may bundle scripts and defer execution"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:310
+msgid "Powered Cache -- may defer or combine scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:311
+msgid "SiteGround Optimizer -- may combine JS files"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:312
+msgid "SiteGround Speed Optimizer -- may defer or combine scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:313
+msgid "Swift Performance -- may merge or defer scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:314
+msgid "W3 Total Cache -- may minify or combine SmartVideo scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:315
+msgid "WP Fastest Cache -- may combine JS files or defer loading"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:316
+msgid "WP-Optimize -- may defer or minify scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:317
+msgid "WP Rocket -- may defer or delay SmartVideo scripts"
+msgstr ""
+
+#: includes/Smartvideo/Settings.php:318
+msgid "WP Super Cache -- may serve cached pages with stale script references"
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:371
+msgid "Sorry, you do not have permission to upload files."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:379
+msgid "Failed to move uploaded file."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:388
+msgid "Missing or invalid upload tmp name."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:400
+msgid "Invalid chunk index."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:412
+msgid "Missing file name."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:421
+msgid "Missing or invalid upload ID."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:430
+msgid "Upload service unavailable. Please contact an administrator."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:441
+msgid "Refusing to write to non-regular accumulator file."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:445
+msgid "Missing accumulator for non-zero chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:472
+#: includes/Smartvideo/UploadAccelerator.php:512
+msgid "Upload exceeds maximum allowed size."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:478
+#: includes/Smartvideo/UploadAccelerator.php:483
+msgid "Failed to write uploaded chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:490
+msgid "Failed to read uploaded chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:500
+msgid "Read error on uploaded chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:508
+msgid "Write error on accumulator."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:521
+msgid "Flush error on accumulator (disk may be full)."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:534
+msgid "Failed to finalize accumulator size."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:558
+msgid "Failed to finalize upload."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:576
+msgid "Unexpected fallthrough after upload handler."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:589
+msgid "Invalid post_id."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:601
+msgid "Dismiss"
+msgstr ""
+
+#. translators: %s: file name
+#: includes/Smartvideo/UploadAccelerator.php:604
+#, php-format
+msgid "&#8220;%s&#8221; has failed to upload."
+msgstr ""
+
+#: SmartVideo.php:85
+msgid "Cloning is forbidden."
+msgstr ""
+
+#: SmartVideo.php:92
+msgid "Unserializing instances of this class is forbidden."
+msgstr ""
+
+#: src/gutenberg-block/edit.js:39
+msgid "Paste a video URL or choose from Media Library →"
+msgstr ""
+
+#: src/gutenberg-block/edit.js:240
+msgid "SmartVideo is currently disabled. Enable it in <a>Settings</a> for videos to play."
+msgstr ""
+
+#: src/gutenberg-block/edit.js:267
+msgid "https://www.youtube.com/watch?v=… or any video URL"
+msgstr ""
+
+#: src/gutenberg-block/edit.js:284
+msgid "Replace video"
+msgstr ""
+
+#: src/gutenberg-block/edit.js:327
+msgid "Replace image"
+msgstr ""
+
+#: src/gutenberg-block/index.js:114
+msgid "video"
+msgstr ""
+
+#: src/gutenberg-block/index.js:115
+msgid "smartvideo"
+msgstr ""
+
+#: src/gutenberg-block/index.js:116
+msgid "embed"
+msgstr ""
+
+#: src/gutenberg-sidebar.js:32
+msgid "SmartVideo player will not load on this page."
+msgstr ""
+
+#: src/gutenberg-sidebar.js:36
+msgid "SmartVideo player will load normally."
+msgstr ""
+
+#: src/ImageUpload.js:31
+msgid "Select or upload image"
+msgstr ""
+
+#: src/ImageUpload.js:33
+msgid "Select"
+msgstr ""
+
+#: src/ImageUpload.js:82
+msgid "Change image"
+msgstr ""
+
+#: src/ImageUpload.js:90
+#: src/ImageUpload.js:126
+msgid "Remove image"
+msgstr ""
+
+#: src/ImageUpload.js:111
+#: src/ImageUpload.js:134
+msgid "Add an image"
+msgstr ""
+
+#: src/index.js:153
+msgid "Reset to defaults"
+msgstr ""
+
+#. translators: %s is the settings section name (e.g. "player appearance")
+#: src/index.js:159
+#, js-format
+msgid "This will revert <strong>%s</strong> to factory settings. Your other sections won't be affected."
+msgstr ""
+
+#: src/index.js:183
+msgid "Reset section"
+msgstr ""
+
+#: src/index.js:214
+msgid "Invalid CDN key format"
+msgstr ""
+
+#: src/index.js:249
+msgid "Welcome to SmartVideo"
+msgstr ""
+
+#: src/index.js:251
+msgid "Replace slow YouTube and Vimeo embeds with a clean, fast player that you control — no ads, no branding, no traffic leaks."
+msgstr ""
+
+#: src/index.js:265
+#: src/index.js:1773
+msgid "Start your free trial"
+msgstr ""
+
+#: src/index.js:276
+msgid "Getting started"
+msgstr ""
+
+#: src/index.js:279
+msgid "Enter your CDN key"
+msgstr ""
+
+#: src/index.js:282
+#: src/index.js:409
+#: src/index.js:1839
+msgid "Enable SmartVideo"
+msgstr ""
+
+#: src/index.js:286
+msgid "Visit the <b>Settings</b> tab to customize your player"
+msgstr ""
+
+#: src/index.js:303
+msgid "Connect Your Account"
+msgstr ""
+
+#: src/index.js:308
+msgid "1. Visit <a>dash.swarmify.com</a>"
+msgstr ""
+
+#: src/index.js:325
+msgid "2. Copy your Swarm CDN Key to your clipboard like so:"
+msgstr ""
+
+#: src/index.js:338
+msgid "Copy your CDN key from the dashboard"
+msgstr ""
+
+#: src/index.js:352
+msgid "3. Paste your <b>Swarm CDN Key</b> into the field below:"
+msgstr ""
+
+#: src/index.js:372
+#: src/index.js:731
+msgid "Swarm CDN Key"
+msgstr ""
+
+#: src/index.js:388
+msgid "4. Click the button below to enable SmartVideo:"
+msgstr ""
+
+#: src/index.js:421
+msgid "How It Works"
+msgstr ""
+
+#: src/index.js:426
+msgid "Once enabled, SmartVideo scans your pages for YouTube and Vimeo embeds and converts them automatically — no extra work needed. You can also add videos directly using the <b>SmartVideo block</b> in your page editor."
+msgstr ""
+
+#. translators: <b1> wraps "1–2× the video length", <i> wraps "Video Acceleration" indicator name, <b2> wraps the "On" status
+#: src/index.js:436
+msgid "Processing takes roughly <b1>1–2× the video length</b1> (a 10-minute video takes 10–20 minutes). You'll know it's ready when the <i>Video Acceleration</i> indicator on the player says <b2>On</b2>."
+msgstr ""
+
+#: src/index.js:454
+msgid "FAQs"
+msgstr ""
+
+#: src/index.js:465
+msgid "SmartVideo tags"
+msgstr ""
+
+#: src/index.js:583
+msgid "Player preview"
+msgstr ""
+
+#: src/index.js:725
+msgid "Plugin"
+msgstr ""
+
+#: src/index.js:727
+msgid "Enabled"
+msgstr ""
+
+#: src/index.js:728
+msgid "Disabled"
+msgstr ""
+
+#: src/index.js:733
+msgid "Valid"
+msgstr ""
+
+#: src/index.js:737
+msgid "Swarm CDN"
+msgstr ""
+
+#: src/index.js:739
+msgid "Reachable"
+msgstr ""
+
+#: src/index.js:740
+msgid "Unreachable"
+msgstr ""
+
+#: src/index.js:743
+msgid "Script"
+msgstr ""
+
+#: src/index.js:745
+msgid "Ready"
+msgstr ""
+
+#: src/index.js:746
+msgid "Not loaded"
+msgstr ""
+
+#: src/index.js:753
+msgid "Plugin is disabled"
+msgstr ""
+
+#: src/index.js:756
+msgid "CDN key missing or invalid"
+msgstr ""
+
+#: src/index.js:759
+msgid "Cannot reach assets.swarmcdn.com"
+msgstr ""
+
+#: src/index.js:763
+msgid "Player script will not load — enable plugin and set CDN key"
+msgstr ""
+
+#: src/index.js:777
+msgid "Could not load diagnostics"
+msgstr ""
+
+#: src/index.js:819
+msgid "Checking…"
+msgstr ""
+
+#. translators: %d is the number of issues found.
+#: src/index.js:823
+#, js-format
+msgid "%d issue found"
+msgid_plural "%d issues found"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/index.js:827
+msgid "All systems healthy"
+msgstr ""
+
+#: src/index.js:908
+#: src/index.js:1056
+msgid "Auto-conversions"
+msgstr ""
+
+#: src/index.js:916
+msgid "player appearance"
+msgstr ""
+
+#: src/index.js:924
+msgid "video defaults"
+msgstr ""
+
+#: src/index.js:935
+msgid "advanced settings"
+msgstr ""
+
+#: src/index.js:1025
+msgid "Upload & manage your videos"
+msgstr ""
+
+#: src/index.js:1033
+msgid "Open Dashboard"
+msgstr ""
+
+#: src/index.js:1042
+msgid "Click <strong>Video Library</strong> in your dashboard to upload videos, grab embed URLs, and manage your hosted content."
+msgstr ""
+
+#: src/index.js:1060
+#: src/index.js:1178
+#: src/index.js:1306
+#: src/index.js:1502
+msgid "Reset to factory defaults"
+msgstr ""
+
+#: src/index.js:1061
+msgid "Reset video conversion settings"
+msgstr ""
+
+#: src/index.js:1074
+msgid "Auto-convert YouTube & Vimeo"
+msgstr ""
+
+#: src/index.js:1080
+msgid "Replace YouTube and Vimeo embeds with the SmartVideo player — no code changes needed."
+msgstr ""
+
+#: src/index.js:1089
+msgid "Auto-convert YouTube and Vimeo"
+msgstr ""
+
+#: src/index.js:1108
+#: src/index.js:1120
+msgid "Import captions"
+msgstr ""
+
+#: src/index.js:1111
+msgid "Carry over closed captions and subtitles from YouTube and Vimeo."
+msgstr ""
+
+#: src/index.js:1136
+msgid "Background & HTML5 videos"
+msgstr ""
+
+#: src/index.js:1142
+msgid "Speed up background and inline HTML5 videos. These keep their original layout — not placed in the player. May conflict with some page builders."
+msgstr ""
+
+#: src/index.js:1151
+msgid "Background and HTML5 videos"
+msgstr ""
+
+#: src/index.js:1174
+msgid "Player Appearance"
+msgstr ""
+
+#: src/index.js:1179
+msgid "Reset player appearance settings"
+msgstr ""
+
+#: src/index.js:1197
+msgid "Play button shape"
+msgstr ""
+
+#: src/index.js:1203
+msgid "Hexagon"
+msgstr ""
+
+#: src/index.js:1207
+msgid "Circle"
+msgstr ""
+
+#: src/index.js:1211
+msgid "Rectangle"
+msgstr ""
+
+#: src/index.js:1254
+msgid "Watermark"
+msgstr ""
+
+#: src/index.js:1257
+#: src/index.js:1606
+msgid "Pro"
+msgstr ""
+
+#: src/index.js:1277
+msgid "Accent color"
+msgstr ""
+
+#: src/index.js:1302
+msgid "Video Defaults"
+msgstr ""
+
+#: src/index.js:1307
+msgid "Reset video defaults settings"
+msgstr ""
+
+#: src/index.js:1317
+msgid "Default settings for new video blocks. Existing videos keep their saved values."
+msgstr ""
+
+#: src/index.js:1329
+msgid "Start playing automatically when the page loads. Most browsers require muted for autoplay to work."
+msgstr ""
+
+#: src/index.js:1357
+msgid "Start with sound off. Required by most browsers for autoplay."
+msgstr ""
+
+#: src/index.js:1385
+msgid "Restart the video from the beginning when it ends."
+msgstr ""
+
+#: src/index.js:1413
+msgid "Show play/pause, progress bar, and volume controls."
+msgstr ""
+
+#: src/index.js:1441
+msgid "Prevent iOS Safari from forcing fullscreen when playing."
+msgstr ""
+
+#: src/index.js:1469
+msgid "Fill the container width and maintain aspect ratio."
+msgstr ""
+
+#: src/index.js:1503
+msgid "Reset advanced settings"
+msgstr ""
+
+#: src/index.js:1516
+#: src/index.js:1528
+msgid "iFrame player"
+msgstr ""
+
+#: src/index.js:1519
+msgid "When replacing YouTube and Vimeo embeds, use an iFrame for better CSS isolation from your theme. Turn off if you see layout issues."
+msgstr ""
+
+#: src/index.js:1544
+#: src/index.js:1556
+msgid "Upload acceleration"
+msgstr ""
+
+#: src/index.js:1547
+msgid "Speeds up video uploads. Turn off if uploads stall or fail."
+msgstr ""
+
+#: src/index.js:1575
+msgid "Video schema markup"
+msgstr ""
+
+#: src/index.js:1578
+msgid "Add VideoObject structured data (JSON-LD) to pages with videos. Helps Google show rich video results in search."
+msgstr ""
+
+#: src/index.js:1587
+msgid "Schema markup"
+msgstr ""
+
+#: src/index.js:1603
+msgid "VAST ads"
+msgstr ""
+
+#: src/index.js:1610
+msgid "Paste your VAST tag URL from your ad platform."
+msgstr ""
+
+#: src/index.js:1629
+msgid "VAST tag URL"
+msgstr ""
+
+#: src/index.js:1636
+msgid "Conditional script loading"
+msgstr ""
+
+#: src/index.js:1642
+#: src/index.js:1709
+msgid "Beta"
+msgstr ""
+
+#. translators: <s1>Off</s1>, <s2>Standard</s2>, <s3>Strict</s3> are the three mode names. <code> wraps a WordPress filter name.
+#: src/index.js:1648
+msgid "Controls when the player script loads. <s1>Off</s1> loads the player on every page. <s2>Standard</s2> skips pages with no video content (YouTube, Vimeo, video elements, iframes, or SmartVideo embeds). <s3>Strict</s3> loads only when SmartVideo will actively enhance detected content. If a video isn't detected (e.g., added by your theme), use the <code>smartvideo_force_load_script</code> filter."
+msgstr ""
+
+#: src/index.js:1672
+msgid "Standard"
+msgstr ""
+
+#: src/index.js:1677
+msgid "Strict"
+msgstr ""
+
+#: src/index.js:1706
+#: src/index.js:1722
+msgid "Beta player"
+msgstr ""
+
+#: src/index.js:1713
+msgid "Loads the upcoming SmartVideo player build instead of the stable release. Use only if you're testing pre-release fixes or features — switch off if playback misbehaves."
+msgstr ""
+
+#: src/index.js:1752
+msgid "Don't have a SmartVideo account yet?"
+msgstr ""
+
+#: src/index.js:1759
+msgid "Start a 14-day free trial to get up and running. Once you've signed up, come back here and click the <b>Setup</b> tab to connect your account."
+msgstr ""
+
+#. translators: %s is the plugin version number
+#: src/index.js:1783
+#, js-format
+msgid "SmartVideo Version %s — powered by <a>Swarmify</a>"
+msgstr ""
+
+#: src/index.js:1838
+msgid "Disable SmartVideo"
+msgstr ""
+
+#: src/index.js:1843
+msgid "Enter your CDN key first"
+msgstr ""
+
+#. translators: Power toggle label
+#: src/index.js:1851
+msgid "ON"
+msgstr ""
+
+#. translators: Power toggle label
+#: src/index.js:1855
+msgid "OFF"
+msgstr ""
+
+#: src/index.js:1901
+msgid "Error saving settings. Try reloading the admin page."
+msgstr ""
+
+#: src/index.js:1925
+msgid "Could not save settings. Try reloading the page."
+msgstr ""
+
+#: src/index.js:1991
+msgid "Settings saved."
+msgstr ""
+
+#: src/index.js:2014
+msgid "Setup"
+msgstr ""
