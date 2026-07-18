@@ -97,6 +97,9 @@ class Swarmify {
 		}
 		$this->plugin_name = $plugin_name;
 
+		// Must run before any Settings::get(), which caches every option value.
+		Activator::maybe_backfill_conditional_loading();
+
 		$this->settings  = new Settings( $this->plugin_name, $this->version );
 		$this->post_meta = new PostMeta();
 
@@ -695,6 +698,29 @@ class Swarmify {
 	}
 
 	/**
+	 * Resolve the player script URL for the stable or beta channel.
+	 *
+	 * Stable loads the swarmdetect shim, which is what 2.2.2 loaded. The shim
+	 * injects the root bundle, but it is not a plain redirect and the root
+	 * bundle does not replicate it: `SWARMIFY_LOADED` (the guard that stops a
+	 * hand-pasted snippet and this enqueue from starting two players) and the
+	 * `swarmvcustomvideo` routing to swarmcdn-custom.js both exist only in the
+	 * shim. Enqueueing the root bundle directly drops both.
+	 *
+	 * 2.3.0 pointed stable at `cross/swarmcdn.js` instead — the legacy video.js
+	 * build, which lays embeds out at the 300x150 intrinsic default rather than
+	 * full width. Going through the shim again is the exact revert.
+	 *
+	 * @param bool $use_beta_player Whether the beta channel is enabled.
+	 * @return string Absolute URL of the player script to enqueue.
+	 */
+	public static function player_script_src( $use_beta_player ) {
+		return $use_beta_player
+			? 'https://assets.swarmcdn.com/beta/swarmcdn.js'
+			: 'https://assets.swarmcdn.com/cross/swarmdetect.js';
+	}
+
+	/**
 	 * Enqueue the swarmdetect settings and script
 	 */
 	public function enqueue_swarmify_script() {
@@ -782,9 +808,7 @@ class Swarmify {
 			$swarmoptions_js = 'var swarmoptions = ' . wp_json_encode( $swarmoptions ) . ';';
 
 			$this->use_beta_player = 'on' === $this->settings->get( 'swarmify_toggle_beta_player' );
-			$script_src            = $this->use_beta_player
-				? 'https://assets.swarmcdn.com/beta/swarmcdn.js'
-				: 'https://assets.swarmcdn.com/cross/swarmcdn.js';
+			$script_src            = self::player_script_src( $this->use_beta_player );
 
 			wp_enqueue_script(
 				$this->swarmdetect_handle,

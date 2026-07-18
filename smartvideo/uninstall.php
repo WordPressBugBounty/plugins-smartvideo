@@ -52,6 +52,7 @@ delete_option( 'swarmify_default_responsive' );
 	delete_option( 'swarmify_default_preload' ); // legacy row from installs that predate the option's removal
 delete_option( 'swarmify_toggle_conditional_loading' );
 delete_option( 'swarmify_toggle_beta_player' );
+delete_option( 'swarmify_plugin_version' );
 
 // Delete activation redirect transient (set with a per-user suffix, so use a
 // wildcard delete since we can't know the user ID at uninstall time).
@@ -95,6 +96,7 @@ if ( is_multisite() ) {
 		delete_option( 'swarmify_toggle_conditional_loading' );
 		delete_option( 'swarmify_default_preload' ); // legacy row from installs that predate the option's removal
 		delete_option( 'swarmify_toggle_beta_player' );
+		delete_option( 'swarmify_plugin_version' );
 
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_smartvideo_activation_redirect_' ) . '%', $wpdb->esc_like( '_transient_timeout_smartvideo_activation_redirect_' ) . '%' ) );
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_sv_vimeo_thumb_' ) . '%', $wpdb->esc_like( '_transient_timeout_sv_vimeo_thumb_' ) . '%' ) );
