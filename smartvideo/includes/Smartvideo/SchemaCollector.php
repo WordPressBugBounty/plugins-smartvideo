@@ -138,8 +138,12 @@ class SchemaCollector {
 				[ 'timeout' => 3 ]
 			);
 
-			// Network/transport failure — skip caching, retry on next request.
+			// Network/transport failure. Cached briefly rather than not at all:
+			// on a host that blocks outbound HTTP every frontend request would
+			// otherwise pay the full timeout, forever. Short TTL so a transient
+			// outage still recovers on its own.
 			if ( is_wp_error( $response ) ) {
+				set_transient( $cache_key, '', 15 * MINUTE_IN_SECONDS );
 				return '';
 			}
 

@@ -2,7 +2,7 @@
 # This file is distributed under the AGPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: SmartVideo 2.3.2\n"
+"Project-Id-Version: SmartVideo 2.3.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/swarmify\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr ""
 #: includes/Smartvideo/PostMeta.php:49
 #: src/gutenberg-block/index.js:106
 #: src/gutenberg-sidebar.js:25
-#: src/index.js:1827
+#: src/index.js:1830
 msgid "SmartVideo"
 msgstr ""
 
@@ -162,8 +162,8 @@ msgstr ""
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:85
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:89
 #: src/gutenberg-block/edit.js:393
-#: src/index.js:1326
-#: src/index.js:1338
+#: src/index.js:1329
+#: src/index.js:1341
 msgid "Autoplay"
 msgstr ""
 
@@ -211,8 +211,8 @@ msgstr ""
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:96
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:100
 #: src/gutenberg-block/edit.js:403
-#: src/index.js:1354
-#: src/index.js:1366
+#: src/index.js:1357
+#: src/index.js:1369
 msgid "Muted"
 msgstr ""
 
@@ -230,8 +230,8 @@ msgstr ""
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:107
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:111
 #: src/gutenberg-block/edit.js:413
-#: src/index.js:1382
-#: src/index.js:1394
+#: src/index.js:1385
+#: src/index.js:1397
 msgid "Loop"
 msgstr ""
 
@@ -249,8 +249,8 @@ msgstr ""
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:121
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:125
 #: src/gutenberg-block/edit.js:428
-#: src/index.js:1410
-#: src/index.js:1422
+#: src/index.js:1413
+#: src/index.js:1425
 msgid "Controls"
 msgstr ""
 
@@ -268,8 +268,8 @@ msgstr ""
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:132
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:136
 #: src/gutenberg-block/edit.js:438
-#: src/index.js:1438
-#: src/index.js:1450
+#: src/index.js:1441
+#: src/index.js:1453
 msgid "Play inline"
 msgstr ""
 
@@ -287,8 +287,8 @@ msgstr ""
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:143
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:147
 #: src/gutenberg-block/edit.js:448
-#: src/index.js:1466
-#: src/index.js:1478
+#: src/index.js:1469
+#: src/index.js:1481
 msgid "Responsive"
 msgstr ""
 
@@ -440,7 +440,7 @@ msgstr ""
 
 #: includes/Smartvideo/Admin.php:234
 #: includes/Smartvideo/DashboardWidget.php:79
-#: src/index.js:2020
+#: src/index.js:2023
 msgid "Settings"
 msgstr ""
 
@@ -550,7 +550,7 @@ msgstr ""
 
 #: includes/Smartvideo/DashboardWidget.php:67
 #: includes/Smartvideo/DashboardWidget.php:73
-#: src/index.js:1667
+#: src/index.js:1670
 msgid "Off"
 msgstr ""
 
@@ -571,7 +571,7 @@ msgid "Options"
 msgstr ""
 
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:17
-#: src/index.js:1498
+#: src/index.js:1501
 msgid "Advanced"
 msgstr ""
 
@@ -728,7 +728,7 @@ msgid "Prevents the SmartVideo player script from loading on this page."
 msgstr ""
 
 #. translators: %s: site name.
-#: includes/Smartvideo/SchemaCollector.php:239
+#: includes/Smartvideo/SchemaCollector.php:243
 #, php-format
 msgid "Video on %s"
 msgstr ""
@@ -813,90 +813,106 @@ msgstr ""
 msgid "WP Super Cache -- may serve cached pages with stale script references"
 msgstr ""
 
-#: includes/Smartvideo/UploadAccelerator.php:371
-msgid "Sorry, you do not have permission to upload files."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:379
-msgid "Failed to move uploaded file."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:388
-msgid "Missing or invalid upload tmp name."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:400
-msgid "Invalid chunk index."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:412
-msgid "Missing file name."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:421
-msgid "Missing or invalid upload ID."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:430
-msgid "Upload service unavailable. Please contact an administrator."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:441
-msgid "Refusing to write to non-regular accumulator file."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:445
-msgid "Missing accumulator for non-zero chunk."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:472
-#: includes/Smartvideo/UploadAccelerator.php:512
-msgid "Upload exceeds maximum allowed size."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:478
-#: includes/Smartvideo/UploadAccelerator.php:483
-msgid "Failed to write uploaded chunk."
-msgstr ""
-
-#: includes/Smartvideo/UploadAccelerator.php:490
-msgid "Failed to read uploaded chunk."
-msgstr ""
-
 #: includes/Smartvideo/UploadAccelerator.php:500
-msgid "Read error on uploaded chunk."
+msgid "Refusing to write to non-regular upload metadata file."
 msgstr ""
 
-#: includes/Smartvideo/UploadAccelerator.php:508
-msgid "Write error on accumulator."
+#: includes/Smartvideo/UploadAccelerator.php:506
+msgid "Failed to record upload chunk size. Please retry the upload."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:511
+msgid "Upload chunk size changed mid-transfer. Please retry the upload."
 msgstr ""
 
 #: includes/Smartvideo/UploadAccelerator.php:521
+msgid "Upload chunk size could not be determined. Please retry the upload."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:538
+msgid "Sorry, you do not have permission to upload files."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:546
+msgid "Failed to move uploaded file."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:555
+msgid "Missing or invalid upload tmp name."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:567
+msgid "Invalid chunk index."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:579
+msgid "Missing file name."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:588
+msgid "Missing or invalid upload ID."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:597
+msgid "Upload service unavailable. Please contact an administrator."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:608
+msgid "Refusing to write to non-regular accumulator file."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:612
+msgid "Missing accumulator for non-zero chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:639
+#: includes/Smartvideo/UploadAccelerator.php:679
+msgid "Upload exceeds maximum allowed size."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:645
+#: includes/Smartvideo/UploadAccelerator.php:650
+msgid "Failed to write uploaded chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:657
+msgid "Failed to read uploaded chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:667
+msgid "Read error on uploaded chunk."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:675
+msgid "Write error on accumulator."
+msgstr ""
+
+#: includes/Smartvideo/UploadAccelerator.php:688
 msgid "Flush error on accumulator (disk may be full)."
 msgstr ""
 
-#: includes/Smartvideo/UploadAccelerator.php:534
+#: includes/Smartvideo/UploadAccelerator.php:701
 msgid "Failed to finalize accumulator size."
 msgstr ""
 
-#: includes/Smartvideo/UploadAccelerator.php:558
+#: includes/Smartvideo/UploadAccelerator.php:726
 msgid "Failed to finalize upload."
 msgstr ""
 
-#: includes/Smartvideo/UploadAccelerator.php:576
+#: includes/Smartvideo/UploadAccelerator.php:745
 msgid "Unexpected fallthrough after upload handler."
 msgstr ""
 
-#: includes/Smartvideo/UploadAccelerator.php:589
+#: includes/Smartvideo/UploadAccelerator.php:758
 msgid "Invalid post_id."
 msgstr ""
 
-#: includes/Smartvideo/UploadAccelerator.php:601
+#: includes/Smartvideo/UploadAccelerator.php:770
 msgid "Dismiss"
 msgstr ""
 
 #. translators: %s: file name
-#: includes/Smartvideo/UploadAccelerator.php:604
+#: includes/Smartvideo/UploadAccelerator.php:773
 #, php-format
 msgid "&#8220;%s&#8221; has failed to upload."
 msgstr ""
@@ -998,7 +1014,7 @@ msgid "Replace slow YouTube and Vimeo embeds with a clean, fast player that you 
 msgstr ""
 
 #: src/index.js:265
-#: src/index.js:1773
+#: src/index.js:1776
 msgid "Start your free trial"
 msgstr ""
 
@@ -1012,7 +1028,7 @@ msgstr ""
 
 #: src/index.js:282
 #: src/index.js:409
-#: src/index.js:1839
+#: src/index.js:1842
 msgid "Enable SmartVideo"
 msgstr ""
 
@@ -1151,7 +1167,7 @@ msgid "All systems healthy"
 msgstr ""
 
 #: src/index.js:908
-#: src/index.js:1056
+#: src/index.js:1059
 msgid "Auto-conversions"
 msgstr ""
 
@@ -1167,256 +1183,256 @@ msgstr ""
 msgid "advanced settings"
 msgstr ""
 
-#: src/index.js:1025
+#: src/index.js:1028
 msgid "Upload & manage your videos"
 msgstr ""
 
-#: src/index.js:1033
+#: src/index.js:1036
 msgid "Open Dashboard"
 msgstr ""
 
-#: src/index.js:1042
+#: src/index.js:1045
 msgid "Click <strong>Video Library</strong> in your dashboard to upload videos, grab embed URLs, and manage your hosted content."
 msgstr ""
 
-#: src/index.js:1060
-#: src/index.js:1178
-#: src/index.js:1306
-#: src/index.js:1502
+#: src/index.js:1063
+#: src/index.js:1181
+#: src/index.js:1309
+#: src/index.js:1505
 msgid "Reset to factory defaults"
 msgstr ""
 
-#: src/index.js:1061
+#: src/index.js:1064
 msgid "Reset video conversion settings"
 msgstr ""
 
-#: src/index.js:1074
+#: src/index.js:1077
 msgid "Auto-convert YouTube & Vimeo"
 msgstr ""
 
-#: src/index.js:1080
+#: src/index.js:1083
 msgid "Replace YouTube and Vimeo embeds with the SmartVideo player — no code changes needed."
 msgstr ""
 
-#: src/index.js:1089
+#: src/index.js:1092
 msgid "Auto-convert YouTube and Vimeo"
 msgstr ""
 
-#: src/index.js:1108
-#: src/index.js:1120
+#: src/index.js:1111
+#: src/index.js:1123
 msgid "Import captions"
 msgstr ""
 
-#: src/index.js:1111
+#: src/index.js:1114
 msgid "Carry over closed captions and subtitles from YouTube and Vimeo."
 msgstr ""
 
-#: src/index.js:1136
+#: src/index.js:1139
 msgid "Background & HTML5 videos"
 msgstr ""
 
-#: src/index.js:1142
+#: src/index.js:1145
 msgid "Speed up background and inline HTML5 videos. These keep their original layout — not placed in the player. May conflict with some page builders."
 msgstr ""
 
-#: src/index.js:1151
+#: src/index.js:1154
 msgid "Background and HTML5 videos"
 msgstr ""
 
-#: src/index.js:1174
+#: src/index.js:1177
 msgid "Player Appearance"
 msgstr ""
 
-#: src/index.js:1179
+#: src/index.js:1182
 msgid "Reset player appearance settings"
 msgstr ""
 
-#: src/index.js:1197
+#: src/index.js:1200
 msgid "Play button shape"
 msgstr ""
 
-#: src/index.js:1203
+#: src/index.js:1206
 msgid "Hexagon"
 msgstr ""
 
-#: src/index.js:1207
+#: src/index.js:1210
 msgid "Circle"
 msgstr ""
 
-#: src/index.js:1211
+#: src/index.js:1214
 msgid "Rectangle"
 msgstr ""
 
-#: src/index.js:1254
+#: src/index.js:1257
 msgid "Watermark"
 msgstr ""
 
-#: src/index.js:1257
-#: src/index.js:1606
+#: src/index.js:1260
+#: src/index.js:1609
 msgid "Pro"
 msgstr ""
 
-#: src/index.js:1277
+#: src/index.js:1280
 msgid "Accent color"
 msgstr ""
 
-#: src/index.js:1302
+#: src/index.js:1305
 msgid "Video Defaults"
 msgstr ""
 
-#: src/index.js:1307
+#: src/index.js:1310
 msgid "Reset video defaults settings"
 msgstr ""
 
-#: src/index.js:1317
+#: src/index.js:1320
 msgid "Default settings for new video blocks. Existing videos keep their saved values."
 msgstr ""
 
-#: src/index.js:1329
+#: src/index.js:1332
 msgid "Start playing automatically when the page loads. Most browsers require muted for autoplay to work."
 msgstr ""
 
-#: src/index.js:1357
+#: src/index.js:1360
 msgid "Start with sound off. Required by most browsers for autoplay."
 msgstr ""
 
-#: src/index.js:1385
+#: src/index.js:1388
 msgid "Restart the video from the beginning when it ends."
 msgstr ""
 
-#: src/index.js:1413
+#: src/index.js:1416
 msgid "Show play/pause, progress bar, and volume controls."
 msgstr ""
 
-#: src/index.js:1441
+#: src/index.js:1444
 msgid "Prevent iOS Safari from forcing fullscreen when playing."
 msgstr ""
 
-#: src/index.js:1469
+#: src/index.js:1472
 msgid "Fill the container width and maintain aspect ratio."
 msgstr ""
 
-#: src/index.js:1503
+#: src/index.js:1506
 msgid "Reset advanced settings"
 msgstr ""
 
-#: src/index.js:1516
-#: src/index.js:1528
+#: src/index.js:1519
+#: src/index.js:1531
 msgid "iFrame player"
 msgstr ""
 
-#: src/index.js:1519
+#: src/index.js:1522
 msgid "When replacing YouTube and Vimeo embeds, use an iFrame for better CSS isolation from your theme. Turn off if you see layout issues."
 msgstr ""
 
-#: src/index.js:1544
-#: src/index.js:1556
+#: src/index.js:1547
+#: src/index.js:1559
 msgid "Upload acceleration"
 msgstr ""
 
-#: src/index.js:1547
+#: src/index.js:1550
 msgid "Speeds up video uploads. Turn off if uploads stall or fail."
 msgstr ""
 
-#: src/index.js:1575
+#: src/index.js:1578
 msgid "Video schema markup"
 msgstr ""
 
-#: src/index.js:1578
+#: src/index.js:1581
 msgid "Add VideoObject structured data (JSON-LD) to pages with videos. Helps Google show rich video results in search."
 msgstr ""
 
-#: src/index.js:1587
+#: src/index.js:1590
 msgid "Schema markup"
 msgstr ""
 
-#: src/index.js:1603
+#: src/index.js:1606
 msgid "VAST ads"
 msgstr ""
 
-#: src/index.js:1610
+#: src/index.js:1613
 msgid "Paste your VAST tag URL from your ad platform."
 msgstr ""
 
-#: src/index.js:1629
+#: src/index.js:1632
 msgid "VAST tag URL"
 msgstr ""
 
-#: src/index.js:1636
+#: src/index.js:1639
 msgid "Conditional script loading"
 msgstr ""
 
-#: src/index.js:1642
-#: src/index.js:1709
+#: src/index.js:1645
+#: src/index.js:1712
 msgid "Beta"
 msgstr ""
 
 #. translators: <s1>Off</s1>, <s2>Standard</s2>, <s3>Strict</s3> are the three mode names. <code> wraps a WordPress filter name.
-#: src/index.js:1648
+#: src/index.js:1651
 msgid "Controls when the player script loads. <s1>Off</s1> loads the player on every page. <s2>Standard</s2> skips pages with no video content (YouTube, Vimeo, video elements, iframes, or SmartVideo embeds). <s3>Strict</s3> loads only when SmartVideo will actively enhance detected content. If a video isn't detected (e.g., added by your theme), use the <code>smartvideo_force_load_script</code> filter."
 msgstr ""
 
-#: src/index.js:1672
+#: src/index.js:1675
 msgid "Standard"
 msgstr ""
 
-#: src/index.js:1677
+#: src/index.js:1680
 msgid "Strict"
 msgstr ""
 
-#: src/index.js:1706
-#: src/index.js:1722
+#: src/index.js:1709
+#: src/index.js:1725
 msgid "Beta player"
 msgstr ""
 
-#: src/index.js:1713
+#: src/index.js:1716
 msgid "Loads the upcoming SmartVideo player build instead of the stable release. Use only if you're testing pre-release fixes or features — switch off if playback misbehaves."
 msgstr ""
 
-#: src/index.js:1752
+#: src/index.js:1755
 msgid "Don't have a SmartVideo account yet?"
 msgstr ""
 
-#: src/index.js:1759
+#: src/index.js:1762
 msgid "Start a 14-day free trial to get up and running. Once you've signed up, come back here and click the <b>Setup</b> tab to connect your account."
 msgstr ""
 
 #. translators: %s is the plugin version number
-#: src/index.js:1783
+#: src/index.js:1786
 #, js-format
 msgid "SmartVideo Version %s — powered by <a>Swarmify</a>"
 msgstr ""
 
-#: src/index.js:1838
+#: src/index.js:1841
 msgid "Disable SmartVideo"
 msgstr ""
 
-#: src/index.js:1843
+#: src/index.js:1846
 msgid "Enter your CDN key first"
 msgstr ""
 
 #. translators: Power toggle label
-#: src/index.js:1851
+#: src/index.js:1854
 msgid "ON"
 msgstr ""
 
 #. translators: Power toggle label
-#: src/index.js:1855
+#: src/index.js:1858
 msgid "OFF"
 msgstr ""
 
-#: src/index.js:1901
+#: src/index.js:1904
 msgid "Error saving settings. Try reloading the admin page."
 msgstr ""
 
-#: src/index.js:1925
+#: src/index.js:1928
 msgid "Could not save settings. Try reloading the page."
 msgstr ""
 
-#: src/index.js:1991
+#: src/index.js:1994
 msgid "Settings saved."
 msgstr ""
 
-#: src/index.js:2014
+#: src/index.js:2017
 msgid "Setup"
 msgstr ""

@@ -17,11 +17,28 @@ jQuery(document).ready(function ($) {
 		return val.replace(/["\\]/g, '\\$&').replace(/\]/g, '&#93;');
 	}
 
-	// Validate that a string looks like an HTTP(S) URL
-	function isValidUrl(str) {
+	// Validate that a string looks like a URL we will actually emit. Mirrors the
+	// server, which allows the swarmify: scheme alongside wp_allowed_protocols()
+	// (see Swarmify.php, esc_url on the src attribute). Site-relative and
+	// protocol-relative values are accepted too: they are what the Media Library
+	// hands back on many installs, and `new URL()` rejects them without a base.
+	// Posters pass through a bare esc_url() server-side, which drops the
+	// swarmify: scheme — accepting it here would silently discard the value.
+	function isValidUrl(str, allowSwarmify) {
+		if (typeof str !== 'string' || str.trim() === '') {
+			return false;
+		}
+		var value = str.trim();
+		if (value.indexOf('/') === 0) {
+			return true;
+		}
 		try {
-			var u = new URL(str);
-			return u.protocol === 'http:' || u.protocol === 'https:';
+			var u = new URL(value);
+			return (
+				u.protocol === 'http:' ||
+				u.protocol === 'https:' ||
+				(allowSwarmify && u.protocol === 'swarmify:')
+			);
 		} catch (e) {
 			return false;
 		}
@@ -297,8 +314,8 @@ jQuery(document).ready(function ($) {
 			alert('Video URL is required.');
 			return;
 		}
-		if (!isValidUrl(url)) {
-			alert('Please enter a valid URL (http or https).');
+		if (!isValidUrl(url, true)) {
+			alert('Please enter a valid URL.');
 			return;
 		}
 
@@ -309,7 +326,7 @@ jQuery(document).ready(function ($) {
 		const posterSource = $dialog.find('.sv-poster-source').val();
 		const poster = $dialog.find('.swarmify_poster').val();
 		if (posterSource !== 'none' && poster) {
-			if (!isValidUrl(poster)) {
+			if (!isValidUrl(poster, false)) {
 				alert('Poster must be a valid URL (http or https).');
 				return;
 			}

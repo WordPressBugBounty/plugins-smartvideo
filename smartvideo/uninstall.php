@@ -69,11 +69,26 @@ delete_post_meta_by_key( '_smartvideo_disabled' );
 // Clear the upload-accelerator chunk-cleanup cron event.
 wp_clear_scheduled_hook( 'swarmify_cleanup_chunks' );
 
+// Accumulator directories to sweep. wp-content is global, but the 2.3.3
+// read-only fallback lives under uploads, which is per-blog on multisite — so
+// each blog contributes its own while we are switched to it.
+$sv_chunks_dirs = array( WP_CONTENT_DIR . '/.swarmify-chunks' );
+
+/** Append the current blog's uploads accumulator, if uploads resolves. */
+$sv_add_uploads_chunks_dir = function () use ( &$sv_chunks_dirs ) {
+	$uploads = wp_get_upload_dir();
+	if ( empty( $uploads['error'] ) && ! empty( $uploads['basedir'] ) ) {
+		$sv_chunks_dirs[] = $uploads['basedir'] . '/.swarmify-chunks';
+	}
+};
+$sv_add_uploads_chunks_dir();
+
 // Multisite: clean up each site in the network.
 if ( is_multisite() ) {
 	$sites = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
 	foreach ( $sites as $site_id ) {
 		switch_to_blog( $site_id );
+		$sv_add_uploads_chunks_dir();
 
 		delete_option( 'swarmify_status' );
 		delete_option( 'swarmify_cdn_key' );
@@ -107,11 +122,13 @@ if ( is_multisite() ) {
 	}
 }
 
-// Remove the upload-accelerator chunks directory (shared across sites since
-// WP_CONTENT_DIR is global on multisite). Best-effort: leave the directory
-// alone if a co-tenant or admin has placed unexpected files there.
-$chunks_dir = WP_CONTENT_DIR . '/.swarmify-chunks';
-if ( is_dir( $chunks_dir ) ) {
+// Remove the upload-accelerator accumulator directories collected above.
+// Best-effort: leave a directory alone if a co-tenant or admin has placed
+// unexpected files there.
+foreach ( array_unique( $sv_chunks_dirs ) as $chunks_dir ) {
+	if ( ! is_dir( $chunks_dir ) || is_link( $chunks_dir ) ) {
+		continue;
+	}
 	$entries = @scandir( $chunks_dir );
 	if ( is_array( $entries ) ) {
 		foreach ( $entries as $entry ) {

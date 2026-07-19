@@ -3,7 +3,7 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
 Tested up to: 7.0
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -155,6 +155,20 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.3.3 =
+* **Fixed uploads failing on hosts where the wp-content folder is not writable**
+  * On managed hosts that keep the plugin folder read-only, every media upload since 2.3.0 stopped with "Upload service unavailable". Uploads now fall back to your uploads folder.
+* **Fixed large uploads being saved damaged when another plugin also manages uploads**
+  * If a second upload or media plugin set its own transfer size, the pieces of the file were reassembled in the wrong places and the finished file was unusable, with no error shown. The pieces are now placed using the size actually sent.
+* **Fixed YouTube links that stopped working after 2.3.0**
+  * Saved links that were not in the most common form, such as those starting with "//", with capital letters in the address, with extra spaces, or from a channel-specific address, were no longer recognized and the video did not play.
+* **Fixed being unable to add Swarmify-hosted videos in the classic editor**
+  * The "Add SmartVideo" window rejected swarmify:// addresses as invalid, even though they are the plugin's own format.
+* **Fixed slow pages on sites that block outside connections**
+  * Where a Vimeo thumbnail could not be fetched, every page view retried and waited. The result is now remembered briefly.
+* **Fixed "Reset advanced settings" undoing the 2.3.1 video repair**
+  * On a site repaired by 2.3.1 or 2.3.2, resetting that section could switch conditional loading back on and blank the videos again. Reset now leaves that setting alone.
 
 = 2.3.2 =
 * **Fixed the 2.3.1 repair being skipped on sites that were deactivated before updating**
@@ -420,6 +434,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.3.3 =
+Fixes media uploads failing on hosts with a read-only plugin folder, large uploads being saved damaged alongside other upload plugins, and some saved YouTube links no longer playing. Recommended for everyone running 2.3.0 or later.
 
 = 2.3.2 =
 Completes the 2.3.1 fix for sites that were deactivated before updating, where videos could still be missing. Recommended if you deactivated the plugin before updating, or if videos are still not appearing on 2.3.1.

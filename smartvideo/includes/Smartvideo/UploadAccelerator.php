@@ -236,7 +236,57 @@ JS;
 	 * @return string Absolute path to the chunks directory.
 	 */
 	private function get_chunks_dir() {
-		$dir = WP_CONTENT_DIR . '/.swarmify-chunks';
+		foreach ( $this->get_chunks_dir_candidates() as $candidate ) {
+			$dir = $this->prepare_chunks_dir( $candidate );
+			if ( '' !== $dir ) {
+				return $dir;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Locations to try for the chunk accumulator, in order of preference.
+	 *
+	 * Not every host keeps wp-content writable — Pantheon, WP VIP and read-only
+	 * container deploys ship the code directory immutable and leave only the
+	 * uploads dir writable. Uploads is writable on any working install by
+	 * definition, so it is a safe second choice. Neither is the OS temp dir,
+	 * which is what this deliberately does not fall back to: a world-writable
+	 * shared temp dir is what let a co-tenant pre-plant a symlink at the
+	 * predictable accumulator path.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @return string[] Absolute directory paths to try.
+	 */
+	private function get_chunks_dir_candidates() {
+		$candidates = [ WP_CONTENT_DIR . '/.swarmify-chunks' ];
+
+		$uploads = wp_get_upload_dir();
+		if ( empty( $uploads['error'] ) && ! empty( $uploads['basedir'] ) ) {
+			$candidates[] = $uploads['basedir'] . '/.swarmify-chunks';
+		}
+
+		return $candidates;
+	}
+
+	/**
+	 * Create and harden one candidate chunks directory.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param string $dir Absolute path to prepare.
+	 * @return string The path, or '' if it cannot be used.
+	 */
+	private function prepare_chunks_dir( $dir ) {
+		// is_dir() follows symlinks, so a co-tenant who pre-plants a link here
+		// would otherwise have the whole accumulator redirected into a directory
+		// they control — the same attack the move off the OS temp dir closed.
+		if ( is_link( $dir ) ) {
+			$this->log_debug( 'SmartVideo Upload: Refusing symlinked chunks directory: ' . $dir );
+			return '';
+		}
 		if ( ! is_dir( $dir ) && ! wp_mkdir_p( $dir ) ) {
 			$this->log_debug( 'SmartVideo Upload: Failed to create chunks directory: ' . $dir );
 			return '';
@@ -247,6 +297,14 @@ JS;
 		// would silently persist.
 		if ( ! @chmod( $dir, 0700 ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
 			$this->log_debug( 'SmartVideo Upload: Failed to set 0700 on chunks directory: ' . $dir );
+		}
+		// The accumulator guards downstream assume no co-tenant can write here, so a
+		// directory chmod could not lock down must be refused rather than trusted.
+		clearstatcache( true, $dir );
+		$perms = @fileperms( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
+		if ( false === $perms || ( $perms & 0022 ) ) {
+			$this->log_debug( 'SmartVideo Upload: Refusing group/world-writable chunks directory: ' . $dir );
+			return '';
 		}
 		if ( ! file_exists( $dir . '/.htaccess' ) ) {
 			if ( false === @file_put_contents( $dir . '/.htaccess', "Require all denied\n" ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
@@ -280,8 +338,25 @@ JS;
 	 * @since 2.3.0
 	 */
 	public function cleanup_stale_chunks() {
-		$dir = WP_CONTENT_DIR . '/.swarmify-chunks';
-		if ( ! is_dir( $dir ) ) {
+		// Sweeps every candidate, not just the one currently in use: a site whose
+		// wp-content became writable again would otherwise strand whatever the
+		// uploads-dir fallback left behind.
+		foreach ( $this->get_chunks_dir_candidates() as $dir ) {
+			$this->cleanup_stale_chunks_in( $dir );
+		}
+	}
+
+	/**
+	 * Sweep one accumulator directory.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param string $dir Absolute directory path.
+	 * @return void
+	 */
+	private function cleanup_stale_chunks_in( $dir ) {
+		// is_dir() follows symlinks, and this is the only path here that deletes.
+		if ( ! is_dir( $dir ) || is_link( $dir ) ) {
 			return;
 		}
 		$threshold = time() - DAY_IN_SECONDS;
@@ -307,6 +382,29 @@ JS;
 				if ( file_exists( $lock ) ) {
 					wp_delete_file( $lock );
 				}
+				if ( file_exists( $file . '.size' ) ) {
+					wp_delete_file( $file . '.size' );
+				}
+			}
+		}
+
+		// The sidecar is written before the accumulator is opened, so a run that
+		// bails in between leaves one with no .part sibling for the loop above to
+		// sweep it as.
+		$sidecars = glob( $dir . '/*.part.size' );
+		if ( ! is_array( $sidecars ) ) {
+			return;
+		}
+		foreach ( $sidecars as $sidecar ) {
+			if ( ! is_file( $sidecar ) || is_link( $sidecar ) ) {
+				continue;
+			}
+			if ( file_exists( substr( $sidecar, 0, -5 ) ) ) {
+				continue;
+			}
+			$mtime = @filemtime( $sidecar ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
+			if ( false !== $mtime && $mtime < $threshold ) {
+				wp_delete_file( $sidecar );
 			}
 		}
 	}
@@ -352,6 +450,75 @@ JS;
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional diagnostic logging, gated behind WP_DEBUG.
 			error_log( $message );
 		}
+	}
+
+	/**
+	 * Determine the chunk stride to seek by.
+	 *
+	 * The plupload settings filter advertises get_chunk_size() to the client, but
+	 * it runs at the default priority, so any plugin filtering
+	 * plupload_default_settings later wins and the browser slices at a size the
+	 * server never sees.
+	 * Seeking by the server's own figure then scatters chunks at the wrong
+	 * offsets and silently produces a corrupt file.
+	 *
+	 * Every chunk but the last is exactly one stride long, so the received length
+	 * is authoritative. The first one observed is recorded alongside the
+	 * accumulator and reused for the short final chunk. A later chunk that
+	 * disagrees means the stride changed mid-upload, which cannot be reconciled —
+	 * fail loudly rather than write a corrupt file.
+	 *
+	 * @since 2.3.3
+	 *
+	 * @param string $accumPath Accumulator path; the record lives beside it.
+	 * @param string $tempName  Uploaded chunk's temp path.
+	 * @param int    $chunk     Zero-based chunk index.
+	 * @param int    $chunks    Total chunks; 0 or 1 means unchunked.
+	 * @return int Stride in bytes.
+	 */
+	private function resolve_chunk_size( $accumPath, $tempName, $chunk, $chunks ) {
+		if ( $chunks <= 1 ) {
+			return $this->get_chunk_size( '' );
+		}
+
+		$sizePath = $accumPath . '.size';
+		$stored   = false;
+		if ( file_exists( $sizePath ) && ! is_link( $sizePath ) ) {
+			$raw = @file_get_contents( $sizePath ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
+			if ( false !== $raw && ctype_digit( trim( $raw ) ) ) {
+				$stored = (int) trim( $raw );
+			}
+		}
+
+		$observed = @filesize( $tempName ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
+		$is_final = ( $chunk === $chunks - 1 );
+
+		if ( ! $is_final && false !== $observed && $observed > 0 ) {
+			if ( false === $stored ) {
+				// A symlink makes the read above fall through to here, turning this write into an arbitrary-file write.
+				if ( is_link( $sizePath ) ) {
+					wp_send_json_error( [ 'message' => esc_html__( 'Refusing to write to non-regular upload metadata file.', 'swarmify' ) ] );
+				}
+				// A short write (disk full mid-write) leaves a truncated number that still reads as a valid stride.
+				$encoded = (string) $observed;
+				$written = @file_put_contents( $sizePath, $encoded ); // phpcs:ignore WordPress.PHP.NoSilencedErrors, WordPress.WP.AlternativeFunctions -- Intentional: sidecar in our own private dir; return value is checked.
+				if ( strlen( $encoded ) !== $written ) {
+					wp_send_json_error( [ 'message' => esc_html__( 'Failed to record upload chunk size. Please retry the upload.', 'swarmify' ) ] );
+				}
+				return $observed;
+			}
+			if ( $stored !== $observed ) {
+				wp_send_json_error( [ 'message' => esc_html__( 'Upload chunk size changed mid-transfer. Please retry the upload.', 'swarmify' ) ] );
+			}
+			return $stored;
+		}
+
+		if ( false !== $stored ) {
+			return $stored;
+		}
+
+		// Falling back to the advertised size here is what silently corrupted files before 2.3.3.
+		wp_send_json_error( [ 'message' => esc_html__( 'Upload chunk size could not be determined. Please retry the upload.', 'swarmify' ) ] );
 	}
 
 	/**
@@ -450,9 +617,9 @@ JS;
 			// HTTP/2 can reorder requests in flight) rewrites its own bytes
 			// idempotently — an accumulator that already holds later chunks is no
 			// longer truncated. 'cb' = O_CREAT without O_TRUNC. The offset uses
-			// get_chunk_size(), the same value pushed to the client in
-			// filter_plupload_settings, so chunk boundaries line up.
-			$chunk_size = $this->get_chunk_size( '' );
+			// the size the client actually used, which is not necessarily the one
+			// we advertised — see resolve_chunk_size().
+			$chunk_size = $this->resolve_chunk_size( $accumPath, $tempName, $chunk, $chunks );
 			$offset     = $chunk * $chunk_size;
 
 			// Derive the size cap before seeking so a large chunk index can't
@@ -555,9 +722,11 @@ JS;
 					$this->log_debug( 'SmartVideo Upload: rename failed: ' . $accumPath . ' -> ' . $tempName );
 					wp_delete_file( $accumPath );
 					wp_delete_file( $lockPath );
+					wp_delete_file( $accumPath . '.size' );
 					wp_send_json_error( [ 'message' => esc_html__( 'Failed to finalize upload.', 'swarmify' ) ] );
 				}
 				wp_delete_file( $lockPath );
+				wp_delete_file( $accumPath . '.size' );
 				$_FILES['async-upload']['name'] = $fileName;
 				$_FILES['async-upload']['size'] = filesize( $tempName );
 				$_FILES['async-upload']['type'] = $this->get_mime_content_type( $tempName );
