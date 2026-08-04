@@ -190,6 +190,17 @@ trait RenderCallbackTrait {
 		}
 		$smartvideo_tag = sprintf( '<smartvideo %s></smartvideo>', implode( ' ', $attr_parts ) );
 
+		$smartvideo_tag = \Swarmify\Smartvideo\Facade::wrap(
+			$smartvideo_tag,
+			[
+				'src'      => $swarmify_url,
+				'poster'   => $schema_poster,
+				'width'    => $video_width,
+				'height'   => $video_height,
+				'autoplay' => 'on' === $autoplay,
+			]
+		);
+
 		// Disabled warning — only in D5 Visual Builder, not on the frontend.
 		$warning = '';
 		if ( ( function_exists( 'et_core_is_fb_enabled' ) && et_core_is_fb_enabled() ) &&

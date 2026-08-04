@@ -5,8 +5,7 @@ namespace Swarmify\Smartvideo;
 /**
  * Collects video data during page render and outputs VideoObject JSON-LD.
  *
- * Each page builder calls SchemaCollector::add() in its render method.
- * The wp_footer hook outputs the collected schema as JSON-LD.
+ * Builders call add() during render; output_schema() emits on wp_footer.
  *
  * @since 2.5.0
  */
@@ -16,10 +15,7 @@ class SchemaCollector {
 	private static $videos = [];
 
 	/**
-	 * Sanitize text for JSON-LD output.
-	 *
-	 * Strips shortcodes, HTML, block markup, and entities.
-	 * Trims to ~30 words at the nearest word boundary.
+	 * Sanitize text for JSON-LD output, trimming to ~30 words.
 	 *
 	 * @param string $text Raw text.
 	 * @return string Cleaned text.
@@ -66,7 +62,6 @@ class SchemaCollector {
 	 * @return string Sanitized description, or empty string.
 	 */
 	private static function get_description_fallback( $per_video, $post_id ) {
-		// 1. Per-video description from builder.
 		if ( ! empty( $per_video ) ) {
 			return self::sanitize_text( $per_video );
 		}
@@ -75,15 +70,13 @@ class SchemaCollector {
 			return '';
 		}
 
-		// 2. Post excerpt.
 		$excerpt = get_the_excerpt( $post_id );
 		if ( ! empty( $excerpt ) ) {
 			return self::sanitize_text( $excerpt );
 		}
 
-		// 3. SEO plugin meta description (raw post_meta, skip template variables).
-		// Single get_post_meta() call returns all meta in one DB hit; we then
-		// extract each key from the array (values are wrapped in [0 => ...]).
+		// One get_post_meta() call fetches every SEO plugin key in a single DB
+		// hit. Skip values still holding template placeholders (%%title%% etc.).
 		$seo_keys = [
 			'_yoast_wpseo_metadesc',
 			'rank_math_description',
@@ -100,7 +93,6 @@ class SchemaCollector {
 			}
 		}
 
-		// 4. First ~30 words of post content.
 		$content = get_post_field( 'post_content', $post_id );
 		if ( ! empty( $content ) ) {
 			return self::sanitize_text( $content );
@@ -112,87 +104,20 @@ class SchemaCollector {
 	/**
 	 * Extract a thumbnail URL from a YouTube or Vimeo video URL.
 	 *
-	 * YouTube thumbnails are deterministic. Vimeo thumbnails are fetched
-	 * via oEmbed and cached in a transient for one week.
-	 *
 	 * @param string $src Video source URL.
 	 * @return string Thumbnail URL, or empty string.
 	 */
 	private static function get_video_thumbnail( $src ) {
-		// YouTube: extract video ID, use standard thumbnail.
 		if ( preg_match( VideoUrl::YT_REGEX, $src, $m ) ) {
 			return 'https://i.ytimg.com/vi/' . $m[1] . '/hqdefault.jpg';
 		}
 
-		// Vimeo: extract video ID, fetch thumbnail via oEmbed (cached).
-		if ( preg_match( '/(?:vimeo\.com\/(?:video\/)?)(\d+)/', $src, $m ) ) {
-			$cache_key = 'sv_vimeo_thumb_' . $m[1];
-			$cached    = get_transient( $cache_key );
-			if ( false !== $cached ) {
-				return $cached;
-			}
-
-			// wp_safe_remote_get blocks SSRF to private IPs / non-allowed hosts.
-			$response = wp_safe_remote_get(
-				'https://vimeo.com/api/oembed.json?url=' . rawurlencode( 'https://vimeo.com/' . $m[1] ),
-				[ 'timeout' => 3 ]
-			);
-
-			// Network/transport failure. Cached briefly rather than not at all:
-			// on a host that blocks outbound HTTP every frontend request would
-			// otherwise pay the full timeout, forever. Short TTL so a transient
-			// outage still recovers on its own.
-			if ( is_wp_error( $response ) ) {
-				set_transient( $cache_key, '', 15 * MINUTE_IN_SECONDS );
-				return '';
-			}
-
-			$code = (int) wp_remote_retrieve_response_code( $response );
-
-			// 4xx/5xx — Vimeo signalled a real error (private video, removed, rate-
-			// limited, server fault). Cache empty short-TTL so we don't hammer it.
-			if ( $code >= 400 ) {
-				set_transient( $cache_key, '', DAY_IN_SECONDS );
-				return '';
-			}
-
-			if ( 200 === $code ) {
-				$data = json_decode( wp_remote_retrieve_body( $response ) );
-				if ( is_object( $data ) && ! empty( $data->thumbnail_url ) ) {
-					$thumb_url = (string) $data->thumbnail_url;
-					$parts     = wp_parse_url( $thumb_url );
-					// Reject javascript:, data:, http:, malformed URLs, and
-					// authority-credentials (user[:pass]@host) before persisting
-					// to the week-long transient. The cached value flows into
-					// JSON-LD output only — SSRF on the outbound fetch is
-					// handled by wp_safe_remote_get above.
-					if ( is_array( $parts )
-						&& isset( $parts['scheme'], $parts['host'] )
-						&& 'https' === $parts['scheme']
-						&& '' !== $parts['host']
-						&& ! isset( $parts['user'] )
-					) {
-						set_transient( $cache_key, $thumb_url, WEEK_IN_SECONDS );
-						return $thumb_url;
-					}
-				}
-			}
-
-			// Reached on unexpected status, empty/non-object body, OR a 200
-			// whose thumbnail_url failed scheme/host/credentials validation.
-			// Cache empty for a day to avoid hammering Vimeo on the next
-			// pageview.
-			set_transient( $cache_key, '', DAY_IN_SECONDS );
-			return '';
-		}
-
-		return '';
+		// Vimeo: fetch thumbnail via oEmbed (cached), shared with the facade.
+		return VideoThumbnail::vimeo( $src );
 	}
 
 	/**
 	 * Output JSON-LD VideoObject(s) in the page footer.
-	 *
-	 * Hooked to wp_footer.
 	 */
 	public static function output_schema() {
 		if ( 'on' !== get_option( 'swarmify_toggle_schema', 'on' ) ) {
@@ -217,8 +142,8 @@ class SchemaCollector {
 		foreach ( self::$videos as $video ) {
 			$description = self::get_description_fallback( $video['description'], $post_id );
 
-			// swarmify:// is resolved to a media URL only at runtime (player-side),
-			// so no valid contentUrl can be built here.
+			// swarmify:// resolves to a real URL only in the player — no
+			// contentUrl to build here.
 			$raw_src = $video['src'];
 			if ( 0 === strpos( $raw_src, 'swarmify://' ) ) {
 				continue;
@@ -247,7 +172,6 @@ class SchemaCollector {
 			}
 			$item['description'] = $description;
 
-			// thumbnailUrl: poster → featured image → YouTube/Vimeo thumbnail.
 			$thumbnail = ! empty( $video['poster'] ) ? esc_url_raw( $video['poster'] ) : '';
 			if ( empty( $thumbnail ) && $post_id ) {
 				$featured = get_the_post_thumbnail_url( $post_id, 'full' );
@@ -261,7 +185,6 @@ class SchemaCollector {
 					$thumbnail = esc_url_raw( $thumb_candidate );
 				}
 			}
-			// Site icon as last-resort fallback.
 			if ( empty( $thumbnail ) ) {
 				$site_icon = get_site_icon_url();
 				if ( ! empty( $site_icon ) ) {
@@ -272,17 +195,15 @@ class SchemaCollector {
 				$item['thumbnailUrl'] = $thumbnail;
 			}
 
-			// url: the page this video appears on.
 			$permalink = get_permalink( $post_id );
 			if ( $permalink ) {
 				$item['url'] = esc_url_raw( $permalink );
 			}
 
-			// Duration: best-effort for WP Media Library videos.
 			$src = $video['src'];
 			if ( ! isset( $url_to_id_cache[ $src ] ) ) {
-				// Skip external URLs that can't be WP attachments — avoids
-				// expensive LIKE queries against the database.
+				// Known-external hosts can never be attachments — skip the
+				// expensive DB lookup.
 				$is_external = preg_match(
 					'#^https?://(www\.)?(youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com|dailymotion\.com|dai\.ly|twitch\.tv|facebook\.com|fb\.watch)/#i',
 					$src
@@ -315,7 +236,6 @@ class SchemaCollector {
 			return;
 		}
 
-		// Publisher: site name + logo.
 		$publisher = [
 			'@type' => 'Organization',
 			'name'  => self::sanitize_text( get_bloginfo( 'name' ) ),
@@ -332,7 +252,6 @@ class SchemaCollector {
 			];
 		}
 
-		// Attach publisher to each item.
 		foreach ( $schema_items as &$item ) {
 			$item['publisher'] = $publisher;
 		}
@@ -350,8 +269,8 @@ class SchemaCollector {
 
 		$output = apply_filters( 'smartvideo_schema_data', $output );
 
-		// Filter is user-modifiable — a non-array return would silently
-		// corrupt the JSON-LD payload, so bail.
+		// The filter can return anything; a non-array would corrupt the
+		// JSON-LD payload.
 		if ( ! is_array( $output ) ) {
 			return;
 		}

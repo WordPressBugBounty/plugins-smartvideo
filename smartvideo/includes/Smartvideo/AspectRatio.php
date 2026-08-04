@@ -20,9 +20,8 @@ class AspectRatio {
 	/**
 	 * Resolve width/height from an aspect ratio preset.
 	 *
-	 * Returns preset dimensions if the ratio is known, otherwise
-	 * falls back to the provided width/height (for "custom" or
-	 * backward-compatible content with no aspect_ratio field).
+	 * Unknown ratios — 'custom' and older content saved without one —
+	 * fall back to the given width/height.
 	 *
 	 * @param string $ratio  Aspect ratio key (e.g. '16:9', 'custom', '').
 	 * @param int    $width  Fallback width.
@@ -37,19 +36,19 @@ class AspectRatio {
 	}
 
 	/**
-	 * Charcoal placeholder for unconfigured video blocks.
+	 * Placeholder shown when no video has been selected.
 	 *
 	 * @return string HTML placeholder.
 	 */
 	public static function empty_placeholder() {
 		return '<div style="background:#2d2d2d;color:#888;display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;max-width:100%;border-radius:4px;font-size:14px;gap:8px;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif">'
-			. '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+			. '<svg width="40" height="40" viewBox="0 0 47 47" xmlns="http://www.w3.org/2000/svg"><path d="M23.04 0l21 11.52v23.04l-21 11.52-21-11.52V11.52L23.05 0z" fill="#ffde17"/><path d="M15.52 13.43c0-2.01 1.32-2.88 2.93-1.93l17.05 9.92c1.62.94 1.62 2.46 0 3.4l-17.05 9.93c-1.61.94-2.93.07-2.93-1.93v-19.4z" fill="#333"/></svg>'
 			. esc_html__( 'No video selected', 'swarmify' )
 			. '</div>';
 	}
 
 	/**
-	 * Get options array for use in select fields.
+	 * Ratio options for aspect-ratio select fields.
 	 *
 	 * @return array Associative array of ratio => label.
 	 */

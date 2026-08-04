@@ -2,14 +2,8 @@
 
 namespace Swarmify\Smartvideo;
 
-/**
- * Adds a SmartVideo status widget to the WordPress admin dashboard.
- */
 class DashboardWidget {
 
-	/**
-	 * Enqueue dashboard widget styles on the main dashboard screen only.
-	 */
 	public function enqueue_styles() {
 		$screen = get_current_screen();
 		if ( $screen && 'dashboard' === $screen->id ) {
@@ -22,9 +16,6 @@ class DashboardWidget {
 		}
 	}
 
-	/**
-	 * Register the dashboard widget.
-	 */
 	public function register() {
 		wp_add_dashboard_widget(
 			'smartvideo_status',
@@ -33,9 +24,6 @@ class DashboardWidget {
 		);
 	}
 
-	/**
-	 * Render the dashboard widget content.
-	 */
 	public function render() {
 		$cdn_key = get_option( 'swarmify_cdn_key', '' );
 		$status  = get_option( 'swarmify_status', 'off' );

@@ -3,7 +3,7 @@
 namespace Swarmify\Smartvideo;
 
 /**
- * Smartvideo Settings Class
+ * Plugin settings storage and the REST endpoints that read and update them.
  */
 class Settings {
 	public const API_VERSION = 'v1';
@@ -30,6 +30,27 @@ class Settings {
 		'swarmify_default_responsive'         => 'on',
 		'swarmify_toggle_conditional_loading' => 'standard',
 		'swarmify_toggle_beta_player'         => 'off',
+		// 2.4.0 ships every site on the legacy player; the new player is opt-in
+		// until a later release flips this default (staged rollout).
+		'swarmify_toggle_legacy_player'       => 'on',
+		// Off until a player bundle honors data-swarm-no-poster; until then the
+		// facade double-fetches the poster and stacks two layers.
+		'swarmify_toggle_facade'              => 'off',
+		'swarmify_theme_secondarycolor'       => '',
+		'swarmify_theme_glasstint'            => '',
+		'swarmify_theme_cornerradius'         => '',
+		'swarmify_theme_button_radius'        => '',
+		'swarmify_toggle_keyboard'            => 'on',
+		'swarmify_keyboard_seekstep'          => '5',
+		'swarmify_toggle_kb_mute'             => 'on',
+		'swarmify_toggle_kb_fullscreen'       => 'on',
+		'swarmify_toggle_kb_numbers'          => 'on',
+		'swarmify_toggle_kb_captions'         => 'on',
+		'swarmify_watermark_opacity'          => '',
+		'swarmify_watermark_position'         => '',
+		'swarmify_toggle_ga'                  => 'off',
+		'swarmify_ga_interval'                => '10',
+		'swarmify_toggle_lazyload'            => '',
 	];
 
 	public $setting_list;
@@ -41,8 +62,6 @@ class Settings {
 
 
 	/**
-	 * Constructor.
-	 *
 	 * @since 1.0.0
 	 */
 	public function __construct( $plugin_name, $version ) {
@@ -61,9 +80,9 @@ class Settings {
 	}
 
 	/**
-	 * Checks to see if it's on/off. Empty string is also accepted for backwards-compatibility
+	 * Validate an on/off toggle; empty string is accepted for backwards compatibility.
 	 */
-	public function validate_onoff( $val, $request, $name ) {
+	public function validate_onoff( $val, $request, $name ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
 		return 'on' === $val || 'off' === $val || '' === $val;
 	}
 
@@ -75,7 +94,7 @@ class Settings {
 	 * @param  string           $name    Parameter name.
 	 * @return string 'on' or 'off'.
 	 */
-	public function sanitize_onoff( $val, $request, $name ) {
+	public function sanitize_onoff( $val, $request, $name ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST sanitize_callback signature: WP always calls with (value, request, param).
 		if ( '' === $val) {
 			return 'off';
 		}
@@ -89,7 +108,7 @@ class Settings {
 		];
 
 		$url_param_callbacks = [
-			'validate_callback' => function ( $param, $request, $key ) {
+			'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
 				return '' === $param || ( is_string( $param ) && esc_url_raw( $param ) === $param );
 			},
 			'sanitize_callback' => 'esc_url_raw',
@@ -97,8 +116,8 @@ class Settings {
 
 		return [
 			'swarmify_cdn_key'                    => [
-				'validate_callback' => function ( $param, $request, $key ) {
-					// Accept empty string (clearing the key) or valid UUID format
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					// Empty string clears the key.
 					return is_string( $param ) && ( '' === $param || preg_match( '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $param ) );
 				},
 				'sanitize_callback' => function ( $param ) {
@@ -111,7 +130,7 @@ class Settings {
 			'swarmify_toggle_layout'              => $bool_param_callbacks,
 			'swarmify_toggle_bgvideo'             => $bool_param_callbacks,
 			'swarmify_theme_button'               => [
-				'validate_callback' => function ( $param, $request, $key ) {
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
 					return is_string( $param ) && ( '' === $param || in_array( $param, [ 'default', 'rectangle', 'circle' ], true ) );
 				},
 				'sanitize_callback' => function ( $param ) {
@@ -127,9 +146,8 @@ class Settings {
 			'swarmify_default_playsinline'        => $bool_param_callbacks,
 			'swarmify_default_responsive'         => $bool_param_callbacks,
 			'swarmify_theme_primarycolor'         => [
-				'validate_callback' => function ( $param, $request, $key ) {
-					// Accept empty string (means "use default color") or
-					// hex colors (3, 6, or 8 digit) and rgba/hsla strings from WP ColorPicker
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					// Empty string means "use the default color"; rgba/hsla strings come from the WP ColorPicker.
 					return is_string( $param ) && ( '' === $param || preg_match( '/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $param ) || preg_match( '/^(rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+))?\s*\)|hsla?\(\s*\d{1,3}\s*,\s*\d{1,3}%?\s*,\s*\d{1,3}%?\s*(,\s*(0|1|0?\.\d+))?\s*\))$/', $param ) );
 				},
 				'sanitize_callback' => function ( $param ) {
@@ -139,7 +157,7 @@ class Settings {
 			'swarmify_watermark'                  => $url_param_callbacks,
 			'swarmify_ads_vasturl'                => $url_param_callbacks,
 			'swarmify_toggle_conditional_loading' => [
-				'validate_callback' => function ( $param, $request, $key ) {
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
 					return is_string( $param ) && ( '' === $param || in_array( $param, [ 'off', 'standard', 'strict' ], true ) );
 				},
 				'sanitize_callback' => function ( $param ) {
@@ -147,16 +165,92 @@ class Settings {
 				},
 			],
 			'swarmify_toggle_beta_player'         => $bool_param_callbacks,
+			'swarmify_toggle_legacy_player'       => $bool_param_callbacks,
+			'swarmify_toggle_facade'              => $bool_param_callbacks,
+			'swarmify_theme_secondarycolor'       => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return is_string( $param ) && ( '' === $param || preg_match( '/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $param ) || preg_match( '/^(rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+))?\s*\)|hsla?\(\s*\d{1,3}\s*,\s*\d{1,3}%?\s*,\s*\d{1,3}%?\s*(,\s*(0|1|0?\.\d+))?\s*\))$/', $param ) );
+				},
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'swarmify_theme_glasstint'            => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return '' === $param || ( is_numeric( $param ) && (int) $param >= 0 && (int) $param <= 15 );
+				},
+				'sanitize_callback' => function ( $param ) {
+					return '' === $param ? '' : (int) $param;
+				},
+			],
+			'swarmify_theme_cornerradius'         => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return '' === $param || ( is_numeric( $param ) && (int) $param >= 0 && (int) $param <= 24 );
+				},
+				'sanitize_callback' => function ( $param ) {
+					return '' === $param ? '' : (int) $param;
+				},
+			],
+			'swarmify_theme_button_radius'        => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return '' === $param || ( is_numeric( $param ) && (int) $param >= 0 && (int) $param <= 24 );
+				},
+				'sanitize_callback' => function ( $param ) {
+					return '' === $param ? '' : (int) $param;
+				},
+			],
+			'swarmify_toggle_keyboard'            => $bool_param_callbacks,
+			'swarmify_keyboard_seekstep'          => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return in_array( (string) $param, [ '5', '10', '15' ], true );
+				},
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'swarmify_toggle_kb_mute'             => $bool_param_callbacks,
+			'swarmify_toggle_kb_fullscreen'       => $bool_param_callbacks,
+			'swarmify_toggle_kb_numbers'          => $bool_param_callbacks,
+			'swarmify_toggle_kb_captions'         => $bool_param_callbacks,
+			'swarmify_watermark_opacity'          => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return '' === $param || ( is_numeric( $param ) && (int) $param >= 10 && (int) $param <= 100 );
+				},
+				'sanitize_callback' => function ( $param ) {
+					return '' === $param ? '' : (int) $param;
+				},
+			],
+			'swarmify_watermark_position'         => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return '' === $param || in_array( $param, [ 'top-left', 'top-right', 'bottom-left', 'bottom-right' ], true );
+				},
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'swarmify_toggle_ga'                  => $bool_param_callbacks,
+			'swarmify_ga_interval'                => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return is_numeric( $param ) && (int) $param > 0;
+				},
+				'sanitize_callback' => function ( $param ) {
+					return (int) $param;
+				},
+			],
+			'swarmify_toggle_lazyload'            => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return 'on' === $param || 'off' === $param || '' === $param;
+				},
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'_reset_keys'                         => [
+				'validate_callback' => function ( $param, $request, $key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- REST validate_callback signature: WP always calls with (value, request, param).
+					return is_array( $param );
+				},
+				'sanitize_callback' => function ( $param ) {
+					return array_map( 'sanitize_text_field', $param );
+				},
+			],
 		];
 	}
 
-	/**
-	 * Registers the API routes to get and set the plugin settings
-	 */
 	public function register_plugin_settings_routes() {
 		$rest_namespace = $this->plugin_name . '/' . self::API_VERSION;
 
-		// Register the route to retrieve plugin settings
 		register_rest_route( 
 			$rest_namespace, 
 			'settings', 
@@ -169,7 +263,6 @@ class Settings {
 			]
 		);
 
-		// Register the route to update plugin settings
 		register_rest_route(
 			$rest_namespace,
 			'settings',
@@ -183,7 +276,6 @@ class Settings {
 			]
 		);
 
-		// Diagnostics endpoint for health checks.
 		register_rest_route(
 			$rest_namespace,
 			'diagnostics',
@@ -199,28 +291,36 @@ class Settings {
 	
 
 	/**
-	 * Callback to retrieve the plugin settings.
-	 *
 	 * @param WP_REST_Request $request The current REST request.
 	 * @return WP_REST_Response
 	 */
-	public function get_plugin_settings( $request ) {
-		return new \WP_REST_Response( $this->get_all(), 200 );
+	public function get_plugin_settings( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- REST callback signature: WP always calls with (request).
+		$data                 = $this->get_all();
+		$data['account_tier'] = ( new AccountTier( $this ) )->get();
+		return new \WP_REST_Response( $data, 200 );
 	}
 
 	/**
-	 * Callback to update the plugin settings.
-	 *
 	 * @param WP_REST_Request $request The current REST request.
 	 * @return WP_REST_Response
 	 */
 	public function set_plugin_settings( $request ) {
-		// Pull each known setting via get_param() so the registered
-		// validate_callback/sanitize_callback in update_rest_args() actually
-		// run — get_json_params() returns the raw decoded body and bypasses
-		// the args pipeline.
+		$reset_keys = $request->get_param( '_reset_keys' );
+		if ( is_array( $reset_keys ) ) {
+			foreach ( $reset_keys as $key ) {
+				if ( in_array( $key, $this->setting_list, true ) ) {
+					delete_option( $key );
+				}
+			}
+		}
+
+		// Read each setting via get_param() so its registered validate/sanitize
+		// callbacks run — get_json_params() bypasses them.
 		$params = [];
 		foreach ( self::DEFAULTS as $key => $default ) {
+			if ( is_array( $reset_keys ) && in_array( $key, $reset_keys, true ) ) {
+				continue;
+			}
 			$value = $request->get_param( $key );
 			if ( null !== $value ) {
 				$params[ $key ] = $value;
@@ -250,7 +350,7 @@ class Settings {
 	}
 
 	/**
-	 * Get all plugin settings as an associative array (lazy-loaded and cached).
+	 * Get all plugin settings.
 	 *
 	 * @return array<string, mixed> All known setting key/value pairs.
 	 */
@@ -264,8 +364,7 @@ class Settings {
 	/**
 	 * Persist a batch of settings to the options table.
 	 *
-	 * Only keys present in the registered setting list are saved. Returns true
-	 * when every persisted key matches its requested value after the call.
+	 * Keys outside the registered setting list are silently ignored.
 	 *
 	 * @param  array<string, mixed> $options Key/value pairs to persist.
 	 * @return bool True on full success, false if any option failed to save.
@@ -275,10 +374,16 @@ class Settings {
 		foreach ( $options as $key => $value ) {
 			if ( in_array( $key, $this->setting_list, true ) ) {
 				$result = update_option( $key, $value );
-				// update_option returns false on failure OR when value is unchanged.
-				// Only count as failure if value doesn't match after the call.
-				if ( false === $result && get_option( $key ) !== $value ) {
-					$has_failure = true;
+				// update_option() also returns false when the value is unchanged.
+				// Compare as strings: options round-trip through the DB as strings,
+				// so an int-sanitized value never identity-matches what's stored.
+				// A missing row is a real failure — casting its false to '' would
+				// mask a failed write of an empty value.
+				if ( false === $result ) {
+					$stored = get_option( $key, null );
+					if ( null === $stored || (string) $stored !== (string) $value ) {
+						$has_failure = true;
+					}
 				}
 			}
 		}
@@ -294,7 +399,6 @@ class Settings {
 	public function get_diagnostics() {
 		$active_plugins = get_option( 'active_plugins', [] );
 
-		// Known plugins that can interfere with SmartVideo.
 		$known_conflicts = [
 			'async-javascript/async-javascript.php'      => esc_html__( 'Async JavaScript -- may re-order script loading', 'swarmify' ),
 			'autoptimize/autoptimize.php'                => esc_html__( 'Autoptimize -- may combine or defer SmartVideo scripts', 'swarmify' ),

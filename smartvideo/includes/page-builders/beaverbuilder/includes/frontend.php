@@ -101,5 +101,16 @@ if ( empty( $swarmify_url ) ) {
 		$attrs[] = 'class="swarm-fluid"';
 	}
 
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); <smartvideo> is a custom element wp_kses_post would strip.
-	echo '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
+	$smartvideo = '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
+
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); the facade wrapper escapes its own markup; <smartvideo> is a custom element wp_kses_post would strip.
+	echo \Swarmify\Smartvideo\Facade::wrap(
+		$smartvideo,
+		array(
+			'src'      => $swarmify_url,
+			'poster'   => $poster_url,
+			'width'    => $sv_width,
+			'height'   => $sv_height,
+			'autoplay' => '1' === ( $settings->autoplay ?? '' ),
+		)
+	);

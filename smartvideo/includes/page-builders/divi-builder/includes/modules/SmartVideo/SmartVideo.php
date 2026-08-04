@@ -371,7 +371,18 @@ class SmartvideoDiviWidget extends ET_Builder_Module {
 			$attrs[] = 'class="swarm-fluid"';
 		}
 
-		return '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
+		$smartvideo = '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
+
+		return \Swarmify\Smartvideo\Facade::wrap(
+			$smartvideo,
+			array(
+				'src'      => $swarmify_url,
+				'poster'   => $has_poster ? $poster_url : '',
+				'width'    => $width,
+				'height'   => $height,
+				'autoplay' => 'on' === $this->props['autoplay'],
+			)
+		);
 	}
 }
 

@@ -27,7 +27,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		return;
 	}
 
-	$svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 101.02 116.18'%3E%3Cpath d='M3 30.66v54.86l47.51 27.43 47.51-27.43V30.66L50.51 3.23zM39.59 76.9V39.27l32.58 18.82z' fill='%23ffde17'/%3E%3Cpath d='M100.27 28.49L51.26.2a1.49 1.49 0 0 0-1.5 0L.75 28.49a1.52 1.52 0 0 0-.75 1.3v56.59a1.51 1.51 0 0 0 .75 1.3l49 28.3a1.51 1.51 0 0 0 1.5 0l49-28.3a1.51 1.51 0 0 0 .75-1.3V29.79a1.52 1.52 0 0 0-.73-1.3zm-2.25 57l-47.51 27.46L3 85.52V30.66L50.51 3.23l47.51 27.43z' fill='currentColor'/%3E%3Cpath fill='currentColor' d='M39.58 76.91l32.59-18.82-32.59-18.81v37.63z'/%3E%3C/svg%3E";
+	$svg = "data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 47 47' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M23.04 0l21 11.52v23.04l-21 11.52-21-11.52V11.52L23.05 0z' fill='%23ffde17'/%3E%3Cpath d='M15.52 13.43c0-2.01 1.32-2.88 2.93-1.93l17.05 9.92c1.62.94 1.62 2.46 0 3.4l-17.05 9.93c-1.61.94-2.93.07-2.93-1.93v-19.4z' fill='%23333'/%3E%3C/svg%3E";
 
 	wp_add_inline_style( 'bricks-frontend', "
 		.smartvideo-bricks-icon {

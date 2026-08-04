@@ -1,0 +1,6 @@
+source-repo: swarmcdn-browser
+branch: james/swa-1173-poster-suppression-facade
+commit: b09c09bb
+base: origin/main 71549fbf
+hash: 84a3697
+date: 2026-07-17

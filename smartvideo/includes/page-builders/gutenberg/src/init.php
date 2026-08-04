@@ -60,6 +60,24 @@ function smartvideo_register_gutenberg_block() {
 		)
 	);
 
+	// Localized, not fetched from REST — the settings endpoint requires
+	// manage_options, which Author-role block editors don't have.
+	add_action(
+		'enqueue_block_editor_assets',
+		function () {
+			$editor_settings = new \Swarmify\Smartvideo\Settings( 'smartvideo', SWARMIFY_PLUGIN_VERSION );
+			wp_localize_script(
+				'smartvideo-gutenberg-block',
+				'smartvideoEditorData',
+				array(
+					'accountTier'  => ( new \Swarmify\Smartvideo\AccountTier( $editor_settings ) )->get(),
+					'legacyPlayer' => 'on' === $editor_settings->get( 'swarmify_toggle_legacy_player' ),
+					'cdnKey'       => get_option( 'swarmify_cdn_key', '' ),
+				)
+			);
+		}
+	);
+
 	// Enable JS translation loading for the block editor script.
 	wp_set_script_translations( 'smartvideo-gutenberg-block', 'swarmify' );
 

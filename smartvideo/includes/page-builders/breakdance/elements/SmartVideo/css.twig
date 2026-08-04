@@ -1,0 +1,25 @@
+%%SELECTOR%% {
+{% if design.container.width.style %}
+  width: {{ design.container.width.style }};
+{% else %}
+{# Sections lay children out with align-items:flex-start, so an unsized element shrinks to its content — Breakdance's own Video defaults to full width the same way. #}
+  width: 100%;
+{% endif %}
+{% if design.container.align == 'center' %}
+  margin-left: auto;
+  margin-right: auto;
+{% elseif design.container.align == 'right' %}
+  margin-left: auto;
+  margin-right: 0;
+{# Breakpoints layer over the base rule, so Left has to undo it explicitly. #}
+{% elseif design.container.align == 'left' %}
+  margin-left: 0;
+  margin-right: 0;
+{% endif %}
+{% if design.spacing.margin_top.style %}
+  margin-top: {{ design.spacing.margin_top.style }};
+{% endif %}
+{% if design.spacing.margin_bottom.style %}
+  margin-bottom: {{ design.spacing.margin_bottom.style }};
+{% endif %}
+}

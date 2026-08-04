@@ -22,16 +22,20 @@ class ComposerStaticInit096e08826a5304a311da4149d9a8031c
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Swarmify\\Smartvideo\\AccountTier' => __DIR__ . '/../..' . '/includes/Smartvideo/AccountTier.php',
         'Swarmify\\Smartvideo\\Activator' => __DIR__ . '/../..' . '/includes/Smartvideo/Activator.php',
         'Swarmify\\Smartvideo\\Admin' => __DIR__ . '/../..' . '/includes/Smartvideo/Admin.php',
         'Swarmify\\Smartvideo\\AdminWidget' => __DIR__ . '/../..' . '/includes/Smartvideo/AdminWidget.php',
         'Swarmify\\Smartvideo\\AspectRatio' => __DIR__ . '/../..' . '/includes/Smartvideo/AspectRatio.php',
         'Swarmify\\Smartvideo\\DashboardWidget' => __DIR__ . '/../..' . '/includes/Smartvideo/DashboardWidget.php',
+        'Swarmify\\Smartvideo\\Facade' => __DIR__ . '/../..' . '/includes/Smartvideo/Facade.php',
+        'Swarmify\\Smartvideo\\OverlayMarkup' => __DIR__ . '/../..' . '/includes/Smartvideo/OverlayMarkup.php',
         'Swarmify\\Smartvideo\\PostMeta' => __DIR__ . '/../..' . '/includes/Smartvideo/PostMeta.php',
         'Swarmify\\Smartvideo\\SchemaCollector' => __DIR__ . '/../..' . '/includes/Smartvideo/SchemaCollector.php',
         'Swarmify\\Smartvideo\\Settings' => __DIR__ . '/../..' . '/includes/Smartvideo/Settings.php',
         'Swarmify\\Smartvideo\\Swarmify' => __DIR__ . '/../..' . '/includes/Smartvideo/Swarmify.php',
         'Swarmify\\Smartvideo\\UploadAccelerator' => __DIR__ . '/../..' . '/includes/Smartvideo/UploadAccelerator.php',
+        'Swarmify\\Smartvideo\\VideoThumbnail' => __DIR__ . '/../..' . '/includes/Smartvideo/VideoThumbnail.php',
         'Swarmify\\Smartvideo\\VideoUrl' => __DIR__ . '/../..' . '/includes/Smartvideo/VideoUrl.php',
     );
 

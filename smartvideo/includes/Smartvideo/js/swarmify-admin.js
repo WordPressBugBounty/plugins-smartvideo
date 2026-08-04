@@ -1,7 +1,6 @@
 jQuery(document).ready(function ($) {
 	'use strict';
 
-	// Add Color Picker to all inputs that have 'color-field' class
 	$(function () {
 		const colorOptions = {
 			width: 250,
@@ -12,18 +11,15 @@ jQuery(document).ready(function ($) {
 
 	// === Dialog code ===
 
-	// Escape a value for use inside a shortcode attribute (double-quoted)
+	// Quotes and "]" in a value would break out of the shortcode, so escape them.
 	function escShortcodeAttr(val) {
 		return val.replace(/["\\]/g, '\\$&').replace(/\]/g, '&#93;');
 	}
 
-	// Validate that a string looks like a URL we will actually emit. Mirrors the
-	// server, which allows the swarmify: scheme alongside wp_allowed_protocols()
-	// (see Swarmify.php, esc_url on the src attribute). Site-relative and
-	// protocol-relative values are accepted too: they are what the Media Library
-	// hands back on many installs, and `new URL()` rejects them without a base.
-	// Posters pass through a bare esc_url() server-side, which drops the
-	// swarmify: scheme — accepting it here would silently discard the value.
+	// Mirrors the server's URL rules (Swarmify.php): the swarmify: scheme is valid
+	// for video src but not posters — their bare esc_url would silently drop it.
+	// Site- and protocol-relative values pass too: the Media Library returns them,
+	// and `new URL()` rejects them without a base.
 	function isValidUrl(str, allowSwarmify) {
 		if (typeof str !== 'string' || str.trim() === '') {
 			return false;
@@ -44,42 +40,36 @@ jQuery(document).ready(function ($) {
 		}
 	}
 
-	// YouTube URL parser (ported from Gutenberg block)
+	// Keep in sync with the Gutenberg block's youtube-parser.js
 	const youtubeParser = (url) => {
 		const match = url.match(/^(?:https?:\/\/)?(?:(?:www|m|music)\.)?(?:youtube(?:-nocookie)?\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
 		return match ? match[1] : false;
 	};
 
-	// Vimeo URL parser — returns numeric video ID or false
 	const vimeoParser = (url) => {
 		const match = url.match(/(?:vimeo\.com\/)(\d+)/);
 		return match ? match[1] : false;
 	};
 
-	// SmartVideo branded icon (replaces generic emoji)
 	const svIcon = '<svg class="sv-preview-icon" width="48" height="48" viewBox="0 0 47 47" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" aria-hidden="true">' +
 		'<path d="M23.04 0l21 11.52v23.04l-21 11.52-21-11.52V11.52L23.05 0z" fill="#FFD84D"/>' +
 		'<path d="M15.52 13.43c0-2.01 1.32-2.88 2.93-1.93l17.05 9.92c1.62.94 1.62 2.46 0 3.4l-17.05 9.93c-1.61.94-2.93.07-2.93-1.93v-19.4z" fill="#333"/>' +
 		'</svg>';
 
-	// Empty-state HTML for the video preview
 	const previewEmptyHTML =
 		svIcon +
 		'<span>Paste a video URL or choose from Media Library</span>';
 
-	// Update the video preview based on the URL input value
 	function updatePreview(url) {
 		const $preview = $('#sv-video-preview');
 
 		if (!url) {
-			// Empty: show full empty state
 			$preview.removeClass('has-thumbnail').html(previewEmptyHTML);
 			return;
 		}
 
 		const ytId = youtubeParser(url);
 		if (ytId) {
-			// YouTube: show thumbnail
 			const img = new Image();
 			img.alt = '';
 			img.src = 'https://img.youtube.com/vi/' + ytId + '/mqdefault.jpg';
@@ -90,7 +80,6 @@ jQuery(document).ready(function ($) {
 		} else {
 			var vimeoId = vimeoParser(url);
 			if (vimeoId) {
-				// Vimeo: fetch thumbnail + title via public oEmbed endpoint
 				$preview.removeClass('has-thumbnail').html(svIcon + '<span class="sv-preview-filename">Loading...</span>');
 				$.getJSON('https://vimeo.com/api/oembed.json?url=' + encodeURIComponent(url))
 					.done(function (data) {
@@ -115,7 +104,6 @@ jQuery(document).ready(function ($) {
 						$preview.append($('<span class="sv-preview-filename">').text('Vimeo #' + vimeoId));
 					});
 			} else {
-				// Other URL: show SmartVideo icon with filename hint
 				var filename = url.split('/').pop().split('?')[0];
 				var $hint = filename ? $('<span class="sv-preview-filename">').text(filename) : null;
 				$preview.removeClass('has-thumbnail').html(svIcon);
@@ -124,14 +112,12 @@ jQuery(document).ready(function ($) {
 		}
 	}
 
-	// Tab switching — scoped to #swarmify-dialog
 	$(document).on('click', '#swarmify-dialog .sv-tab', function () {
 		const $dialog = $(this).closest('.sv-dialog');
 		$dialog.find('.sv-tab').removeClass('active').attr('aria-selected', 'false').attr('tabindex', '-1');
 		$dialog.find('.sv-panel').removeClass('active');
 		$(this).addClass('active').attr('aria-selected', 'true').attr('tabindex', '0');
 
-		// Determine which panel to activate from the tab class
 		if ($(this).hasClass('sv-tab-video')) {
 			$dialog.find('.sv-panel-video').addClass('active');
 		} else if ($(this).hasClass('sv-tab-options')) {
@@ -141,7 +127,6 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	// Arrow key navigation for tabs
 	$(document).on('keydown', '#swarmify-dialog .sv-tab', function (e) {
 		if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
 			var $tabs = $(this).closest('.sv-dialog-tabs').find('.sv-tab');
@@ -153,7 +138,6 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	// Aspect ratio → show/hide custom dimensions (scoped to .sv-dialog)
 	$(document).on('change', '.sv-dialog .swarmify_aspect_ratio', function () {
 		const $dialog = $(this).closest('.sv-dialog');
 		if ($(this).val() === 'custom') {
@@ -163,7 +147,6 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	// Poster source dropdown
 	$(document).on('change', '.sv-dialog .sv-poster-source', function () {
 		const $dialog = $(this).closest('.sv-dialog');
 		const val = $(this).val();
@@ -179,7 +162,6 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	// Video URL preview update (debounced 300ms)
 	var previewTimer = null;
 	$(document).on('input', '#swarmify-dialog .swarmify_url', function () {
 		var url = $(this).val();
@@ -189,7 +171,6 @@ jQuery(document).ready(function ($) {
 		}, 300);
 	});
 
-	// Poster URL preview (for "Other" source) — debounced 300ms
 	var posterTimer = null;
 	$(document).on('input', '#swarmify-dialog .swarmify_poster', function () {
 		var posterUrl = $(this).val();
@@ -206,7 +187,6 @@ jQuery(document).ready(function ($) {
 		}, 300);
 	});
 
-	// Media library: video picker
 	$(document).on('click', '.swarmify_add_video', function () {
 		const button = $(this);
 		const dialog = document.getElementById('swarmify-dialog');
@@ -231,13 +211,11 @@ jQuery(document).ready(function ($) {
 				const $urlInput = $dialog.find('.swarmify_url');
 				$urlInput.val(video.url);
 				updatePreview(video.url);
-				// Re-open the dialog after media library selection
 				if (insideDialog && dialog) {
 					dialog.showModal();
 				}
 			});
 
-			// Re-open the dialog if media library is closed without selection
 			this._svVideoWindow.on('close', function () {
 				if (insideDialog && dialog && !dialog.open) {
 					dialog.showModal();
@@ -254,7 +232,6 @@ jQuery(document).ready(function ($) {
 		return false;
 	});
 
-	// Media library: image picker (poster)
 	$(document).on('click', '.swarmify_add_image', function () {
 		const button = $(this);
 		const dialog = document.getElementById('swarmify-dialog');
@@ -278,17 +255,14 @@ jQuery(document).ready(function ($) {
 				const $dialog = button.closest('.sv-dialog');
 				$dialog.find('.swarmify_poster').val(image.url);
 				button.text('Replace image');
-				// Show poster preview thumbnail
 				const $posterPreview = $dialog.find('.sv-poster-preview');
 				var $img = $('<img>').attr({ src: image.url, alt: '' });
 				$posterPreview.html('').append($img).show();
-				// Re-open the dialog after media library selection
 				if (insideDialog && dialog) {
 					dialog.showModal();
 				}
 			});
 
-			// Re-open the dialog if media library is closed without selection
 			this._svImageWindow.on('close', function () {
 				if (insideDialog && dialog && !dialog.open) {
 					dialog.showModal();
@@ -305,7 +279,6 @@ jQuery(document).ready(function ($) {
 		return false;
 	});
 
-	// Shortcode builder
 	$(document).on('click', '.swarmify_insert_button', function () {
 		const $dialog = $(this).closest('.sv-dialog');
 
@@ -319,10 +292,8 @@ jQuery(document).ready(function ($) {
 			return;
 		}
 
-		// Build shortcode parts
 		const parts = ['[smartvideo src="' + escShortcodeAttr(url) + '"'];
 
-		// Poster — only if poster source is not "none" and there's a value
 		const posterSource = $dialog.find('.sv-poster-source').val();
 		const poster = $dialog.find('.swarmify_poster').val();
 		if (posterSource !== 'none' && poster) {
@@ -333,7 +304,6 @@ jQuery(document).ready(function ($) {
 			parts.push('poster="' + escShortcodeAttr(poster) + '"');
 		}
 
-		// Aspect ratio + dimensions (whitelist valid values)
 		const validRatios = ['16:9', '4:3', '1:1', '21:9', '9:16', 'custom'];
 		const ratio = $dialog.find('.swarmify_aspect_ratio').val();
 		if (ratio && ratio !== '16:9' && validRatios.indexOf(ratio) !== -1) {
@@ -346,7 +316,6 @@ jQuery(document).ready(function ($) {
 			parts.push('height="' + escShortcodeAttr(h) + '"');
 		}
 
-		// Boolean attributes — only include when toggled on
 		if ($dialog.find('.swarmify_autoplay').is(':checked')) {
 			parts.push('autoplay="true"');
 		}
@@ -373,27 +342,22 @@ jQuery(document).ready(function ($) {
 		if (d) d.close();
 	});
 
-	// Close button handler
 	$(document).on('click', '.sv-dialog-close', function () {
 		var d = document.getElementById('swarmify-dialog');
 		if (d) d.close();
 	});
 
-	// Reset form elements to defaults
 	function reset_form_elements(modal) {
 		var defaults = window.smartvideoDefaults || {};
 
-		// Text and number inputs
 		modal.find('input[type="text"]').val('');
 		modal.find('.swarmify_width').val('1280');
 		modal.find('.swarmify_height').val('720');
 
-		// Selects: reset to first option
 		modal.find('select').each(function () {
 			this.selectedIndex = 0;
 		});
 
-		// Checkboxes: set from smartvideoDefaults (truthy check)
 		modal.find('.swarmify_autoplay').prop('checked', !!defaults.autoplay);
 		modal.find('.swarmify_muted').prop('checked', !!defaults.muted);
 		modal.find('.swarmify_loop').prop('checked', !!defaults.loop);
@@ -401,20 +365,17 @@ jQuery(document).ready(function ($) {
 		modal.find('.swarmify_video_inline').prop('checked', !!defaults.playsinline);
 		modal.find('.swarmify_unresponsive').prop('checked', !!defaults.responsive);
 
-		// Hide conditional sections
 		modal.find('.swarmify_custom_dimensions').hide();
 		modal.find('.sv-poster-media-library').hide();
 		modal.find('.sv-poster-other').hide();
 
-		// Reset preview to empty state
 		$('#sv-video-preview').removeClass('has-thumbnail').html(previewEmptyHTML);
 
-		// Reset poster image button text and poster preview
 		modal.find('.swarmify_add_image').text('Select poster image');
 		modal.find('.sv-poster-preview').hide().html('');
 	}
 
-	// Apply site defaults to initial checkbox states on page load
+	// Seed the checkboxes with the site's configured defaults on load
 	(function () {
 		var $dialog = $('.sv-dialog');
 		if ($dialog.length) {
@@ -423,10 +384,9 @@ jQuery(document).ready(function ($) {
 	})();
 
 	// --------------------------------------------------------
-	// Legacy widget handlers (sidebar widget still uses old selectors)
+	// Handlers for the sidebar widget markup
 	// --------------------------------------------------------
 
-	// Widget tab switching
 	$(document).on('click', '.swarmify-tabs button', function () {
 		const parent = $(this).parent().parent();
 		$('.swarmify-tabs button', parent).removeClass('active').attr('aria-selected', 'false');
@@ -443,7 +403,6 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	// Widget aspect ratio
 	$(document).on('change', '.swarmify-widget-div .swarmify_aspect_ratio', function () {
 		const parent = $(this).closest('.swarmify-widget-div');
 		if ($(this).val() === 'custom') {
@@ -453,7 +412,6 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	// Widget YouTube/Other source buttons
 	$(document).on('click', '.swarmify_add_youtube', function () {
 		var parent = $(this).closest('.swarmify-widget-div');
 		if (!parent.length) return;
@@ -469,7 +427,6 @@ jQuery(document).ready(function ($) {
 		parent.find('.video_url_fancybox .other').show();
 	});
 
-	// Widget save/close buttons
 	function update_swarmify_video(main) {
 		const div_id = main.prev().parent().attr('id');
 		const title = $('#' + div_id + '_title').find('.swarmify_title');
@@ -484,7 +441,6 @@ jQuery(document).ready(function ($) {
 		update_swarmify_video($(this));
 	});
 
-	// Tooltip hover (for widget — lightbox uses inline hints instead)
 	$(document).on('mouseenter mouseleave', '.swarmify_info', function () {
 		const tooltip = $(this).next();
 		tooltip.toggle();

@@ -1,14 +1,9 @@
-/* SmartVideo Dashboard Widget */
-
-/* Brand the postbox wrapper */
 #smartvideo_status { border-top: 3px solid #FFD84D !important; }
 #smartvideo_status .postbox-header { background: linear-gradient(180deg, #fffdf5 0%, #fff 100%); }
 #smartvideo_status .hndle { font-weight: 700 !important; letter-spacing: -0.01em; }
 
-/* Widget content */
 .sv-dash { font-size: 13px; color: #334155; line-height: 1.5; }
 
-/* Status badge */
 .sv-dash-badge {
 	display: inline-flex; align-items: center; gap: 6px;
 	padding: 4px 12px 4px 10px; border-radius: 100px;
@@ -29,7 +24,6 @@
 	box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
 }
 
-/* Status rows */
 .sv-dash-items { list-style: none; margin: 0; padding: 0; }
 .sv-dash-items li {
 	display: flex; justify-content: space-between; align-items: center;
@@ -42,7 +36,6 @@
 .sv-dash-val--off { color: #64748b; }
 .sv-dash-val--warn { color: #d97706; }
 
-/* Action links */
 .sv-dash-actions {
 	display: flex; gap: 8px; margin-top: 14px;
 	padding-top: 14px; border-top: 1px solid #e2e8f0;

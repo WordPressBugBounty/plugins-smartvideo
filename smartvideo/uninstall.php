@@ -3,34 +3,16 @@
 /**
  * Fired when the plugin is uninstalled.
  *
- * When populating this file, consider the following flow
- * of control:
- *
- * - This method should be static
- * - Check if the $_REQUEST content actually is the plugin name
- * - Run an admin referrer check to make sure it goes through authentication
- * - Verify the output of $_GET makes sense
- * - Repeat with other user roles. Best directly by using the links/query string parameters.
- * - Repeat things for multisite. Once for a single site in the network, once sitewide.
- *
- * This file may be updated more in future version of the Boilerplate; however, this is the
- * general skeleton and outline for how the file should work.
- *
- * For more information, see the following discussion:
- * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
- *
  * @link       https://swarmify.com/
  * @since      1.0.0
  *
  * @package    Swarmify
  */
 
-// If uninstall not called from WordPress, then exit.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-// Delete all plugin options from wp_options.
 delete_option( 'swarmify_status' );
 delete_option( 'swarmify_cdn_key' );
 delete_option( 'swarmify_toggle_youtube' );
@@ -49,32 +31,48 @@ delete_option( 'swarmify_default_loop' );
 delete_option( 'swarmify_default_controls' );
 delete_option( 'swarmify_default_playsinline' );
 delete_option( 'swarmify_default_responsive' );
-	delete_option( 'swarmify_default_preload' ); // legacy row from installs that predate the option's removal
+	delete_option( 'swarmify_default_preload' ); // older installs may still carry this row
 delete_option( 'swarmify_toggle_conditional_loading' );
 delete_option( 'swarmify_toggle_beta_player' );
 delete_option( 'swarmify_plugin_version' );
+delete_option( 'smartvideo_version' );
+delete_option( 'smartvideo_show_player_notice' );
+delete_option( 'swarmify_toggle_legacy_player' );
+delete_option( 'swarmify_toggle_facade' );
+delete_option( 'swarmify_theme_secondarycolor' );
+delete_option( 'swarmify_theme_glasstint' );
+delete_option( 'swarmify_theme_cornerradius' );
+delete_option( 'swarmify_theme_button_radius' );
+delete_option( 'swarmify_toggle_keyboard' );
+delete_option( 'swarmify_keyboard_seekstep' );
+delete_option( 'swarmify_toggle_kb_mute' );
+delete_option( 'swarmify_toggle_kb_fullscreen' );
+delete_option( 'swarmify_toggle_kb_numbers' );
+delete_option( 'swarmify_toggle_kb_captions' );
+delete_option( 'swarmify_watermark_opacity' );
+delete_option( 'swarmify_watermark_position' );
+delete_option( 'swarmify_toggle_ga' );
+delete_option( 'swarmify_ga_interval' );
+delete_option( 'swarmify_toggle_lazyload' );
+delete_transient( 'smartvideo_account_tier' );
+delete_metadata( 'user', 0, 'smartvideo_player_notice_dismissed', '', true );
 
-// Delete activation redirect transient (set with a per-user suffix, so use a
-// wildcard delete since we can't know the user ID at uninstall time).
+// The activation-redirect transient is stored per user, so match by prefix
+// rather than by name.
 global $wpdb;
 $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_smartvideo_activation_redirect_' ) . '%', $wpdb->esc_like( '_transient_timeout_smartvideo_activation_redirect_' ) . '%' ) );
 
-// Delete cached Vimeo oEmbed thumbnail transients (one row per rendered Vimeo
-// video; self-expiring, but cleaned here so uninstall leaves no rows behind).
+// Cached Vimeo thumbnails expire on their own, but there is one row per video.
 $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_sv_vimeo_thumb_' ) . '%', $wpdb->esc_like( '_transient_timeout_sv_vimeo_thumb_' ) . '%' ) );
 
-// Delete all per-post meta across all posts in one query.
 delete_post_meta_by_key( '_smartvideo_disabled' );
 
-// Clear the upload-accelerator chunk-cleanup cron event.
 wp_clear_scheduled_hook( 'swarmify_cleanup_chunks' );
 
-// Accumulator directories to sweep. wp-content is global, but the 2.3.3
-// read-only fallback lives under uploads, which is per-blog on multisite — so
-// each blog contributes its own while we are switched to it.
+// Upload chunks land under wp-content, or in the uploads directory where
+// wp-content is read-only. Each blog has its own uploads directory.
 $sv_chunks_dirs = array( WP_CONTENT_DIR . '/.swarmify-chunks' );
 
-/** Append the current blog's uploads accumulator, if uploads resolves. */
 $sv_add_uploads_chunks_dir = function () use ( &$sv_chunks_dirs ) {
 	$uploads = wp_get_upload_dir();
 	if ( empty( $uploads['error'] ) && ! empty( $uploads['basedir'] ) ) {
@@ -83,7 +81,7 @@ $sv_add_uploads_chunks_dir = function () use ( &$sv_chunks_dirs ) {
 };
 $sv_add_uploads_chunks_dir();
 
-// Multisite: clean up each site in the network.
+// Options and meta are per-site, so repeat the whole cleanup on every site.
 if ( is_multisite() ) {
 	$sites = get_sites( array( 'fields' => 'ids', 'number' => 0 ) );
 	foreach ( $sites as $site_id ) {
@@ -109,9 +107,29 @@ if ( is_multisite() ) {
 		delete_option( 'swarmify_default_playsinline' );
 		delete_option( 'swarmify_default_responsive' );
 		delete_option( 'swarmify_toggle_conditional_loading' );
-		delete_option( 'swarmify_default_preload' ); // legacy row from installs that predate the option's removal
+		delete_option( 'swarmify_default_preload' ); // older installs may still carry this row
 		delete_option( 'swarmify_toggle_beta_player' );
 		delete_option( 'swarmify_plugin_version' );
+		delete_option( 'smartvideo_version' );
+		delete_option( 'smartvideo_show_player_notice' );
+		delete_option( 'swarmify_toggle_legacy_player' );
+		delete_option( 'swarmify_toggle_facade' );
+		delete_option( 'swarmify_theme_secondarycolor' );
+		delete_option( 'swarmify_theme_glasstint' );
+		delete_option( 'swarmify_theme_cornerradius' );
+		delete_option( 'swarmify_theme_button_radius' );
+		delete_option( 'swarmify_toggle_keyboard' );
+		delete_option( 'swarmify_keyboard_seekstep' );
+		delete_option( 'swarmify_toggle_kb_mute' );
+		delete_option( 'swarmify_toggle_kb_fullscreen' );
+		delete_option( 'swarmify_toggle_kb_numbers' );
+		delete_option( 'swarmify_toggle_kb_captions' );
+		delete_option( 'swarmify_watermark_opacity' );
+		delete_option( 'swarmify_watermark_position' );
+		delete_option( 'swarmify_toggle_ga' );
+		delete_option( 'swarmify_ga_interval' );
+		delete_option( 'swarmify_toggle_lazyload' );
+		delete_transient( 'smartvideo_account_tier' );
 
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_smartvideo_activation_redirect_' ) . '%', $wpdb->esc_like( '_transient_timeout_smartvideo_activation_redirect_' ) . '%' ) );
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_sv_vimeo_thumb_' ) . '%', $wpdb->esc_like( '_transient_timeout_sv_vimeo_thumb_' ) . '%' ) );
@@ -122,9 +140,8 @@ if ( is_multisite() ) {
 	}
 }
 
-// Remove the upload-accelerator accumulator directories collected above.
-// Best-effort: leave a directory alone if a co-tenant or admin has placed
-// unexpected files there.
+// Delete only plain files, so a directory someone else has put subdirectories
+// in survives the rmdir.
 foreach ( array_unique( $sv_chunks_dirs ) as $chunks_dir ) {
 	if ( ! is_dir( $chunks_dir ) || is_link( $chunks_dir ) ) {
 		continue;

@@ -3,16 +3,7 @@
 namespace Swarmify\Smartvideo;
 
 /**
- * Fired during plugin activation
- *
- * @link       https://swarmify.com/?smartvideo_wordpress_plugin
- * @since      1.0.0
- */
-
-/**
  * Fired during plugin activation.
- *
- * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
  * @package    Swarmify
@@ -21,21 +12,33 @@ namespace Swarmify\Smartvideo;
 class Activator {
 
 	/**
-	 * Run plugin activation tasks.
-	 *
-	 * Sets the redirect transient, seeds default options, and deactivates the
-	 * legacy swarm-cdn plugin if it is currently active.
+	 * Seed the default options and run one-time migrations when the plugin activates.
 	 *
 	 * @return void
 	 */
 	public static function activate() {
-		// Sites deactivated across the update never load the plugin on a normal
-		// request, so the constructor's call never fires. Run it here first: it
-		// keys off swarmify_status, which does not exist yet on a fresh install,
-		// so this only ever migrates a genuine pre-existing site.
+		// Sites deactivated across the update never reach the migration call in
+		// Swarmify's constructor, so run it here — before the seeding below
+		// creates the very options it keys off.
 		self::maybe_backfill_conditional_loading();
 
 		set_transient( 'smartvideo_activation_redirect_' . get_current_user_id(), true, 30 );
+
+		// Fresh install (no options yet): stamp the migration version NOW,
+		// before the defaults below exist. The upgrade migration first runs
+		// one request after activation, by which point swarmify_status is
+		// set — without this stamp it would mistake every fresh install for
+		// an upgrade and show the player-update notice.
+		if ( false === get_option( 'swarmify_status' ) ) {
+			update_option( 'smartvideo_version', Swarmify::DB_VERSION );
+
+			// Rounded corners are a fresh-install-only default: the seeding
+			// below no-ops on options that exist, but upgrades never created
+			// this row, so seeding it there would restyle live players. The
+			// play-button radius is deliberately NOT seeded — unset follows
+			// the player's per-shape default (hexagon 16, rectangle 8).
+			add_option( 'swarmify_theme_cornerradius', '24' );
+		}
 
 		add_option( 'swarmify_status', 'on' );
 		add_option( 'swarmify_cdn_key', '' );
@@ -52,7 +55,6 @@ class Activator {
 
 		add_option( 'swarmify_toggle_schema', 'on' );
 
-		// Global video defaults.
 		add_option( 'swarmify_default_autoplay', 'off' );
 		add_option( 'swarmify_default_muted', 'off' );
 		add_option( 'swarmify_default_loop', 'off' );
@@ -60,15 +62,14 @@ class Activator {
 		add_option( 'swarmify_default_playsinline', 'off' );
 		add_option( 'swarmify_default_responsive', 'on' );
 
-		// New installs default to 'standard' conditional loading (skip swarmdetect on
-		// pages without video). Existing installs keep their current setting since
-		// add_option() is a no-op when the option already exists.
+		// 'standard' loads the CDN script only on pages that contain a SmartVideo.
 		add_option( 'swarmify_toggle_conditional_loading', 'standard' );
 
 		add_option( 'swarmify_toggle_beta_player', 'off' );
+		add_option( 'swarmify_toggle_legacy_player', 'on' );
+		add_option( 'swarmify_toggle_facade', 'off' );
 
-		// Marks the install as already carrying 2.3.1's option layout, so
-		// maybe_backfill_conditional_loading() never fires on a fresh install.
+		// Presence marker so the conditional-loading backfill skips this fresh install.
 		add_option( 'swarmify_plugin_version', SWARMIFY_PLUGIN_VERSION );
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -80,20 +81,15 @@ class Activator {
 	}
 
 	/**
-	 * Undo the conditional-loading default 2.3.0 forced onto existing sites.
+	 * Reset conditional loading to 'off' for sites that updated through 2.3.0.
 	 *
-	 * 2.3.0 flipped this option's default from 'off' (always load the player) to
-	 * 'standard' (load only where a content scan finds video). There is no
-	 * upgrade hook — activate() does not run on an in-place update — so sites
-	 * whose markup the scan cannot see (WPBakery, Oxygen, ACF, theme templates)
-	 * stopped loading the player entirely.
-	 *
-	 * A stored 'standard' cannot be trusted as a deliberate choice: reactivating
-	 * under 2.3.0 writes exactly that, and the result is indistinguishable from a
-	 * fresh 2.3.0 install. Both are reset, because 'off' is the safe direction —
-	 * it costs a script load on video-less pages, where 'standard' costs broken
-	 * playback. Any other value can only come from the settings screen, so it
-	 * stands.
+	 * 2.3.0 changed the default from 'off' to 'standard' (load the player only
+	 * where a content scan finds video) with no upgrade hook, silently breaking
+	 * playback on sites whose markup the scan cannot see. A stored 'standard'
+	 * may be nothing more than what a 2.3.0 reactivation wrote, so it is reset
+	 * along with the unset case — 'off' costs a script load where 'standard'
+	 * costs playback. Any other value can only come from the settings screen,
+	 * so it stands.
 	 *
 	 * @return void
 	 */

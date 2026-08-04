@@ -10,14 +10,8 @@ namespace Swarmify\Smartvideo;
  */
 class PostMeta {
 
-	/**
-	 * Meta key used to disable SmartVideo on individual posts/pages.
-	 */
 	const META_KEY = '_smartvideo_disabled';
 
-	/**
-	 * Register the post meta for REST API visibility.
-	 */
 	public function register_meta() {
 		$post_types = get_post_types( array( 'public' => true ) );
 
@@ -38,9 +32,6 @@ class PostMeta {
 		}
 	}
 
-	/**
-	 * Add the classic editor meta box.
-	 */
 	public function add_meta_box() {
 		$post_types = get_post_types( array( 'public' => true ) );
 
@@ -55,8 +46,6 @@ class PostMeta {
 	}
 
 	/**
-	 * Render the classic editor meta box.
-	 *
 	 * @param \WP_Post $post Current post object.
 	 */
 	public function render_meta_box( $post ) {
@@ -72,8 +61,6 @@ class PostMeta {
 	}
 
 	/**
-	 * Save the meta box value (classic editor).
-	 *
 	 * @param int $post_id Post ID.
 	 */
 	public function save_meta_box( $post_id ) {
@@ -94,18 +81,12 @@ class PostMeta {
 			return;
 		}
 
-		// Direct array access inside empty() is required for its
-		// undefined-index suppression to work; wrapping in wp_unslash()
-		// would force PHP to evaluate the access first and trigger an
-		// "Undefined array key" warning on PHP 8.0+ when the box is
-		// unchecked (the common case). wp_unslash() is also unnecessary
-		// here -- ! empty() coerces the raw value to bool, so any
-		// auto-added slashes are discarded before they could matter.
+		// The raw array access must stay inside empty() -- that is what
+		// suppresses the undefined-index warning when the box is unchecked.
+		// wp_unslash() would defeat that, and is pointless for a bool check.
 
-		// Store a row only when actually disabled; on the default (enabled)
-		// path delete the row instead of writing a `0` to wp_postmeta for
-		// every saved post. is_disabled() reads the value as a bool, so an
-		// absent row is equivalent to a stored 0.
+		// Delete rather than store 0, so every saved post doesn't grow a
+		// wp_postmeta row; is_disabled() reads a missing row as false anyway.
 		if ( ! empty( $_POST[ self::META_KEY ] ) ) {
 			update_post_meta( $post_id, self::META_KEY, 1 );
 		} else {
@@ -114,8 +95,6 @@ class PostMeta {
 	}
 
 	/**
-	 * Check if SmartVideo is disabled for a given post.
-	 *
 	 * @param int|null $post_id Post ID (defaults to current post).
 	 * @return bool
 	 */

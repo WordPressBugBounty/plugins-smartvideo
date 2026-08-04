@@ -3,19 +3,14 @@
 namespace Swarmify\Smartvideo;
 
 /**
- * Smartvideo Admin Class
+ * Admin-side functionality: the settings page, classic-editor integration, and admin notices.
  */
 class Admin {
-	/**
-	 * WP script/style handle for the admin settings page bundle.
-	 * Prefixed to avoid collisions with other plugins.
-	 */
 	private const ADMIN_HANDLE = 'smartvideo-admin';
 
 	/**
-	 * WP script/style handle for the classic-editor bundle.
-	 * Byte-identical to the former `$this->plugin_name . '-swarmify-admin'`
-	 * (plugin_name is the fixed literal 'SmartVideo').
+	 * WP script/style handle for the classic-editor bundle. Keep this exact
+	 * string stable — it's a public handle other code may enqueue or dequeue by name.
 	 */
 	private const CLASSIC_EDITOR_HANDLE = 'SmartVideo-swarmify-admin';
 
@@ -24,8 +19,6 @@ class Admin {
 	protected $settings;
 
 	/**
-	 * Constructor.
-	 *
 	 * @since 1.0.0
 	 */
 	public function __construct( $plugin_name, $version, $settings ) {
@@ -35,7 +28,7 @@ class Admin {
 	}
 
 	/**
-	 * Load all necessary dependencies.
+	 * Redirect to the SmartVideo settings page once, right after activation.
 	 *
 	 * @since 1.0.0
 	 */
@@ -45,7 +38,7 @@ class Admin {
 		}
 
 		// Don't redirect on multisite bulk activation, WP-CLI, or AJAX/REST requests.
-		if ( is_network_admin() || isset( $_GET['activate-multi'] ) || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_ajax() || defined( 'REST_REQUEST' ) ) {
+		if ( is_network_admin() || isset( $_GET['activate-multi'] ) || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_doing_ajax() || defined( 'REST_REQUEST' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only check to skip a redirect, no state change.
 			return;
 		}
 
@@ -65,6 +58,11 @@ class Admin {
 		if ( 'toplevel_page_SmartVideo' !== $hook ) {
 			return;
 		}
+
+		// Warm the tier transient here — frontend renders read it via
+		// get_cached() and never HTTP, so without this admin-side refresh
+		// the tier would stay unknown forever (gating permanently fail-open).
+		$account_tier = ( new AccountTier( $this->settings ) )->get();
 
 		$script_path       = '/build/index.js';
 		$script_asset_path = dirname( SMARTVIDEO_PLUGIN_FILE ) . '/build/index.asset.php';
@@ -98,12 +96,13 @@ class Admin {
 			$this->version
 		);
 
-		wp_enqueue_media(); // necessary to ensure wp.media exists in Js    
+		wp_enqueue_media(); // the settings page's media picker needs wp.media
 
 		wp_enqueue_script( self::ADMIN_HANDLE );
 		wp_set_script_translations( self::ADMIN_HANDLE, 'swarmify' );
 		wp_enqueue_style( self::ADMIN_HANDLE );
 
+		$current_user = wp_get_current_user();
 		wp_localize_script(
 			self::ADMIN_HANDLE,
 			'smartvideoPlugin',
@@ -112,20 +111,28 @@ class Admin {
 				'assetUrl'        => plugins_url( '/assets', SMARTVIDEO_PLUGIN_FILE ),
 				'settingsUrl'     => $this->settings->url(),
 				'initialSettings' => $this->settings->get_all(),
+				'playerScriptSrc' => Swarmify::player_script_src(
+					'on' === $this->settings->get( 'swarmify_toggle_beta_player' ),
+					'on' === $this->settings->get( 'swarmify_toggle_legacy_player' )
+				),
+				'accountTier'     => $account_tier,
 				'version'         => $this->version,
 				'textDomain'      => 'swarmify',
+				// Prefills the support beacon's contact fields on swarmify.com.
+				'userName'        => $current_user->display_name,
+				'userEmail'       => $current_user->user_email,
 			)
 		);
 	}
 
 	/**
-	 * Register page in admin.
+	 * Register the SmartVideo admin menu page.
 	 *
 	 * @since 1.0.0
 	 */
 	public function register_page() {
 
-		// base64-encoded from assets/icon.svg, but modified for the menu
+		// Copy of assets/icon.svg, modified for the admin menu.
 		$menu_icon = <<<'EOSVG'
         <svg viewBox="0 0 47 47" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" version="1.1" width="47" height="47" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
             <path fill="#000" d="M 23.050781,0 23.044922,0.00390625 23.039062,0 Z m 20.988281,11.519531 v 23.041016 l -21,11.519531 L 2.0390625,34.560547 V 11.519531 L 23.044922,0.00390625 Z m -28.519531,1.910157 v 19.390624 c 0,1.999998 1.319689,2.869687 2.929688,1.929688 L 35.5,24.820312 c 1.619998,-0.939999 1.619998,-2.460391 0,-3.40039 L 18.449219,11.5 c -0.4025,-0.2375 -0.786563,-0.362188 -1.136719,-0.382812 -1.050468,-0.06188 -1.792969,0.805001 -1.792969,2.3125 z" />
@@ -156,8 +163,7 @@ EOSVG;
 	}
 
 	/**
-	 * Whether the current admin screen is the block editor (classic-editor
-	 * assets and UI should be skipped there).
+	 * Whether the current admin screen is the block editor.
 	 *
 	 * @return bool
 	 */
@@ -181,9 +187,6 @@ EOSVG;
 			return;
 		}
 
-		// Fancybox CSS removed — classic editor modal now uses native <dialog>
-
-		// Add the color picker css file
 		wp_enqueue_style( 'wp-color-picker' );
 
 		wp_enqueue_style( self::CLASSIC_EDITOR_HANDLE, plugin_dir_url( __FILE__ ) . 'css/swarmify-admin.css', array(), $this->version, 'all' );
@@ -203,8 +206,6 @@ EOSVG;
 		if ( $this->is_block_editor_screen() ) {
 			return;
 		}
-
-		// Fancybox JS removed — classic editor modal now uses native <dialog>
 
 		wp_enqueue_script( self::CLASSIC_EDITOR_HANDLE, plugin_dir_url( __FILE__ ) . 'js/swarmify-admin.js', array( 'jquery', 'wp-color-picker' ), $this->version, false );
 

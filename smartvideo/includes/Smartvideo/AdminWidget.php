@@ -3,7 +3,7 @@
 namespace Swarmify\Smartvideo;
 
 /**
- * The public-facing functionality of the plugin.
+ * The classic (WP_Widget) SmartVideo widget.
  *
  * @link       https://swarmify.com/?smartvideo_wordpress_plugin
  * @since      1.0.0
@@ -13,10 +13,7 @@ namespace Swarmify\Smartvideo;
  */
 
 /**
- * The public-facing functionality of the plugin.
- *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the public-facing stylesheet and JavaScript.
+ * Classic widget that renders a SmartVideo player in a widget area.
  *
  * @package    Swarmify
  * @subpackage Swarmify/public
@@ -24,8 +21,6 @@ namespace Swarmify\Smartvideo;
 class AdminWidget extends \WP_Widget {
 
 	/**
-	 * Initialize the class and set its properties.
-	 *
 	 * @since    1.0.0
 	 */
 	public function __construct() {
@@ -70,11 +65,7 @@ class AdminWidget extends \WP_Widget {
 		$swarmify_autoplay = intval( $instance['swarmify_autoplay'] ?? 0 );
 		$swarmify_muted    = intval( $instance['swarmify_muted'] ?? 0 );
 		$swarmify_loop     = intval( $instance['swarmify_loop'] ?? 0 );
-		// Legacy widget instances saved before update() persisted an
-		// explicit boolean may have null/missing swarmify_controls.
-		// Defaulting to 1 matches the form partial's own default
-		// (swarmify-widget-display.php line 30) rather than letting
-		// intval(null) silently disable them.
+		// Older widget instances may lack swarmify_controls; default it on.
 		$swarmify_controls     = ( isset( $instance['swarmify_controls'] ) && '' !== $instance['swarmify_controls'] )
 			? intval( $instance['swarmify_controls'] )
 			: 1;
@@ -113,13 +104,11 @@ class AdminWidget extends \WP_Widget {
 			}
 			$inner_output .= '</ul>';
 		}
-		// Theme wrapper args (before/after_widget, before/after_title) come from
-		// register_sidebar() and are trusted — echo them directly, matching the
-		// pattern used by WordPress core widgets.  Only the inner content we
-		// build ourselves is run through wp_kses.
+		// The before/after wrapper args come from register_sidebar() and are
+		// theme-trusted, so they are echoed unescaped.
 
 		// Strip the Divi-specific "et_pb_widget" class that some themes inject
-		// into before_widget — preserves pre-existing behaviour.
+		// into before_widget.
 		$before_widget = preg_replace( '/\bet_pb_widget\b/', '', $args['before_widget'] );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- theme-controlled wrapper
@@ -130,10 +119,9 @@ class AdminWidget extends \WP_Widget {
 			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		}
 
-		// Pass swarmify protocol explicitly — the plugin no longer registers
-		// it via kses_allowed_protocols site-wide, so wp_kses_post() on user
-		// content correctly strips href="swarmify://..." but our own widget
-		// output here still preserves <smartvideo src="swarmify://...">.
+		// Allow the swarmify:// protocol for this output only — it is
+		// deliberately kept out of the site-wide allowed protocols so user
+		// content can't use it.
 		echo wp_kses(
 			$inner_output,
 			array(

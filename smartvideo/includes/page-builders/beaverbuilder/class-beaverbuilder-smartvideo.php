@@ -15,7 +15,7 @@ class SmartVideo extends FLBuilderModule {
 				'description'     => __( 'Effortless, unlimited video player', 'swarmify' ),
 				// 'group'           => __( 'SmartVideo', 'swarmify' ),
 				'category'        => __( 'Basic', 'swarmify' ),
-				// 'icon'            => 'format-video.svg',
+				'icon'            => '<svg width="40" height="40" viewBox="0 0 47 47" xmlns="http://www.w3.org/2000/svg"><path d="M23.04 0l21 11.52v23.04l-21 11.52-21-11.52V11.52L23.05 0z" fill="#ffde17"/><path d="M15.52 13.43c0-2.01 1.32-2.88 2.93-1.93l17.05 9.92c1.62.94 1.62 2.46 0 3.4l-17.05 9.93c-1.61.94-2.93.07-2.93-1.93v-19.4z" fill="#333"/></svg>',
 				'editor_export'   => true, // Defaults to true and can be omitted.
 				'enabled'         => true, // Defaults to true and can be omitted.
 				'partial_refresh' => false, // Defaults to false and can be omitted.

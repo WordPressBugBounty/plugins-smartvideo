@@ -15,17 +15,14 @@ namespace Swarmify\Smartvideo;
 /**
  * Register upload acceleration for the plugin.
  *
- * Hooks into media upload subsytem to improve uploading of large
- * media files.
- *
  * @package    Swarmify
  */
 class UploadAccelerator {
 
 	/**
 	 * Upper bound on the number of chunks a single upload can declare.
-	 * Plupload normally chunks at half of `post_max_size`, so even a 100GB
-	 * upload would be a few thousand chunks; 10k is a generous ceiling.
+	 * Even a 100GB upload runs to only a few thousand chunks, so anything
+	 * past 10k is a bogus request.
 	 *
 	 * @since 2.3.0
 	 * @var int
@@ -42,11 +39,7 @@ class UploadAccelerator {
 	private static $instance = false;
 
 	/**
-	 * Get the instance.
-	 *
-	 * Returns the current instance, creates one if it
-	 * doesn't exist. Ensures only one instance of
-	 * UploadAccelerator is loaded or can be loaded.
+	 * Get the singleton instance, creating it on first call.
 	 *
 	 * @since 1.0.0
 	 * @static
@@ -64,23 +57,18 @@ class UploadAccelerator {
 	/**
 	 * Constructor.
 	 *
-	 * Initializes and adds functions to filter and action hooks.
-	 *
 	 * @since 1.0.0
 	 */
 	public function __construct() {
 
-		// Only enable if the option is turned on for it so that users with problems
-		// can disable.
 		if ( get_option( 'swarmify_toggle_uploadacceleration', 'on' ) === 'on' ) {
 			add_filter( 'plupload_init', array( $this, 'filter_plupload_settings' ) );
 			add_filter( 'upload_post_params', array( $this, 'filter_plupload_params' ) );
 			add_filter( 'plupload_default_settings', array( $this, 'filter_plupload_settings' ) );
 			add_filter( 'plupload_default_params', array( $this, 'filter_plupload_params' ) );
-			add_action( 'wp_ajax_swarmify_upload_accelerator', array( $this, 'ajax_chunk_receiver' ) ); // WP auto-prefixes it in admin-ajax.php
+			add_action( 'wp_ajax_swarmify_upload_accelerator', array( $this, 'ajax_chunk_receiver' ) ); // admin-ajax.php prefixes the posted action name with wp_ajax_
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_upload_id_script' ) );
 
-			// Hourly GC for accumulator files left by aborted/disconnected uploads.
 			add_action( 'swarmify_cleanup_chunks', array( $this, 'cleanup_stale_chunks' ) );
 			if ( ! wp_next_scheduled( 'swarmify_cleanup_chunks' ) ) {
 				if ( false === wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', 'swarmify_cleanup_chunks' ) ) {
@@ -106,22 +94,16 @@ class UploadAccelerator {
 	}
 
 	/**
-	 * Enqueue inline JS that injects a per-file upload ID into plupload's
-	 * multipart params. Plupload generates a unique `file.id` for each file
-	 * added to the queue, but does not POST it by default. This hook adds it
-	 * as `swarmify_upload_id` so the server can disambiguate concurrent uploads
-	 * of the same filename by the same user.
+	 * Enqueue inline JS that posts plupload's per-file id as `swarmify_upload_id`,
+	 * so the server can tell apart concurrent uploads of the same filename by the
+	 * same user. Plupload does not send that id on its own.
 	 *
 	 * @since 2.3.0
 	 */
 	public function enqueue_upload_id_script() {
-		// Wrap the plupload.Uploader constructor so every instance — whether
-		// created by wp.Uploader (modal media library) or directly by WP core's
-		// plupload-handlers.js (wp-admin/media-new.php) — gets a BeforeUpload
-		// binding that sends file.id as swarmify_upload_id.
-		//
-		// wp_add_inline_script silently no-ops on un-enqueued handles, so
-		// attaching to both 'wp-plupload' and 'plupload-handlers' is safe.
+		// Patch the constructor rather than one uploader, so every uploader gets
+		// the binding whichever admin screen created it. Attaching to both script
+		// handles is safe — wp_add_inline_script no-ops on un-enqueued handles.
 		$js = <<<'JS'
 (function(){
 if(typeof plupload==="undefined"||!plupload.Uploader||plupload.Uploader.__svPatched)return;
@@ -149,11 +131,11 @@ JS;
 	 * @since 1.0.0
 	 */
 	public function filter_plupload_settings( $plupload_settings ) {
-		$chunk_size = $this->get_chunk_size( '' );
+		$chunk_size = $this->get_chunk_size();
 		$retries    = 7;
 
 		$plupload_settings['url']                      = admin_url( 'admin-ajax.php' );
-		$plupload_settings['filters']['max_file_size'] = $this->filter_upload_size_limit( '' ) . 'b';
+		$plupload_settings['filters']['max_file_size'] = $this->filter_upload_size_limit() . 'b';
 		$plupload_settings['chunk_size']               = $chunk_size . 'b';
 		$plupload_settings['max_retries']              = $retries;
 		return $plupload_settings;
@@ -162,15 +144,12 @@ JS;
 	/**
 	 * Return the maximum upload size.
 	 *
-	 * Free space of temp directory.
-	 *
 	 * @since 1.0.0
 	 *
 	 * @return float $bytes Free disk space in bytes.
 	 */
-	public function filter_upload_size_limit( $unused ) {
+	public function filter_upload_size_limit() {
 
-		// Check whether the `disk_free_space` function is disabled
 		$disabled          = ini_get( 'disable_functions' );
 		$freeSpaceDisabled = $disabled && strpos( $disabled, 'disk_free_space' ) !== false;
 
@@ -195,21 +174,20 @@ JS;
 	 *
 	 * @return int $bytes Chunk size for uploads
 	 */
-	public function get_chunk_size( $unused ) {
+	public function get_chunk_size() {
 
 		$post_max = ini_get( 'post_max_size' );
 		if ( false === $post_max || '' === $post_max ) {
-			return 4 * 1024 * 1024; // 4MB default
+			return 4 * 1024 * 1024;
 		}
 
 		$val = trim( $post_max );
 		if ( '' === $val ) {
-			return 4 * 1024 * 1024; // 4 MB default
+			return 4 * 1024 * 1024;
 		}
 		$last = strtolower( $val[ strlen( $val ) - 1 ] );
 		$val  = intval( $val );
 		switch ( $last ) {
-			// The 'G' modifier is available since PHP 5.1.0
 			case 'g':
 				$val *= 1024; // Fall-through
 			case 'm':
@@ -218,18 +196,15 @@ JS;
 				$val *= 1024;
 		}
 
-		// Use half of the `post_max_size` as a safe chunk size value, minimum 4 MB.
 		return max( intval( $val / 2 ), 4 * 1024 * 1024 );
 	}
 
 	/**
-	 * Return the directory used to accumulate chunks during chunked uploads.
+	 * Return the directory where upload chunks accumulate.
 	 *
-	 * Lives under WP_CONTENT_DIR (not in sys_get_temp_dir, which is typically
-	 * world-writable on shared hosting and lets a co-tenant pre-plant a symlink
-	 * at the predictable accumulator path). Created with restrictive perms,
-	 * fronted by .htaccess + index.php to prevent direct access on Apache and
-	 * to suppress directory listing on misconfigured nginx.
+	 * Kept inside the site rather than the shared OS temp dir, where anyone else
+	 * on the host could pre-plant a symlink at the predictable accumulator path,
+	 * and locked down against being read over the web.
 	 *
 	 * @since 2.3.0
 	 *
@@ -248,13 +223,9 @@ JS;
 	/**
 	 * Locations to try for the chunk accumulator, in order of preference.
 	 *
-	 * Not every host keeps wp-content writable — Pantheon, WP VIP and read-only
-	 * container deploys ship the code directory immutable and leave only the
-	 * uploads dir writable. Uploads is writable on any working install by
-	 * definition, so it is a safe second choice. Neither is the OS temp dir,
-	 * which is what this deliberately does not fall back to: a world-writable
-	 * shared temp dir is what let a co-tenant pre-plant a symlink at the
-	 * predictable accumulator path.
+	 * Some hosts ship wp-content read-only, so the uploads dir — writable on any
+	 * working install — is the fallback. The OS temp dir is deliberately not a
+	 * candidate: it is shared with everyone else on the host.
 	 *
 	 * @since 2.3.3
 	 *
@@ -280,9 +251,8 @@ JS;
 	 * @return string The path, or '' if it cannot be used.
 	 */
 	private function prepare_chunks_dir( $dir ) {
-		// is_dir() follows symlinks, so a co-tenant who pre-plants a link here
-		// would otherwise have the whole accumulator redirected into a directory
-		// they control — the same attack the move off the OS temp dir closed.
+		// is_dir() follows symlinks, so check for one first: a planted link would
+		// redirect the whole accumulator into a directory someone else controls.
 		if ( is_link( $dir ) ) {
 			$this->log_debug( 'SmartVideo Upload: Refusing symlinked chunks directory: ' . $dir );
 			return '';
@@ -291,15 +261,14 @@ JS;
 			$this->log_debug( 'SmartVideo Upload: Failed to create chunks directory: ' . $dir );
 			return '';
 		}
-		// Re-apply perms + guard files on every call: a directory pre-created by
-		// an older plugin version (or anything else) never enters the mkdir
-		// branch, so without this its 0755-or-laxer perms and missing guards
-		// would silently persist.
+		// Re-apply the perms and guard files on every call — a directory that
+		// already exists skips the mkdir branch above and would otherwise keep
+		// whatever permissions it was created with.
 		if ( ! @chmod( $dir, 0700 ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
 			$this->log_debug( 'SmartVideo Upload: Failed to set 0700 on chunks directory: ' . $dir );
 		}
-		// The accumulator guards downstream assume no co-tenant can write here, so a
-		// directory chmod could not lock down must be refused rather than trusted.
+		// Everything downstream assumes nobody else can write here, so refuse a
+		// directory the chmod above could not lock down.
 		clearstatcache( true, $dir );
 		$perms = @fileperms( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors -- Intentional: suppresses warnings on hostile shared-hosting paths; return value is checked.
 		if ( false === $perms || ( $perms & 0022 ) ) {
@@ -316,11 +285,8 @@ JS;
 				$this->log_debug( 'SmartVideo Upload: Failed to write index.php guard to chunks directory: ' . $dir );
 			}
 		}
-		// @chmod above silently no-ops on a dir owned by another OS user (e.g. one
-		// created by a prior root wp-cli upload), leaving it unwritable to the web
-		// user. Detect that here so the caller returns a clean "service unavailable"
-		// instead of failing on the first chunk write and reporting it as a
-		// confusing "missing accumulator" on the next chunk.
+		// The chmod above silently does nothing on a directory owned by another
+		// OS user, so check writability here.
 		if ( ! is_writable( $dir ) ) {
 			$this->log_debug( 'SmartVideo Upload: Chunks directory not writable by web user (ownership mismatch?): ' . $dir );
 			return '';
@@ -331,16 +297,14 @@ JS;
 	/**
 	 * Sweep accumulator files older than 24 hours.
 	 *
-	 * Bound to the `swarmify_cleanup_chunks` hourly cron event. A successful
-	 * upload renames the .part file out of the chunks dir; anything left over
-	 * is from a client that disconnected or never sent the final chunk.
+	 * A finished upload renames its .part file out of the chunks dir, so anything
+	 * left behind is from a client that never completed.
 	 *
 	 * @since 2.3.0
 	 */
 	public function cleanup_stale_chunks() {
-		// Sweeps every candidate, not just the one currently in use: a site whose
-		// wp-content became writable again would otherwise strand whatever the
-		// uploads-dir fallback left behind.
+		// Sweep every candidate, not just the one in use — a site that regained a
+		// writable wp-content would otherwise strand what the fallback left behind.
 		foreach ( $this->get_chunks_dir_candidates() as $dir ) {
 			$this->cleanup_stale_chunks_in( $dir );
 		}
@@ -388,9 +352,9 @@ JS;
 			}
 		}
 
-		// The sidecar is written before the accumulator is opened, so a run that
-		// bails in between leaves one with no .part sibling for the loop above to
-		// sweep it as.
+		// An upload that bails after writing the .size sidecar but before the
+		// .part file leaves the sidecar stranded; the loop above only sweeps
+		// .part files.
 		$sidecars = glob( $dir . '/*.part.size' );
 		if ( ! is_array( $sidecars ) ) {
 			return;
@@ -427,9 +391,9 @@ JS;
 			$finfo    = finfo_open( FILEINFO_MIME );
 			$mimetype = finfo_file( $finfo, $filename );
 			if ( is_resource( $finfo ) ) {
-				// PHP 7.3/7.4: finfo_open returns a resource that must be freed.
-				// On 8.0+ it returns an auto-GC'd finfo object, so this is skipped
-				// (finfo_close is deprecated since 8.5).
+				// On PHP 7.x finfo_open returns a resource that has to be freed by
+				// hand; on 8.0+ it returns an object that cleans itself up, and
+				// finfo_close is deprecated there.
 				finfo_close( $finfo ); // phpcs:ignore Generic.PHP.DeprecatedFunctions.Deprecated -- only reached on PHP 7.3/7.4 where $finfo is a resource; guarded by is_resource() so it never runs (or warns) on 8.0+.
 			}
 			return $mimetype;
@@ -455,18 +419,14 @@ JS;
 	/**
 	 * Determine the chunk stride to seek by.
 	 *
-	 * The plupload settings filter advertises get_chunk_size() to the client, but
-	 * it runs at the default priority, so any plugin filtering
-	 * plupload_default_settings later wins and the browser slices at a size the
-	 * server never sees.
-	 * Seeking by the server's own figure then scatters chunks at the wrong
-	 * offsets and silently produces a corrupt file.
+	 * Another plugin can override the chunk size we advertise, so the browser may
+	 * slice at a size this class never chose; seeking by our own figure would put
+	 * chunks at the wrong offsets and quietly corrupt the file.
 	 *
-	 * Every chunk but the last is exactly one stride long, so the received length
-	 * is authoritative. The first one observed is recorded alongside the
-	 * accumulator and reused for the short final chunk. A later chunk that
-	 * disagrees means the stride changed mid-upload, which cannot be reconciled —
-	 * fail loudly rather than write a corrupt file.
+	 * Every chunk but the last is exactly one stride long, so the first received
+	 * length is authoritative — it is recorded beside the accumulator and reused
+	 * for the short final chunk. A later chunk that disagrees cannot be
+	 * reconciled, so fail loudly instead.
 	 *
 	 * @since 2.3.3
 	 *
@@ -478,7 +438,7 @@ JS;
 	 */
 	private function resolve_chunk_size( $accumPath, $tempName, $chunk, $chunks ) {
 		if ( $chunks <= 1 ) {
-			return $this->get_chunk_size( '' );
+			return $this->get_chunk_size();
 		}
 
 		$sizePath = $accumPath . '.size';
@@ -499,7 +459,7 @@ JS;
 				if ( is_link( $sizePath ) ) {
 					wp_send_json_error( [ 'message' => esc_html__( 'Refusing to write to non-regular upload metadata file.', 'swarmify' ) ] );
 				}
-				// A short write (disk full mid-write) leaves a truncated number that still reads as a valid stride.
+				// A partial write would leave a truncated number that still reads as a valid stride.
 				$encoded = (string) $observed;
 				$written = @file_put_contents( $sizePath, $encoded ); // phpcs:ignore WordPress.PHP.NoSilencedErrors, WordPress.WP.AlternativeFunctions -- Intentional: sidecar in our own private dir; return value is checked.
 				if ( strlen( $encoded ) !== $written ) {
@@ -517,13 +477,13 @@ JS;
 			return $stored;
 		}
 
-		// Falling back to the advertised size here is what silently corrupted files before 2.3.3.
+		// Never fall back to the advertised size — guessing the stride corrupts the file silently.
 		wp_send_json_error( [ 'message' => esc_html__( 'Upload chunk size could not be determined. Please retry the upload.', 'swarmify' ) ] );
 	}
 
 	/**
-	 * AJAX chunk receiver.
-	 * Ajax callback for plupload to handle chunked uploads.
+	 * Ajax callback for plupload that reassembles a chunked upload.
+	 *
 	 * Based on code by Davit Barbakadze
 	 * https://gist.github.com/jayarjo/5846636
 	 *
@@ -531,43 +491,37 @@ JS;
 	 */
 	public function ajax_chunk_receiver() {
 
-		// Authenticate first — before inspecting $_FILES — so an unauthenticated
-		// probe with an empty form can't differentiate "endpoint exists" from
-		// "endpoint not registered".
+		// Authenticate before touching $_FILES, so a logged-out probe can't tell
+		// whether this endpoint exists.
 		if ( ! is_user_logged_in() || ! current_user_can( 'upload_files' ) ) {
 			wp_die( esc_html__( 'Sorry, you do not have permission to upload files.', 'swarmify' ) );
 		}
 		check_admin_referer( 'media-form' );
 
-		/** Check that we have an upload and there are no errors. */
 		if ( empty( $_FILES ) || ( ! empty( $_FILES['async-upload'] ) && isset( $_FILES['async-upload']['error'] ) && UPLOAD_ERR_OK !== $_FILES['async-upload']['error'] )) {
-			/** Failed to move uploaded file. */
 			$this->log_debug( 'SmartVideo Upload: Failed to move uploaded file.' );
 			wp_send_json_error( [ 'message' => esc_html__( 'Failed to move uploaded file.', 'swarmify' ) ] );
 
 		} else {
-			// tmp_name is server-generated by PHP — sanitize_text_field() would
-			// corrupt paths like /tmp/phpXXXXXX by stripping characters. Validate
-			// via is_uploaded_file() instead of trusting $_FILES blindly.
+			// tmp_name is server-generated, so sanitizing it would corrupt paths
+			// like /tmp/phpXXXXXX; is_uploaded_file() below is the real check.
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES tmp_name is validated by is_uploaded_file()/move_uploaded_file below; sanitizing the path would break the upload.
 			$tempName = isset( $_FILES['async-upload']['tmp_name'] ) ? $_FILES['async-upload']['tmp_name'] : '';
 			if ( '' === $tempName || ! is_uploaded_file( $tempName ) ) {
 				wp_send_json_error( [ 'message' => esc_html__( 'Missing or invalid upload tmp name.', 'swarmify' ) ] );
 			}
 
-			/** Check and get file chunks. */
 			$chunk  = isset( $_POST['chunk'] ) ? intval( $_POST['chunk'] ) : 0;
 			$chunks = isset( $_POST['chunks'] ) ? intval( $_POST['chunks'] ) : 0;
 
-			// $chunks=0 is plupload's single-shot upload (no chunking) and requires
-			// $chunk=0; $chunks>0 means chunked, valid range 0..$chunks-1.
+			// plupload sends chunks=0 for a single-shot upload; otherwise the index
+			// has to fall inside 0..chunks-1.
 			if ( $chunk < 0 || $chunks < 0 || $chunks > self::MAX_CHUNKS
 				|| ( 0 === $chunks && 0 !== $chunk )
 				|| ( $chunks > 0 && $chunk >= $chunks ) ) {
 				wp_send_json_error( [ 'message' => esc_html__( 'Invalid chunk index.', 'swarmify' ) ] );
 			}
 
-			/** Get file name. */
 			if ( isset( $_POST['name'] ) ) {
 				$fileName = sanitize_file_name( $_POST['name'] );
 			} elseif ( isset( $_FILES['async-upload']['name'] ) ) {
@@ -579,19 +533,14 @@ JS;
 				wp_send_json_error( [ 'message' => esc_html__( 'Missing file name.', 'swarmify' ) ] );
 			}
 
-			// Per-upload unique ID prevents race conditions when the same user
-			// uploads the same filename from two browser tabs simultaneously.
-			// Plupload's file.id is injected into multipart_params by our inline
-			// JS (see enqueue_upload_id_script). Validate format to reject garbage.
+			// The per-upload id keeps two tabs uploading the same filename from
+			// sharing one accumulator; our inline JS supplies it (see
+			// enqueue_upload_id_script).
 			$uploadId = isset( $_POST['swarmify_upload_id'] ) ? sanitize_text_field( wp_unslash( $_POST['swarmify_upload_id'] ) ) : '';
 			if ( ! is_string( $uploadId ) || '' === $uploadId || ! preg_match( '/^[a-zA-Z0-9_-]{1,64}$/', $uploadId ) ) {
 				wp_send_json_error( [ 'message' => esc_html__( 'Missing or invalid upload ID.', 'swarmify' ) ] );
 			}
 
-			// Accumulate chunks under a private dir, not sys_get_temp_dir() (world-
-			// writable on shared hosting → a co-tenant can guess (user_id, sanitized
-			// filename), pre-plant a symlink at <md5>.part, and have chunk 0's 'wb'
-			// truncate /var/www/html/wp-config.php or any path the PHP user can write).
 			$chunksDir = $this->get_chunks_dir();
 			if ( '' === $chunksDir ) {
 				wp_send_json_error( [ 'message' => esc_html__( 'Upload service unavailable. Please contact an administrator.', 'swarmify' ) ] );
@@ -602,9 +551,8 @@ JS;
 			clearstatcache( true, $accumPath );
 			if ( file_exists( $accumPath ) ) {
 				if ( is_link( $accumPath ) || ! is_file( $accumPath ) ) {
-					// Refuse to touch a non-regular accumulator file. The chunks
-					// dir is private and 0700 (see get_chunks_dir), so a co-tenant
-					// cannot plant a symlink here; this guard is defense in depth.
+					// Defense in depth: the chunks dir is already private, but
+					// never write through a symlink.
 					wp_send_json_error( [ 'message' => esc_html__( 'Refusing to write to non-regular accumulator file.', 'swarmify' ) ] );
 				}
 			} elseif ( 0 !== $chunk ) {
@@ -612,26 +560,19 @@ JS;
 				wp_send_json_error( [ 'message' => esc_html__( 'Missing accumulator for non-zero chunk.', 'swarmify' ) ] );
 			}
 
-			// Write each chunk at its absolute offset instead of appending, so a
-			// late or duplicate chunk 0 (plupload retries up to max_retries, and
-			// HTTP/2 can reorder requests in flight) rewrites its own bytes
-			// idempotently — an accumulator that already holds later chunks is no
-			// longer truncated. 'cb' = O_CREAT without O_TRUNC. The offset uses
-			// the size the client actually used, which is not necessarily the one
-			// we advertised — see resolve_chunk_size().
+			// Write each chunk at its own offset rather than appending, so a
+			// retried or reordered chunk rewrites its own bytes instead of
+			// clobbering ones already received.
+			// The stride is the size the client actually sliced at, which need not
+			// be the one advertised — see resolve_chunk_size().
 			$chunk_size = $this->resolve_chunk_size( $accumPath, $tempName, $chunk, $chunks );
 			$offset     = $chunk * $chunk_size;
 
-			// Derive the size cap before seeking so a large chunk index can't
-			// fseek the accumulator into a multi-GB sparse extent ahead of any
-			// size check. Match the client-side cap (disk_free_space with 5GB
-			// fallback) — NOT wp_max_upload_size(): that returns
-			// min(upload_max_filesize, post_max_size), which would defeat the
-			// accelerator (chunked uploads exist precisely to bypass
-			// post_max_size). The accelerator's contract has always been "as large
-			// as the disk can hold", which we cap at 5GB if disk_free_space is
-			// disabled. Admins wanting tighter bounds can filter swarmify_upload_max_size.
-			$maxSize = (int) apply_filters( 'swarmify_upload_max_size', $this->filter_upload_size_limit( '' ) );
+			// Work out the cap before seeking, so a huge chunk index can't open a
+			// multi-GB sparse hole first. The cap is free disk space, matching the
+			// client — not WordPress's own upload limit, which chunked uploads
+			// exist precisely to get past.
+			$maxSize = (int) apply_filters( 'swarmify_upload_max_size', $this->filter_upload_size_limit() );
 			if ( $maxSize <= 0 ) {
 				$maxSize = 5 * 1024 * 1024 * 1024;
 			}
@@ -658,8 +599,7 @@ JS;
 			}
 
 			$abort_msg = '';
-			// 1 MB read buffer — large video uploads move far fewer fread/fwrite
-			// syscalls than the old 4 KB buffer for the same bytes.
+			// A 1 MB buffer keeps the syscall count sane on multi-gigabyte videos.
 			$read_buffer_size = 1024 * 1024;
 			while ( ! feof( $in ) ) {
 				$buff = fread( $in, $read_buffer_size );
@@ -682,19 +622,16 @@ JS;
 			}
 			fclose( $in );
 
-			// Flush user-space buffers to the OS before closing, so a full-disk
-			// condition is caught here rather than silently lost in fclose().
+			// Flush before closing so a full disk is reported here — fclose()
+			// swallows the error.
 			if ( '' === $abort_msg && false === fflush( $out ) ) {
 				$abort_msg = esc_html__( 'Flush error on accumulator (disk may be full).', 'swarmify' );
 			}
 
-			// On the final chunk, drop any bytes past the assembled end. 'cb' never
-			// truncates on open, so an orphaned accumulator at this path (a shorter
-			// prior upload the cleanup cron hasn't swept) would otherwise leave
-			// stale trailing bytes in the finished file. Relies on plupload's
-			// in-order delivery: the last index arrives last, so its end is the
-			// true size. Fully reorder-tolerant assembly would need a per-chunk
-			// received manifest — out of scope here.
+			// On the final chunk, cut off anything past the assembled end: 'cb'
+			// never truncates, so a longer leftover accumulator at this path would
+			// otherwise trail stale bytes into the finished file. This takes the
+			// last chunk as arriving last, which is what plupload does.
 			if ( '' === $abort_msg && ( ! $chunks || $chunk === $chunks - 1 ) ) {
 				$end_pos = ftell( $out );
 				if ( false === $end_pos || ! ftruncate( $out, $end_pos ) ) {
@@ -714,10 +651,9 @@ JS;
 				wp_delete_file( $tempName );
 			}
 
-			/** Check if file has finished uploading all parts. */
 			if ( ! $chunks || $chunk === $chunks - 1 ) {
 
-				/** Recreate upload in $_FILES global and pass off to WordPress. */
+				// Hand the assembled file to WordPress as if it had arrived in one piece.
 				if ( ! rename( $accumPath, $tempName ) ) {
 					$this->log_debug( 'SmartVideo Upload: rename failed: ' . $accumPath . ' -> ' . $tempName );
 					wp_delete_file( $accumPath );
@@ -730,13 +666,13 @@ JS;
 				$_FILES['async-upload']['name'] = $fileName;
 				$_FILES['async-upload']['size'] = filesize( $tempName );
 				$_FILES['async-upload']['type'] = $this->get_mime_content_type( $tempName );
-				// blog_charset is admin-modifiable; strip CR/LF to prevent HTTP header
-				// injection (CWE-113) if the option is ever poisoned with `\r\n...`.
+				// blog_charset is admin-editable, so strip CR/LF before it goes into
+				// a header (CWE-113).
 				$blog_charset = (string) get_option( 'blog_charset' );
 				$blog_charset = preg_replace( '/[\r\n]/', '', $blog_charset );
 				header( 'Content-Type: text/html; charset=' . $blog_charset );
 
-				// Via ajax like modal media uploader
+				// Request came from the modal media uploader.
 				if ( ! isset( $_POST['short'] ) || ! isset( $_POST['type'] ) ) {
 
 					send_nosniff_header();
@@ -746,12 +682,8 @@ JS;
 
 				} else { // add new media page
 
-					// post_id is optional on this branch: missing → unattached upload
-					// (matches normal WP async upload). When present, reject garbage
-					// (arrays, "abc") so a caller can't silently corrupt the value;
-					// is_numeric() still allows numeric strings like "42". get_post()
-					// + current_user_can() below catches any value that doesn't map
-					// to an editable post and falls back to 0.
+					// post_id is optional here — leaving it out means an unattached
+					// upload, as with any WordPress async upload.
 					$post_id = 0;
 					if ( isset( $_POST['post_id'] ) ) {
 						if ( ! is_numeric( $_POST['post_id'] ) ) {
@@ -776,12 +708,9 @@ JS;
 					}
 
 					if ( isset( $_POST['short'] ) && in_array( $_POST['short'], [ '1', 'true' ], true ) ) {
-						// Short form response - attachment ID only.
 						echo esc_js( $id );
 					} elseif ( isset( $_POST['type'] ) ) {
-						// Long form response - big chunk o html.
-
-						// used to look up an "async_upload_$type" filter
+						// Names the async_upload_{$type} filter applied below.
 						$type = sanitize_key($_POST['type']);
 
 						/**
@@ -795,7 +724,6 @@ JS;
 						 * @param int $id Uploaded attachment ID.
 						 */
 
-						// stupid, stupid linter
 						$allowed_html = array(
 							'div'      => array(
 								'class' => array(),
@@ -879,7 +807,6 @@ JS;
 					}
 				}
 			} else {
-				// Intermediate chunk received successfully.
 				wp_send_json_success();
 			}
 

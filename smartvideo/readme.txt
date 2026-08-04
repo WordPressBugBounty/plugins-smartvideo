@@ -2,8 +2,8 @@
 Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
-Tested up to: 7.0
-Stable tag: 2.3.3
+Tested up to: 7.0.2
+Stable tag: 2.4.0
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -13,6 +13,10 @@ Lightweight HTML5 video player and video hosting with CDN built for WordPress
 == Description ==
 
 **SmartVideo** is a YouTube alternative that replaces YouTube and Vimeo embeds on your WordPress site with a clean, ad-free video player served from a global CDN. No "Recommended Videos" pulling visitors away. No YouTube branding competing with yours. Just your content, loading fast.
+
+### ⚠️ Important: player update
+
+SmartVideo 2.4.0 brings a new, faster player, and it is opt-in. Your site keeps playing videos on the classic player when you update, so nothing about your videos changes on update day. Switch over whenever you're ready: set **Player → Version** to **Stable** in the SmartVideo settings, and the player appearance and playback settings start applying. A later release will make the new player the default for everyone, with the classic player still available if you need it.
 
 ### ⚡ Why SmartVideo?
 
@@ -27,7 +31,7 @@ Lightweight HTML5 video player and video hosting with CDN built for WordPress
 * Lightweight video player loads significantly faster than standard YouTube/Vimeo embeds
 * Improve Core Web Vitals and page speed performance
 * Global CDN delivers video from the nearest edge server
-* Lazy load video with preload control — defer video loading until needed
+* Lazy load video — defer video loading until needed
 * Optimized for mobile, desktop, and tablet viewing
 
 **Complete Brand Control**
@@ -37,7 +41,7 @@ Lightweight HTML5 video player and video hosting with CDN built for WordPress
 * Prevent traffic leaks to competitor content
 
 **WordPress Integration Made Simple**
-* Native widgets for Elementor, Gutenberg, Beaver Builder, Bricks, and Divi 5
+* Native widgets for Elementor, Gutenberg, Beaver Builder, Bricks, Breakdance, and Divi 5
 * Auto-converts existing YouTube and Vimeo embeds instantly (no workflow changes)
 * Embed videos in seconds with shortcodes or blocks
 * Responsive design adapts to any theme
@@ -56,9 +60,9 @@ Lightweight HTML5 video player and video hosting with CDN built for WordPress
 ### 🎯 Key Features
 
 * 📹 **Video Hosting**: Generous bandwidth, automatic encoding, and CDN delivery included
-* ⚙️ **Playback Customization**: Autoplay, loop, mute, hide controls, play inline, preload control, video speed control
+* ⚙️ **Playback Customization**: Autoplay, loop, mute, hide controls, play inline, video speed control
 * 🎨 **Visual Enhancement**: Add poster images and custom branding
-* 🧩 **Page Builder Support**: Native widgets for Gutenberg, Elementor, Beaver Builder, Bricks, and Divi 5
+* 🧩 **Page Builder Support**: Native widgets for Gutenberg, Elementor, Beaver Builder, Bricks, Breakdance, and Divi 5
 * 🎯 **Conditional Loading**: Player script only loads on pages with video content
 * 🔒 **Per-Page Control**: Disable SmartVideo on individual pages or posts
 * 💰 **Monetization Ready**: VAST ad support for revenue generation
@@ -103,7 +107,7 @@ SmartVideo replaces heavy YouTube/Vimeo embeds (hundreds of KB of JavaScript) wi
 
 = Which page builders does SmartVideo support? =
 
-SmartVideo includes native widgets for Gutenberg (block editor), Elementor, Beaver Builder, Bricks, and Divi 5. Each widget supports full visual editing with live preview. You can also use the `[smartvideo]` shortcode in any builder or the classic editor.
+SmartVideo includes native widgets for Gutenberg (block editor), Elementor, Beaver Builder, Bricks, Breakdance, and Divi 5. Each widget supports full visual editing with an in-canvas preview. You can also use the `[smartvideo]` shortcode in any builder or the classic editor.
 
 = How does auto-conversion from YouTube/Vimeo work? =
 
@@ -155,6 +159,34 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.0 =
+* **New player, ready when you are**
+  * A new, faster player is now available — and entirely opt-in. Your site keeps playing videos on the classic player when you update, so playback stays exactly as it is today. When you're ready, switch under **Player → Version** in the SmartVideo settings — **Legacy** is the classic player, **Stable** is the new one, and **Beta** previews what's next. A later release will make the new player the default.
+  * While you stay on the classic player, the new player-only controls appear disabled with a "Legacy player" note. Any values you set are kept and start applying when you switch.
+* **New appearance controls** (new player)
+  * Secondary color, glass tint, corner radius, and a separate play-button corner radius
+  * Watermark opacity and position
+* **New playback and behavior controls** (new player)
+  * Keyboard shortcuts, with an adjustable arrow-key seek step and individual toggles for mute, fullscreen, number-key jumps, and captions
+  * Google Analytics events — optional playback events at a reporting interval you choose
+  * Lazy-load player toggle
+  * Some player features vary by Swarmify plan; the settings page shows what applies to yours
+* **Per-video call-to-action overlay**
+  * Add a clickable overlay with your own text and link to individual videos. Available in the block editor and the `[smartvideo]` shortcode for now — support in the other page builders comes in a later release.
+* **Breakdance builder support**
+  * Native SmartVideo element for Breakdance, joining Gutenberg, Elementor, Beaver Builder, Bricks, and Divi
+* **Fixes**
+  * Fixed the "iFrame player" setting having no effect on Vimeo embeds on the new player
+  * Fixed "Could not save settings" appearing after resetting a settings section
+  * YouTube start times (`?t=`/`?start=`) are now preserved in the block editor too
+  * The settings status panel now checks the exact player file your site loads, so it can no longer report OK while the player is blocked
+  * Fixed SmartVideo elements collapsing to nothing on Bricks 2.x pages
+  * Removed a harmless but noisy missing-file error on every Divi 4 page
+  * Fixed videos never loading on sites with WP-Optimize's "Delay JavaScript" feature enabled
+* **Notes**
+  * The poster-first fast-load mode built for this release ships disabled — it depends on player-side support that lands in an upcoming player release, and will be switched on in a later plugin update
+  * Tested with WordPress 7.0.2
 
 = 2.3.3 =
 * **Fixed uploads failing on hosts where the wp-content folder is not writable**
@@ -434,6 +466,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.0 =
+The new, faster player arrives as an opt-in — your site stays on the classic player until you switch under Player → Version. Adds new appearance and playback controls, per-video call-to-action overlays, and Breakdance builder support. Nothing changes on update day; recommended for all users.
 
 = 2.3.3 =
 Fixes media uploads failing on hosts with a read-only plugin folder, large uploads being saved damaged alongside other upload plugins, and some saved YouTube links no longer playing. Recommended for everyone running 2.3.0 or later.

@@ -3,11 +3,6 @@
 namespace Swarmify\Smartvideo;
 
 /**
- * The file that defines the core plugin class
- *
- * A class definition that includes attributes and functions used across both the
- * public-facing side of the site and the admin area.
- *
  * @link       https://swarmify.com/?smartvideo_wordpress_plugin
  * @since      1.0.0
  *
@@ -16,13 +11,7 @@ namespace Swarmify\Smartvideo;
  */
 
 /**
- * The core plugin class.
- *
- * This is used to define internationalization, admin-specific hooks, and
- * public-facing site hooks.
- *
- * Also maintains the unique identifier of this plugin as well as the current
- * version of the plugin.
+ * The core plugin class: settings, admin hooks, and public-facing hooks.
  *
  * @since      1.0.0
  * @package    Swarmify
@@ -33,25 +22,28 @@ namespace Swarmify\Smartvideo;
 class Swarmify {
 
 	/**
+	 * Version the upgrade migration brings an install up to. The Activator
+	 * stamps it on fresh installs so they are never mistaken for upgrades
+	 * (the migration can't tell the difference on its own — it first runs
+	 * one request AFTER activation, when the default options already exist).
+	 */
+	public const DB_VERSION = '2.4.0';
+
+	/**
 	 * Regex to detect YouTube/Vimeo iframes with a bare `src=` attribute.
 	 *
-	 * Uses `\s` before `src=` instead of `\b` so that lazy-loading attributes
-	 * like `data-src=` and `data-lazy-src=` are not matched (the word boundary
-	 * `\b` fires between `-` and `s`, which still matches those prefixed attrs).
+	 * Requires whitespace before `src=` so lazy-loading attributes like
+	 * `data-src=` don't match.
 	 */
 	private const VIDEO_IFRAME_RE = '/<iframe[^>]*\ssrc=["\'][^"\']*(?:youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com)[^"\']*["\']/';
 
 	/**
-	 * The unique identifier of this plugin.
-	 *
 	 * @since    1.0.0
 	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
 	 */
 	protected $plugin_name;
 
 	/**
-	 * The current version of the plugin.
-	 *
 	 * @since    1.0.0
 	 * @var      string    $version    The current version of the plugin.
 	 */
@@ -68,8 +60,7 @@ class Swarmify {
 	protected $post_meta;
 
 	/**
-	 * Whether the frontend script should load on the current page.
-	 * Set during template_redirect based on content analysis.
+	 * Set during template_redirect, once the queried content can be scanned.
 	 *
 	 * @var bool|null null = not yet determined
 	 */
@@ -77,16 +68,7 @@ class Swarmify {
 
 	protected $swarmdetect_handle = 'smartvideo_swarmdetect';
 
-	// Resolved once in enqueue to select stable vs beta script URL.
-	protected $use_beta_player = false;
-
 	/**
-	 * Define the core functionality of the plugin.
-	 *
-	 * Set the plugin name and the plugin version that can be used throughout the plugin.
-	 * Load the dependencies, define the locale, and set the hooks for the admin area and
-	 * the public-facing side of the site.
-	 *
 	 * @since    1.0.0
 	 */
 	public function __construct( $plugin_name ) {
@@ -103,10 +85,12 @@ class Swarmify {
 		$this->settings  = new Settings( $this->plugin_name, $this->version );
 		$this->post_meta = new PostMeta();
 
-		// enable upload accelerator (admin + cron — plupload filters, AJAX handler, and chunk cleanup)
+		// Load the upload accelerator on cron runs too — it sweeps abandoned upload chunks.
 		if ( is_admin() || defined( 'DOING_CRON' ) ) {
 			UploadAccelerator::get_instance();
 		}
+
+		$this->run_upgrade_migration();
 
 		$this->load_config_from_constants();
 
@@ -129,29 +113,39 @@ class Swarmify {
 	public function smartvideo_shortcode( $atts ) {
 		$atts         = shortcode_atts(
 			array(
-				'src'          => '',
-				'poster'       => '',
-				'height'       => '',
-				'width'        => '',
-				'aspect_ratio' => '',
-				'responsive'   => '',
-				'autoplay'     => '',
-				'muted'        => '',
-				'loop'         => '',
-				'controls'     => '',
-				'playsinline'  => '',
-				'preload'      => '',
+				'src'                => '',
+				'poster'             => '',
+				'height'             => '',
+				'width'              => '',
+				'aspect_ratio'       => '',
+				'responsive'         => '',
+				'autoplay'           => '',
+				'muted'              => '',
+				'loop'               => '',
+				'controls'           => '',
+				'playsinline'        => '',
+				'preload'            => '',
+				'overlay_enabled'    => '',
+				'overlay_text'       => '',
+				'overlay_url'        => '',
+				'overlay_color'      => '',
+				'overlay_align'      => '',
+				'overlay_start'      => '',
+				'overlay_end'        => '',
+				'overlay_bg'         => 'true',
+				'overlay_bg_color'   => '',
+				'overlay_bg_opacity' => '',
+				'data-swarm-setup'   => '',
 			),
 			$atts,
 			'smartvideo'
 		);
 		$swarmify_url = $atts['src'];
 		if ( empty( $swarmify_url ) ) {
-			// Shortcode has no editor context — never render authoring
-			// chrome to frontend visitors when src is empty.
+			// Render nothing, not a placeholder — unlike the builder
+			// modules, the shortcode can't tell it is being edited.
 			return '';
 		}
-		// Resolve dimensions from aspect ratio when not custom and no explicit dimensions.
 		if ( '' !== $atts['aspect_ratio'] && 'custom' !== $atts['aspect_ratio'] ) {
 			list( $width, $height ) = AspectRatio::resolve( $atts['aspect_ratio'] );
 		} else {
@@ -159,9 +153,6 @@ class Swarmify {
 			$height = $atts['height'];
 		}
 
-		// Pull the 7 global plugin video defaults — used when the shortcode
-		// attribute is omitted. Hardcoded fallbacks match Settings::DEFAULTS
-		// in case the option row is missing entirely.
 		$default_autoplay    = 'on' === $this->settings->get( 'swarmify_default_autoplay' );
 		$default_muted       = 'on' === $this->settings->get( 'swarmify_default_muted' );
 		$default_loop        = 'on' === $this->settings->get( 'swarmify_default_loop' );
@@ -169,13 +160,12 @@ class Swarmify {
 		$default_playsinline = 'on' === $this->settings->get( 'swarmify_default_playsinline' );
 		$default_responsive  = 'on' === $this->settings->get( 'swarmify_default_responsive' );
 
-		$sc_bool     = function ( $val, $default = false ) {
-			return '' !== $val ? 'true' === $val : $default;
+		$sc_bool     = function ( $val, $default_value = false ) {
+			return '' !== $val ? 'true' === $val : $default_value;
 		};
 		$preload_raw = '' !== $atts['preload'] ? $atts['preload'] : 'auto';
 		$preload     = in_array( $preload_raw, array( 'auto', 'metadata', 'none' ), true ) ? $preload_raw : 'auto';
 
-		// Build attributes -- only include non-empty values.
 		$tag_attrs = [ 'src' => esc_url( $swarmify_url, array_merge( wp_allowed_protocols(), array( 'swarmify' ) ) ) ];
 		if ( '' !== $width ) {
 			$tag_attrs['width'] = esc_attr( $width );
@@ -210,6 +200,33 @@ class Swarmify {
 			$tag_attrs['preload'] = esc_attr( $preload );
 		}
 
+		if ( empty( $atts['data-swarm-setup'] ) ) {
+			$overlay_args = [
+				'overlayEnabled'   => '' !== $atts['overlay_enabled'] ? filter_var( $atts['overlay_enabled'], FILTER_VALIDATE_BOOLEAN ) : false,
+				'overlayText'      => $atts['overlay_text'],
+				'overlayUrl'       => $atts['overlay_url'],
+				'overlayColor'     => $atts['overlay_color'],
+				'overlayAlign'     => $atts['overlay_align'],
+				'overlayStart'     => $atts['overlay_start'],
+				'overlayEnd'       => $atts['overlay_end'],
+				'overlayBg'        => '' !== $atts['overlay_bg'] ? filter_var( $atts['overlay_bg'], FILTER_VALIDATE_BOOLEAN ) : true,
+				'overlayBgColor'   => $atts['overlay_bg_color'],
+				'overlayBgOpacity' => $atts['overlay_bg_opacity'],
+			];
+			$legacy_mode  = 'on' === $this->settings->get( 'swarmify_toggle_legacy_player' );
+			$cached_tier  = ( new AccountTier( $this->settings ) )->get_cached();
+
+			$setup_array = OverlayMarkup::build( $overlay_args, $legacy_mode, $cached_tier );
+			if ( null !== $setup_array ) {
+				$setup_json = wp_json_encode( $setup_array );
+				if ( false !== $setup_json ) {
+					$tag_attrs['data-swarm-setup'] = esc_attr( $setup_json );
+				}
+			}
+		} else {
+			$tag_attrs['data-swarm-setup'] = esc_attr( $atts['data-swarm-setup'] );
+		}
+
 		$parts = [];
 		foreach ( $tag_attrs as $key => $val ) {
 			$parts[] = $key . '="' . $val . '"';
@@ -218,7 +235,19 @@ class Swarmify {
 
 		SchemaCollector::add( $swarmify_url, '' !== $atts['poster'] ? $atts['poster'] : '' );
 
-		return '<smartvideo ' . implode( ' ', $parts ) . '></smartvideo>';
+		$smartvideo = '<smartvideo ' . implode( ' ', $parts ) . '></smartvideo>';
+
+		return Facade::wrap(
+			$smartvideo,
+			[
+				'src'      => $swarmify_url,
+				'poster'   => $atts['poster'],
+				'width'    => $width,
+				'height'   => $height,
+				'autoplay' => $sc_bool( $atts['autoplay'], $default_autoplay ),
+			],
+			$this->settings
+		);
 	}
 
 	/**
@@ -228,10 +257,8 @@ class Swarmify {
 	 */
 	private function load_config_from_constants() {
 
-		// Check for configuration via globals in wp_config.php
 		if ( defined( 'SWARMIFY_CDN_KEY' ) ) {
 			$key = constant( 'SWARMIFY_CDN_KEY' );
-			// Validate UUID format before writing to database.
 			if ( is_string( $key ) && preg_match( '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $key ) ) {
 				if ( get_option( 'swarmify_cdn_key', '' ) !== $key ) {
 					update_option( 'swarmify_cdn_key', $key );
@@ -242,9 +269,6 @@ class Swarmify {
 
 
 	/**
-	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin.
-	 *
 	 * @since    1.0.0
 	 */
 	private function define_admin_hooks() {
@@ -257,19 +281,19 @@ class Swarmify {
 		add_action( 'admin_menu', [ $admin, 'register_page' ] );
 		add_action( 'admin_init', [ $admin, 'activation_redirect' ] );
 		add_action( 'admin_notices', [ $admin, 'admin_notices' ] );
+		add_action( 'admin_notices', [ $this, 'maybe_show_player_notice' ] );
+		add_action( 'wp_ajax_smartvideo_dismiss_player_notice', [ $this, 'dismiss_player_notice' ] );
 
 		add_action( 'media_buttons', [ $admin, 'add_video_button' ], 15 );
 		add_action( 'admin_footer', [ $admin, 'add_video_lightbox_html' ] );
 
 		add_filter( 'plugin_action_links_' . plugin_basename( SMARTVIDEO_PLUGIN_FILE ), [ $admin, 'plugin_action_links' ] );
 
-		// Per-page disable toggle. register_meta is registered in public hooks
-		// (REST API requests are not is_admin()) — only the classic-editor
-		// meta box + save handler belong here.
+		// Only the classic-editor half of the per-page disable toggle belongs
+		// here; register_meta lives in the public hooks.
 		add_action( 'add_meta_boxes', [ $this->post_meta, 'add_meta_box' ] );
 		add_action( 'save_post', [ $this->post_meta, 'save_meta_box' ] );
 
-		// Dashboard widget.
 		$dashboard_widget = new DashboardWidget();
 		add_action( 'wp_dashboard_setup', [ $dashboard_widget, 'register' ] );
 		add_action( 'admin_enqueue_scripts', [ $dashboard_widget, 'enqueue_styles' ] );
@@ -277,9 +301,6 @@ class Swarmify {
 
 
 	/**
-	 * Register all of the hooks related to the public-facing functionality
-	 * of the plugin.
-	 *
 	 * @since    1.0.0
 	 */
 	private function define_public_hooks() {
@@ -288,20 +309,26 @@ class Swarmify {
 		add_action( 'template_redirect', [ $this, 'check_should_load_script' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_swarmify_script' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_swarmify_script_admin' ] );
-		add_filter( 'script_loader_tag', [ $this, 'add_async_swarmdetect_script_attributes' ], 10, 2 );
+		add_filter( 'wp_inline_script_attributes', [ $this, 'add_inline_swarmdetect_script_attributes' ] );
 
-		// This should be an admin hook really, but REST API calls return false for is_admin()
+		// Admin-only, but registered here: REST requests are not is_admin().
 		add_action( 'rest_api_init', [ $this->settings, 'register_plugin_settings_routes' ] );
 
-		// Per-page disable toggle: register_post_meta needs to fire on REST requests
-		// too (Gutenberg sidebar reads/writes _smartvideo_disabled via the REST API).
+		add_action( 'add_option_swarmify_cdn_key', [ 'Swarmify\Smartvideo\AccountTier', 'flush_cache' ] );
+		add_action( 'update_option_swarmify_cdn_key', [ 'Swarmify\Smartvideo\AccountTier', 'flush_cache' ] );
+
+		// Must fire on REST requests too — the Gutenberg sidebar reads and
+		// writes the per-page disable toggle.
 		add_action( 'init', [ $this->post_meta, 'register_meta' ] );
 
 		add_action( 'widgets_init', [ $this, 'load_widget' ] );
 
-		// Collect schema from Gutenberg static block output (no server-side render_callback).
+		// Gutenberg blocks render statically, so their schema has to be read off the block output.
 		add_filter( 'render_block_smartvideo/block-smartvideo-guten', [ $this, 'collect_gutenberg_schema' ], 10, 2 );
 		add_filter( 'render_block_smartvideo/smartvideo', [ $this, 'collect_gutenberg_schema' ], 10, 2 );
+		add_filter( 'render_block_smartvideo/block-smartvideo-guten', [ $this, 'render_block_add_cta' ], 11, 2 );
+		add_filter( 'render_block_smartvideo/block-smartvideo-guten', [ $this, 'render_block_add_facade' ], 12, 2 );
+		add_filter( 'render_block_smartvideo/smartvideo', [ $this, 'render_block_add_facade' ], 12, 2 );
 	}
 
 
@@ -310,12 +337,11 @@ class Swarmify {
 	 * Determine whether the current page needs the SmartVideo script.
 	 * Runs on template_redirect so the queried object is available.
 	 *
-	 * Gate of record for frontend assets: any new frontend enqueue must
-	 * consult $this->should_load_script (see enqueue_swarmify_script()).
+	 * Any new frontend enqueue must check $this->should_load_script
+	 * (see enqueue_swarmify_script()).
 	 */
 	public function check_should_load_script() {
 		$is_singular = is_singular();
-		// Per-page disable only applies to singular pages (not archives).
 		$is_disabled = $is_singular && PostMeta::is_disabled();
 
 		// Conditional loading modes:
@@ -324,13 +350,11 @@ class Swarmify {
 		//   'strict'   — load only when enabled features will act on the content
 		$mode = $this->settings->get( 'swarmify_toggle_conditional_loading' );
 
-		// Feature flags — strict mode needs to know which content
-		// types the player will convert, not just explicit SmartVideo tags.
+		// Strict mode also has to know which content the player will convert
+		// on its own, not just explicit SmartVideo tags.
 		$auto_yt  = 'on' === $this->settings->get( 'swarmify_toggle_youtube' );
 		$bg_video = 'on' === $this->settings->get( 'swarmify_toggle_bgvideo' );
 
-		// Build the list of content to scan — singular pages use the queried
-		// object; archive/index pages check every post in the main query.
 		$contents = array();
 		$post_id  = 0;
 		if ( $is_singular ) {
@@ -348,13 +372,11 @@ class Swarmify {
 			}
 		}
 
-		// A page using a synced pattern carries only `wp:block {"ref":N}` in its
-		// raw content — resolve the referenced patterns so they get scanned too.
+		// A synced pattern leaves only a `wp:block` ref in the post content,
+		// so pull in what it points at.
 		$contents = self::expand_block_refs( $contents );
 
-		// Page builders store content in postmeta, not post_content. Gather the
-		// raw builder data here (only when its builder is active) and let
-		// evaluate_should_load() make the decision.
+		// Page builders store their content in postmeta, not post_content.
 		$elementor_data = '';
 		$bb_data        = null;
 		$bricks_data    = null;
@@ -380,15 +402,15 @@ class Swarmify {
 			$is_disabled,
 			$elementor_data,
 			$bb_data,
-			$bricks_data
+			$bricks_data,
+			defined( '__BREAKDANCE_VERSION' )
 		);
 	}
 
 	/**
 	 * Append the content of synced patterns (wp:block refs) to the scan list.
 	 *
-	 * Patterns can nest, so newly-resolved content is queued for another pass;
-	 * the seen-set and cap bound the work on pathological content.
+	 * Patterns can nest, so newly-resolved content is queued for another pass.
 	 *
 	 * @param string[] $contents Post-content strings gathered for the scan.
 	 * @return string[] Original contents plus each referenced pattern's content.
@@ -419,9 +441,7 @@ class Swarmify {
 
 	/**
 	 * Decide whether the swarmdetect script should load for the current request,
-	 * given already-gathered context. Extracted from check_should_load_script()
-	 * so the decision is directly callable and unit-testable without the main
-	 * query or instance state; behavior matches the original hook.
+	 * given already-gathered context.
 	 *
 	 * @param string[]   $contents       Post-content strings to scan.
 	 * @param string     $mode           Conditional-loading mode: '', 'off', 'standard', 'strict'.
@@ -431,38 +451,39 @@ class Swarmify {
 	 * @param string     $elementor_data Raw _elementor_data JSON ('' when none / Elementor inactive).
 	 * @param array|null $bb_data        _fl_builder_data node array (null when none / Beaver inactive).
 	 * @param array|null $bricks_data    _bricks_page_content_2 element array (null when none / Bricks inactive).
+	 * @param bool       $breakdance     Breakdance is running on this site.
 	 * @return bool
 	 */
-	protected function evaluate_should_load( array $contents, $mode, $auto_yt, $bg_video, $is_disabled, $elementor_data = '', $bb_data = null, $bricks_data = null ) {
+	protected function evaluate_should_load( array $contents, $mode, $auto_yt, $bg_video, $is_disabled, $elementor_data = '', $bb_data = null, $bricks_data = null, $breakdance = false ) {
 		// Per-page disable wins over everything.
 		if ( $is_disabled ) {
 			return false;
+		}
+
+		// Breakdance builds a page from documents this scan can't reach — other
+		// posts, wp_options presets, site-wide custom code — so it fails open.
+		if ( $breakdance ) {
+			return true;
 		}
 
 		if ( 'off' === $mode ) {
 			return true;
 		}
 
-		// Allow themes/plugins to force-load the script.
 		if ( apply_filters( 'smartvideo_force_load_script', false ) ) {
 			return true;
 		}
 
-		// Check for an active SmartVideo widget.
 		if ( is_active_widget( false, false, 'smartvideo_widget' ) ) {
 			return true;
 		}
 
 		// --- Content scan ---
-		// Combined regex for SmartVideo markers (covers shortcodes, blocks, and custom element).
-		// Single preg_match replaces 7 separate strpos/has_shortcode/has_block calls per post.
 		static $smartvideo_marker_re = '/\[smartvideo[\s\]]|\[smartvideo_divi_module|wp:smartvideo\/|<smartvideo[\s>]/';
 		static $video_url_re         = '/youtube\.com|youtu\.be|vimeo\.com/';
 		static $video_element_re     = '/<video[\s>]/i';
 		static $divi_video_re        = '/\[et_pb_video|wp:divi\/video/';
-		// Standard-mode union: collapses the 5-OR preg_match chain to one engine
-		// pass. /i is safe — all sub-patterns are already lowercase markers or
-		// hostnames where case-insensitivity only adds matches (never removes).
+		// The /i is safe: every sub-pattern is a lowercase marker or hostname.
 		static $standard_union_re = '/youtube\.com|youtu\.be|vimeo\.com|wp:core\/embed|\[et_pb_video|wp:divi\/video|<iframe[^>]*\ssrc=["\'][^"\']*(?:youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com)[^"\']*["\']|<video[\s>]/i';
 
 		foreach ( $contents as $content ) {
@@ -470,8 +491,6 @@ class Swarmify {
 				return true;
 			}
 
-			// Strict mode: also check for content the player will
-			// auto-convert, based on which features are enabled.
 			if ( 'strict' === $mode ) {
 				if ( $auto_yt && preg_match( $video_url_re, $content ) ) {
 					return true;
@@ -483,13 +502,12 @@ class Swarmify {
 				}
 			}
 
-			// Standard mode: load on any video content (safe default).
 			if ( 'standard' === $mode ) {
 				if ( preg_match( $standard_union_re, $content ) ) {
 					return true;
 				}
-				// A post-content block (query loops) renders OTHER posts'
-				// content, which can't be scanned here — load, safe default.
+				// A post-content block renders another post's content, which
+				// isn't visible here, so load rather than guess.
 				if ( preg_match( '/wp:post-content/', $content ) ) {
 					return true;
 				}
@@ -497,15 +515,13 @@ class Swarmify {
 		}
 
 		// --- Builder metadata scan ---
-		// Page builders store content in postmeta, not post_content. The raw
-		// data was gathered by the caller (only for active builders); here we
-		// check natively first, then fall back to a concatenated string scan.
+		// Each builder is checked against its own parsed data first, then
+		// whatever is left falls through to a string scan below.
 		$fallback_data = array();
 
-		// Elementor: JSON widget data from _elementor_data.
 		if ( $elementor_data ) {
-			// Parsed natively — don't add to $fallback_data to avoid false
-			// positives from default field values.
+			// Kept out of $fallback_data — Elementor's stored default field
+			// values would make the string scan fire on videos that aren't there.
 			$el_decoded = json_decode( $elementor_data, true );
 			if ( is_array( $el_decoded ) &&
 				$this->scan_elementor_widgets( $el_decoded, $mode, $auto_yt, $bg_video ) ) {
@@ -513,20 +529,17 @@ class Swarmify {
 			}
 		}
 
-		// Beaver Builder: serialized module data from _fl_builder_data.
 		if ( is_array( $bb_data ) ) {
 			$fallback_data[] = $bb_data;
 			foreach ( $bb_data as $node ) {
 				if ( ! isset( $node->type ) || 'module' !== $node->type || ! isset( $node->settings->type ) ) {
 					continue;
 				}
-				// BB may store either the file slug or the class name,
-				// depending on the BB version and when the data was saved.
+				// Beaver Builder stores either the file slug or the class
+				// name, depending on the version that saved the page.
 				if ( in_array( $node->settings->type, [ 'class-beaverbuilder-smartvideo', 'SmartVideo' ], true ) ) {
 					return true;
 				}
-				// Native BB video module — check video_type against
-				// enabled features, same pattern as Bricks.
 				if ( 'video' === $node->settings->type ) {
 					$vtype = $node->settings->video_type ?? '';
 					if ( $bg_video && in_array( $vtype, [ 'media_library', '' ], true ) ) {
@@ -542,7 +555,6 @@ class Swarmify {
 			}
 		}
 
-		// Bricks: element array from _bricks_page_content_2.
 		if ( is_array( $bricks_data ) ) {
 			$fallback_data[] = $bricks_data;
 			foreach ( $bricks_data as $element ) {
@@ -552,8 +564,8 @@ class Swarmify {
 				if ( 'smartvideo' === $element['name'] ) {
 					return true;
 				}
-				// Native Bricks video element — stores YouTube ID
-				// without a URL, so the string scan won't catch it.
+				// Bricks stores a bare YouTube ID with no URL, so the
+				// string scan below would miss its own video element.
 				if ( 'video' === $element['name'] ) {
 					$vtype = $element['settings']['videoType'] ?? '';
 					if ( $bg_video && 'file' === $vtype ) {
@@ -574,14 +586,10 @@ class Swarmify {
 			foreach ( $fallback_data as $data ) {
 				$meta_content .= maybe_serialize( $data );
 			}
-			// Both modes: check for SmartVideo shortcodes/tags in
-			// builder metadata (catches raw embeds in HTML blocks).
 			if ( preg_match( $smartvideo_marker_re, $meta_content ) ) {
 				return true;
 			}
 
-			// Strict mode: check for auto-convert targets
-			// based on enabled features.
 			if ( 'strict' === $mode ) {
 				if ( $auto_yt && preg_match( $video_url_re, $meta_content ) ) {
 					return true;
@@ -592,9 +600,6 @@ class Swarmify {
 				}
 			}
 
-			// Standard mode: load on any video content (safe default).
-			// Reuses $standard_union_re from the content scan above —
-			// keeps both standard-mode paths in lock-step coverage.
 			if ( 'standard' === $mode ) {
 				if ( preg_match( $standard_union_re, $meta_content ) ) {
 					return true;
@@ -608,9 +613,9 @@ class Swarmify {
 	/**
 	 * Recursively scan Elementor widget tree for video content.
 	 *
-	 * Elementor stores default field values (e.g. a YouTube URL) even when the
-	 * widget is set to a different video type, so raw string scanning produces
-	 * false positives. This checks each widget's actual video_type setting.
+	 * Elementor keeps default field values (e.g. a YouTube URL) even when the
+	 * widget is set to another video type, so this checks each widget's actual
+	 * video_type rather than scanning the raw data as a string.
 	 *
 	 * @param array  $elements Elementor elements array (sections/columns/widgets).
 	 * @param string $mode     'standard' or 'strict'.
@@ -620,8 +625,8 @@ class Swarmify {
 	 * @return bool True if the script should load.
 	 */
 	private function scan_elementor_widgets( $elements, $mode, $auto_yt, $bg_video, $depth = 0 ) {
-		// _elementor_data is DB-stored and attacker-plantable; cap recursion so a
-		// pathological tree can't blow the PHP stack on public page renders.
+		// Cap the depth so a hand-crafted _elementor_data tree can't blow the
+		// PHP stack on a public page render.
 		if ( $depth > 32 ) {
 			return false;
 		}
@@ -647,10 +652,8 @@ class Swarmify {
 				}
 			}
 
-			// HTML, shortcode, text-editor, and the accordion/toggle/tabs
-			// widgets (their WYSIWYG item content runs shortcodes on render)
-			// can contain arbitrary video embeds. Scan their settings for
-			// video content strings.
+			// These widgets can hold arbitrary video embeds — the
+			// accordion/toggle/tabs ones run shortcodes in their item content.
 			if ( in_array( $widget_type, [ 'html', 'shortcode', 'text-editor', 'accordion', 'toggle', 'tabs' ], true ) ) {
 				$settings_text = wp_json_encode( $element['settings'] ?? [] );
 				if ( strpos( $settings_text, '<smartvideo' ) !== false ||
@@ -670,14 +673,12 @@ class Swarmify {
 				}
 			}
 
-			// Section/column background video settings.
 			if ( ! empty( $element['settings']['background_video_link'] ) ) {
 				if ( $bg_video || 'standard' === $mode ) {
 					return true;
 				}
 			}
 
-			// Recurse into child elements (sections → columns → widgets).
 			if ( ! empty( $element['elements'] ) ) {
 				if ( $this->scan_elementor_widgets( $element['elements'], $mode, $auto_yt, $bg_video, $depth + 1 ) ) {
 					return true;
@@ -692,51 +693,80 @@ class Swarmify {
 			return;
 		}
 
-		// Load in the block editor too: edit() appends a live <smartvideo> the
-		// loader converts in-place (block is apiVersion 1, so the canvas isn't iframed).
+		// The block editor needs the script too: the block puts a live
+		// <smartvideo> in the canvas, which is not iframed at apiVersion 1.
 		$this->enqueue_swarmify_script();
 	}
 
 	/**
-	 * Resolve the player script URL for the stable or beta channel.
+	 * Resolve the player script URL for the legacy, beta, or stable channel.
 	 *
-	 * Stable loads the swarmdetect shim, which is what 2.2.2 loaded. The shim
-	 * injects the root bundle, but it is not a plain redirect and the root
-	 * bundle does not replicate it: `SWARMIFY_LOADED` (the guard that stops a
-	 * hand-pasted snippet and this enqueue from starting two players) and the
-	 * `swarmvcustomvideo` routing to swarmcdn-custom.js both exist only in the
-	 * shim. Enqueueing the root bundle directly drops both.
-	 *
-	 * 2.3.0 pointed stable at `cross/swarmcdn.js` instead — the legacy video.js
-	 * build, which lays embeds out at the 300x150 intrinsic default rather than
-	 * full width. Going through the shim again is the exact revert.
+	 * Legacy wins over beta, so the escape hatch reproduces pre-2.4 behavior
+	 * whatever else is toggled. Every caller that needs the enqueued URL —
+	 * including the admin status probe — must read it from here, or the two
+	 * copies drift (2.3.x shipped a probe pointed at a file it never enqueued).
 	 *
 	 * @param bool $use_beta_player Whether the beta channel is enabled.
+	 * @param bool $legacy_player   Whether the legacy escape hatch is enabled.
 	 * @return string Absolute URL of the player script to enqueue.
 	 */
-	public static function player_script_src( $use_beta_player ) {
+	public static function player_script_src( $use_beta_player, $legacy_player = false ) {
+		if ( $legacy_player ) {
+			return 'https://assets.swarmcdn.com/cross/swarmcdn.js';
+		}
 		return $use_beta_player
 			? 'https://assets.swarmcdn.com/beta/swarmcdn.js'
-			: 'https://assets.swarmcdn.com/cross/swarmdetect.js';
+			: 'https://assets.swarmcdn.com/swarmcdn.js';
 	}
 
 	/**
-	 * Enqueue the swarmdetect settings and script
+	 * Build the inline loader that injects the player bundle into the head.
+	 *
+	 * Reproduces the swarmdetect shim's SWARMIFY_LOADED guard: sites that also
+	 * carry a hand-pasted shim snippet would otherwise start two players — the
+	 * two shims used to mutually exclude each other through this same flag.
+	 *
+	 * @param  string $script_src Absolute URL of the player bundle to inject.
+	 * @return string JavaScript suitable for wp_add_inline_script().
+	 */
+	public static function player_loader_js( $script_src ) {
+		// Unescaped slashes keep the URL readable and greppable in page source
+		// (the release gate scripts match it there).
+		$src_literal = wp_json_encode( $script_src, JSON_UNESCAPED_SLASHES );
+
+		return '(function(){if(window.SWARMIFY_LOADED){return;}window.SWARMIFY_LOADED=true;'
+			. 'var s=document.createElement("script");'
+			. 's.src=' . $src_literal . ';'
+			. 's.async=true;'
+			. 's.setAttribute("data-cfasync","false");'
+			. 's.setAttribute("data-no-defer","");'
+			. 's.setAttribute("data-no-optimize","");'
+			. 'document.head.appendChild(s);})();';
+	}
+
+	/**
+	 * Enqueue the swarmoptions payload and the player-bundle loader.
 	 */
 	public function enqueue_swarmify_script() {
 		$cdn_key         = $this->settings->get( 'swarmify_cdn_key' );
 		$swarmify_status = $this->settings->get( 'swarmify_status' );
 
 		if ( 'on' === $swarmify_status && '' !== $cdn_key ) {
+			// Breakdance canvas static previews reuse the facade stylesheet for the big-play button.
+			// The iframe param is forgeable, so it only counts alongside edit permission.
+			if ( function_exists( 'Breakdance\isRequestFromBuilderIframe' ) && \Breakdance\isRequestFromBuilderIframe()
+				&& function_exists( 'Breakdance\Permissions\hasMinimumPermission' ) && \Breakdance\Permissions\hasMinimumPermission( 'edit' ) ) {
+				$this->enqueue_facade_styles();
+				return;
+			}
 
-			// On the frontend, skip loading if the page doesn't need the script.
-			// Admin pages and builder previews always load.
 			if ( ! is_admin() && false === $this->should_load_script ) {
-				// Builder edit modes load as frontend pages — always load the script.
+				// Builder edit modes render as frontend pages, and their
+				// unsaved content can't be scanned, so always load there.
 				$in_builder = ( function_exists( 'et_core_is_fb_enabled' ) && et_core_is_fb_enabled() ) ||
 								( class_exists( '\FLBuilderModel' ) && \FLBuilderModel::is_builder_active() ) ||
 								( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) ||
-								( class_exists( '\Elementor\Plugin' ) && isset( $_GET['elementor-preview'] ) );
+								( class_exists( '\Elementor\Plugin' ) && isset( $_GET['elementor-preview'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only builder-preview detection, no state change.
 				if ( ! $in_builder ) {
 					return;
 				}
@@ -751,90 +781,335 @@ class Swarmify {
 			$watermark          = $this->settings->get( 'swarmify_watermark' );
 			$ads_vasturl        = $this->settings->get( 'swarmify_ads_vasturl' );
 
-			// Configure `autoreplace` object
-			$autoreplaceObject = new \stdClass();
+			$legacy_player = 'on' === $this->settings->get( 'swarmify_toggle_legacy_player' );
 
-			$autoreplaceObject->youtube         = ( 'on' === $youtube );
-			$autoreplaceObject->youtubecaptions = ( 'on' === $youtube_cc );
-			$autoreplaceObject->videotag        = ( 'on' === $bgoptimize );
+			if ( $legacy_player ) {
+				// Configure legacy pre-2.4 `autoreplace` object
+				$autoreplaceObject                  = new \stdClass();
+				$autoreplaceObject->youtube         = ( 'on' === $youtube );
+				$autoreplaceObject->youtubecaptions = ( 'on' === $youtube_cc );
+				$autoreplaceObject->videotag        = ( 'on' === $bgoptimize );
 
-			$layout_status = ( 'on' === $layout ) ? 'iframe' : 'video';
+				$layout_status = ( 'on' === $layout ) ? 'iframe' : 'video';
 
-			// Configure `theme` object
-			$themeObject = new \stdClass();
+				// Configure legacy pre-2.4 `theme` object
+				$themeObject = new \stdClass();
+				if ( $theme_primarycolor ) {
+					$themeObject->primaryColor = $theme_primarycolor;
+				}
+				// Anything else is left unset, which gives the player's default
+				// hexagon button.
+				if ( 'rectangle' === $theme_button || 'circle' === $theme_button ) {
+					$themeObject->button = $theme_button;
+				}
 
-			if ( $theme_primarycolor ) {
-				$themeObject->primaryColor = $theme_primarycolor;
+				// Configure legacy pre-2.4 `plugins` object
+				$pluginsObject = new \stdClass();
+				if ( $ads_vasturl && '' !== $ads_vasturl ) {
+					$swarmadsObject           = new \stdClass();
+					$swarmadsObject->adTagUrl = $ads_vasturl;
+					$pluginsObject->swarmads  = $swarmadsObject;
+				}
+				if ( $watermark && '' !== $watermark ) {
+					$watermarkObject          = new \stdClass();
+					$watermarkObject->file    = $watermark;
+					$watermarkObject->opacity = 0.75;
+					$watermarkObject->xpos    = 100;
+					$watermarkObject->ypos    = 100;
+					$pluginsObject->watermark = $watermarkObject;
+				}
+
+				$swarmoptions = array(
+					'swarmcdnkey'       => $cdn_key,
+					'autoreplace'       => $autoreplaceObject,
+					'theme'             => $themeObject,
+					'plugins'           => $pluginsObject,
+					'iframeReplacement' => $layout_status,
+				);
+			} else {
+				// Cached-only read: frontend renders must never HTTP to the
+				// tier endpoint; null (expired/unknown) fails open.
+				$tier   = ( new AccountTier( $this->settings ) )->get_cached();
+				$is_pro = ( 'pro' === $tier || null === $tier );
+
+				$layout_status = ( 'on' === $layout ) ? 'iframe' : 'video';
+
+				// Configure `autoreplace` object
+				$autoreplaceObject                  = new \stdClass();
+				$autoreplaceObject->youtube         = ( 'on' === $youtube );
+				$autoreplaceObject->vimeo           = ( 'on' === $youtube ); // Vimeo mirrors YouTube
+				$autoreplaceObject->youtubecaptions = ( 'on' === $youtube_cc );
+				$autoreplaceObject->videotag        = ( 'on' === $bgoptimize );
+				// The top-level `iframeReplacement` below is YouTube-only; Vimeo's
+				// mode lives here, so the one toggle has to feed both.
+				$autoreplaceObject->vimeoIframeReplacement = $layout_status;
+
+				// Configure `theme` object
+				$themeObject = new \stdClass();
+				if ( $theme_primarycolor ) {
+					$themeObject->primaryColor = $theme_primarycolor;
+				}
+
+				$secondarycolor = $this->settings->get( 'swarmify_theme_secondarycolor' );
+				if ( '' !== $secondarycolor ) {
+					$themeObject->secondaryColor = $secondarycolor;
+				}
+
+				$glasstint = $this->settings->get( 'swarmify_theme_glasstint' );
+				if ( '' !== $glasstint ) {
+					$themeObject->glassTint = (int) $glasstint;
+				}
+
+				$cornerradius = $this->settings->get( 'swarmify_theme_cornerradius' );
+				if ( '' !== $cornerradius ) {
+					$themeObject->cornerRadius = $cornerradius . 'px';
+				}
+
+				$button_radius = $this->settings->get( 'swarmify_theme_button_radius' );
+				if ( '' !== $button_radius ) {
+					$shape = $this->settings->get( 'swarmify_theme_button' );
+					if ( '' === $shape || 'default' === $shape ) {
+						$shape = 'hexagon';
+					}
+					$buttonObject               = new \stdClass();
+					$buttonObject->shape        = $shape;
+					$buttonObject->borderRadius = $button_radius . 'px';
+					$themeObject->button        = $buttonObject;
+				} elseif ( 'rectangle' === $theme_button || 'circle' === $theme_button ) {
+					$themeObject->button = $theme_button;
+				}
+
+				// Configure `plugins` object
+				$pluginsObject = new \stdClass();
+
+				if ( $ads_vasturl && '' !== $ads_vasturl ) {
+					$swarmadsObject           = new \stdClass();
+					$swarmadsObject->adTagUrl = $ads_vasturl;
+					$pluginsObject->swarmads  = $swarmadsObject;
+				}
+
+				if ( $watermark && '' !== $watermark ) {
+					$watermarkObject       = new \stdClass();
+					$watermarkObject->file = $watermark;
+
+					$opt_opacity  = $this->settings->get( 'swarmify_watermark_opacity' );
+					$opt_position = $this->settings->get( 'swarmify_watermark_position' );
+
+					$is_touched = ( '' !== $opt_opacity || '' !== $opt_position );
+
+					if ( $is_touched && $is_pro ) {
+						$watermarkObject->opacity = ( '' !== $opt_opacity ) ? (int) $opt_opacity : 75;
+						$pos_key                  = ( '' !== $opt_position ) ? $opt_position : 'bottom-right';
+						$wm_pos_map               = [
+							'top-left'     => [
+								'xpos' => 0,
+								'ypos' => 0,
+							],
+							'top-right'    => [
+								'xpos' => 100,
+								'ypos' => 0,
+							],
+							'bottom-left'  => [
+								'xpos' => 0,
+								'ypos' => 100,
+							],
+							'bottom-right' => [
+								'xpos' => 100,
+								'ypos' => 100,
+							],
+						];
+						$pos                      = $wm_pos_map[ $pos_key ] ?? $wm_pos_map['bottom-right'];
+						$watermarkObject->xpos    = $pos['xpos'];
+						$watermarkObject->ypos    = $pos['ypos'];
+					} else {
+						$watermarkObject->opacity = 0.75;
+						$watermarkObject->xpos    = 100;
+						$watermarkObject->ypos    = 100;
+					}
+
+					$pluginsObject->watermark = $watermarkObject;
+				}
+
+				$toggle_keyboard = $this->settings->get( 'swarmify_toggle_keyboard' );
+				if ( 'off' === $toggle_keyboard ) {
+					$keyboardObject          = new \stdClass();
+					$keyboardObject->enabled = false;
+					$pluginsObject->keyboard = $keyboardObject;
+				} else {
+					$keyboard_deviations = [];
+
+					$seekstep = $this->settings->get( 'swarmify_keyboard_seekstep' );
+					if ( '' !== $seekstep && '5' !== (string) $seekstep ) {
+						$keyboard_deviations['seekStep'] = (int) $seekstep;
+					}
+
+					$kb_mute = $this->settings->get( 'swarmify_toggle_kb_mute' );
+					if ( 'off' === $kb_mute ) {
+						$keyboard_deviations['enableMute'] = false;
+					}
+
+					$kb_fullscreen = $this->settings->get( 'swarmify_toggle_kb_fullscreen' );
+					if ( 'off' === $kb_fullscreen ) {
+						$keyboard_deviations['enableFullscreen'] = false;
+					}
+
+					$kb_numbers = $this->settings->get( 'swarmify_toggle_kb_numbers' );
+					if ( 'off' === $kb_numbers ) {
+						$keyboard_deviations['enableNumbers'] = false;
+					}
+
+					$kb_captions = $this->settings->get( 'swarmify_toggle_kb_captions' );
+					if ( 'off' === $kb_captions ) {
+						$keyboard_deviations['enableCaptions'] = false;
+					}
+
+					if ( ! empty( $keyboard_deviations ) ) {
+						$pluginsObject->keyboard = (object) $keyboard_deviations;
+					}
+				}
+
+				$swarmoptions = array(
+					'swarmcdnkey'       => $cdn_key,
+					'autoreplace'       => $autoreplaceObject,
+					'theme'             => $themeObject,
+					'plugins'           => $pluginsObject,
+					'iframeReplacement' => $layout_status,
+				);
+
+				$toggle_ga = $this->settings->get( 'swarmify_toggle_ga' );
+				if ( 'on' === $toggle_ga ) {
+					$gaObject                         = new \stdClass();
+					$ga_interval                      = $this->settings->get( 'swarmify_ga_interval' );
+					$gaObject->percentsPlayedInterval = ( '' !== $ga_interval ) ? (int) $ga_interval : 10;
+					$swarmoptions['ga']               = $gaObject;
+				}
+
+				$toggle_lazyload = $this->settings->get( 'swarmify_toggle_lazyload' );
+				if ( '' !== $toggle_lazyload ) {
+					$performanceObject           = new \stdClass();
+					$performanceObject->lazyLoad = ( 'on' === $toggle_lazyload );
+					$swarmoptions['performance'] = $performanceObject;
+				}
 			}
 
-			// Limit button type to `no selection` which is hexagon, `rectangle`, or `circle`
-			if ('rectangle' === $theme_button || 'circle' === $theme_button) {
-				$themeObject->button = $theme_button;
-			}
-
-			// Configure `plugins` object
-			$pluginsObject = new \stdClass();
-
-			// Configure `plugins->swarmads` object
-			if ( $ads_vasturl && '' !== $ads_vasturl ) {
-				// Create the `swarmads` subobject
-				$swarmadsObject           = new \stdClass();
-				$swarmadsObject->adTagUrl = $ads_vasturl;
-
-				// Store the `swarmadsObject` in the `pluginsObject`
-				$pluginsObject->swarmads = $swarmadsObject;
-			}
-
-			// Configure `plugins->watermark` object
-			if ( $watermark && '' !== $watermark ) {
-				// Create the `watermark` subobject
-				$watermarkObject          = new \stdClass();
-				$watermarkObject->file    = $watermark;
-				$watermarkObject->opacity = 0.75;
-				$watermarkObject->xpos    = 100;
-				$watermarkObject->ypos    = 100;
-
-				// Store the `watermarkObject` in the `pluginsObject`
-				$pluginsObject->watermark = $watermarkObject;
-			}
-
-			$swarmoptions    = array(
-				'swarmcdnkey'       => $cdn_key,
-				'autoreplace'       => $autoreplaceObject,
-				'theme'             => $themeObject,
-				'plugins'           => $pluginsObject,
-				'iframeReplacement' => $layout_status,
-			);
 			$swarmoptions_js = 'var swarmoptions = ' . wp_json_encode( $swarmoptions ) . ';';
 
-			$this->use_beta_player = 'on' === $this->settings->get( 'swarmify_toggle_beta_player' );
-			$script_src            = self::player_script_src( $this->use_beta_player );
+			$use_beta_player = 'on' === $this->settings->get( 'swarmify_toggle_beta_player' );
+			$script_src      = self::player_script_src( $use_beta_player, $legacy_player );
 
-			wp_enqueue_script(
-				$this->swarmdetect_handle,
-				$script_src,
-				array(),
-				$this->version,
-				false
-			);
+			// Registered without a src: the handle carries the two inline
+			// scripts (swarmoptions, then the loader) and prints no tag of its
+			// own — the loader injects the bundle tag itself.
+			wp_register_script( $this->swarmdetect_handle, false, array(), $this->version, false );
+			wp_enqueue_script( $this->swarmdetect_handle );
 
 			wp_add_inline_script( $this->swarmdetect_handle, $swarmoptions_js, 'before' );
+			wp_add_inline_script( $this->swarmdetect_handle, self::player_loader_js( $script_src ) );
 
-			// oEmbed renders YouTube/Vimeo iframes at fixed dimensions.
-			// When swarmdetect keeps the iframe (iframeReplacement: "iframe"),
-			// it stays at those small dimensions. Make it responsive across
-			// all builder video wrappers.
+			// oEmbed gives YouTube/Vimeo iframes small fixed dimensions, which
+			// they keep when swarmdetect leaves the iframe in place, so force
+			// them responsive.
 			wp_register_style( 'smartvideo-frontend', false, array(), $this->version );
 			wp_enqueue_style( 'smartvideo-frontend' );
 			wp_add_inline_style( 'smartvideo-frontend',
 				'smartvideo{display:block}'
 				. 'smartvideo.swarm-fluid{width:100%;aspect-ratio:16/9}'
 				. 'smartvideo:not(.swarm-fluid){max-width:100%}'
+				// Bricks 2.x containers are flex; its widthless element wrapper
+				// shrinks to the fluid player's 0 intrinsic width.
+				. '.brxe-smartvideo{width:100%}'
 				. 'iframe.swarm-iframe'
 				. '{ width: 100% !important; height: auto !important; aspect-ratio: auto 16/9; }'
 			);
 
+			$facade_active = ! $legacy_player && 'on' === $this->settings->get( 'swarmify_toggle_facade' );
+			if ( $facade_active ) {
+				$this->enqueue_facade_assets();
+			}       
 		}
+	}
+
+	/**
+	 * Keep JS-delay optimizers away from the swarmoptions payload and loader.
+	 *
+	 * Cache plugins that defer or combine inline scripts would run the loader
+	 * after the page settles (or hoist it above its swarmoptions payload), so
+	 * both inline blocks carry the same opt-out attributes the external player
+	 * tag used to get.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  array $attributes Attributes for the inline script tag.
+	 * @return array
+	 */
+	public function add_inline_swarmdetect_script_attributes( $attributes ) {
+		$id = isset( $attributes['id'] ) ? $attributes['id'] : '';
+		if ( $this->swarmdetect_handle . '-js-before' !== $id && $this->swarmdetect_handle . '-js-after' !== $id ) {
+			return $attributes;
+		}
+
+		// A boolean true prints as a valueless attribute (WP's
+		// wp_sanitize_script_attributes), matching what the old tag filter wrote.
+		$attributes['data-cfasync']     = 'false';
+		$attributes['data-no-defer']    = true;
+		$attributes['data-no-optimize'] = true;
+		// WP-Optimize's Delay JS excludes by src only, so an inline block can only opt out via this attribute.
+		$attributes['data-no-delay-js'] = true;
+
+		return $attributes;
+	}
+
+	/**
+	 * Enqueue the poster-facade stylesheets.
+	 *
+	 * The vendored artifact is pinned to a swarmcdn-browser player build
+	 * (assets/facade/PIN); facade-base.css is built from src/.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @return array The build/facade.asset.php metadata.
+	 */
+	private function enqueue_facade_styles() {
+		wp_enqueue_style(
+			'smartvideo-facade-artifact',
+			plugins_url( '/assets/facade/facade.84a3697.css', SMARTVIDEO_PLUGIN_FILE ),
+			array(),
+			$this->version
+		);
+
+		$asset_path = dirname( SMARTVIDEO_PLUGIN_FILE ) . '/build/facade.asset.php';
+		$asset      = file_exists( $asset_path )
+			? require $asset_path
+			: array(
+				'dependencies' => array(),
+				'version'      => $this->version,
+			);
+
+		wp_enqueue_style(
+			'smartvideo-facade',
+			plugins_url( '/build/facade.css', SMARTVIDEO_PLUGIN_FILE ),
+			array( 'smartvideo-facade-artifact' ),
+			$asset['version']
+		);
+
+		return $asset;
+	}
+
+	/**
+	 * Enqueue the poster-facade stylesheets and handoff script.
+	 *
+	 * @since 2.4.0
+	 */
+	private function enqueue_facade_assets() {
+		$asset = $this->enqueue_facade_styles();
+
+		wp_enqueue_script(
+			'smartvideo-facade',
+			plugins_url( '/build/facade.js', SMARTVIDEO_PLUGIN_FILE ),
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
 	}
 
 	/**
@@ -843,7 +1118,6 @@ class Swarmify {
 	 * @return void
 	 */
 	public function add_preconnect_link() {
-		// Skip preconnect if the script won't load on this page.
 		if ( false === $this->should_load_script ) {
 			return;
 		}
@@ -857,41 +1131,191 @@ class Swarmify {
 	}
 
 	/**
-	 * Add async and cache-plugin exclusion attributes to the swarmdetect <script> tag.
-	 *
-	 * Exists primarily to appease the QIT linter rules, since wp_enqueue_script
-	 * lacks support for custom <script> attributes.
-	 *
-	 * @param  string $tag    Original <script> HTML tag.
-	 * @param  string $handle Registered script handle being filtered.
-	 * @return string Modified script tag for the swarmdetect handle, otherwise unchanged.
-	 */
-	public function add_async_swarmdetect_script_attributes( $tag, $handle ) {
-		// Add async and cache-plugin exclusion attributes
-		if ( $this->swarmdetect_handle === $handle ) {
-			return str_replace(
-				array( ' src=', '<script ' ),
-				array( ' async src=', '<script data-cfasync="false" data-no-defer data-no-optimize ' ),
-				$tag
-			);
-		}
-
-		return $tag;
-	}
-
-	/**
 	 * Scan Gutenberg static block output for <smartvideo> tags and register
-	 * them with SchemaCollector (since Gutenberg has no server render_callback).
+	 * them with SchemaCollector. These blocks render statically, so their
+	 * output is the only place the server sees the video.
 	 */
-	public function collect_gutenberg_schema( $block_content, $block ) {
+	public function collect_gutenberg_schema( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- render_block_{block-name} filter signature registered with accepted_args=2; WP always passes (content, block).
 		if ( preg_match( '/<smartvideo[^>]+src="([^"]*)"/', $block_content, $src_match ) ) {
+			$src    = $src_match[1];
 			$poster = '';
 			if ( preg_match( '/poster="([^"]*)"/', $block_content, $poster_match ) ) {
 				$poster = esc_url_raw( $poster_match[1] );
 			}
-			SchemaCollector::add( esc_url_raw( $src_match[1] ), $poster );
+
+			$added = false;
+			if ( 0 === strpos( $src, 'swarmify://' ) ) {
+				$resolved = isset( $block['attrs']['resolvedContentUrl'] ) ? $block['attrs']['resolvedContentUrl'] : '';
+				if ( is_string( $resolved ) && '' !== $resolved ) {
+					$escaped = esc_url_raw( $resolved );
+					if ( '' !== $escaped && 0 === strpos( $escaped, 'http' ) ) {
+						SchemaCollector::add( $escaped, $poster );
+						$added = true;
+					}
+				}
+			}
+
+			if ( ! $added ) {
+				SchemaCollector::add( esc_url_raw( $src ), $poster );
+			}
 		}
 		return $block_content;
+	}
+
+	/**
+	 * Inject CTA overlay settings into Gutenberg block output at render.
+	 *
+	 * @since 2.4.0
+	 */
+	public function render_block_add_cta( $block_content, $block ) {
+		if ( false !== stripos( $block_content, 'data-swarm-setup' ) ) {
+			return $block_content;
+		}
+
+		$legacy_mode = 'on' === $this->settings->get( 'swarmify_toggle_legacy_player' );
+		$cached_tier = ( new AccountTier( $this->settings ) )->get_cached();
+
+		$setup_array = OverlayMarkup::build( $block['attrs'] ?? [], $legacy_mode, $cached_tier );
+		if ( null === $setup_array ) {
+			return $block_content;
+		}
+
+		$setup_json = wp_json_encode( $setup_array );
+		if ( false === $setup_json ) {
+			return $block_content;
+		}
+		$setup_attr = esc_attr( $setup_json );
+
+		// preg_replace_callback: the JSON is author-controlled text — as a
+		// preg_replace() replacement string, `$`+digit in it would be eaten
+		// as a backreference ("Get $5 off" → "Get  off").
+		$replaced = preg_replace_callback(
+			'/<smartvideo\b/i',
+			static function () use ( $setup_attr ) {
+				return '<smartvideo data-swarm-setup="' . $setup_attr . '"';
+			},
+			$block_content,
+			1
+		);
+
+		return null !== $replaced ? $replaced : $block_content;
+	}
+
+	/**
+	 * Wrap the Gutenberg block's <smartvideo> tag in the poster facade.
+	 *
+	 * @since 2.4.0
+	 */
+	public function render_block_add_facade( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- render_block_{block-name} filter signature registered with accepted_args=2; WP always passes (content, block).
+		if ( ! preg_match( '/<smartvideo\b[^>]*><\/smartvideo>/i', $block_content, $tag_match ) ) {
+			return $block_content;
+		}
+		$tag = $tag_match[0];
+
+		$src = preg_match( '/\ssrc="([^"]*)"/i', $tag, $m ) ? $m[1] : '';
+		if ( '' === $src ) {
+			return $block_content;
+		}
+		$poster = preg_match( '/\sposter="([^"]*)"/i', $tag, $m ) ? $m[1] : '';
+		$width  = preg_match( '/\swidth="([^"]*)"/i', $tag, $m ) ? $m[1] : '';
+		$height = preg_match( '/\sheight="([^"]*)"/i', $tag, $m ) ? $m[1] : '';
+		// The block's save() serializes the boolean attr as autoplay="" — match
+		// both the bare and empty-value forms.
+		$autoplay = (bool) preg_match( '/\sautoplay(?:="[^"]*")?(?=[\s>])/i', $tag );
+
+		$wrapped = Facade::wrap(
+			$tag,
+			[
+				'src'      => $src,
+				'poster'   => $poster,
+				'width'    => $width,
+				'height'   => $height,
+				'autoplay' => $autoplay,
+			],
+			$this->settings
+		);
+		if ( $wrapped === $tag ) {
+			return $block_content;
+		}
+
+		return str_replace( $tag, $wrapped, $block_content );
+	}
+
+	/**
+	 * Run version-gated upgrade migration.
+	 *
+	 * @since 2.4.0
+	 */
+	private function run_upgrade_migration() {
+		$stored_version = get_option( 'smartvideo_version' );
+		if ( ! $stored_version || version_compare( $stored_version, self::DB_VERSION, '<' ) ) {
+			$beta_val = get_option( 'swarmify_toggle_beta_player' );
+			if ( false !== $beta_val ) {
+				update_option( 'swarmify_toggle_beta_player', 'off' );
+			}
+
+			// Staged rollout: the upgrade parks everyone on the legacy player
+			// and lets them opt into the new one. Beta users already chose the
+			// new player, so they are not sent back.
+			update_option( 'swarmify_toggle_legacy_player', 'on' === $beta_val ? 'off' : 'on' );
+			// swarmify_status exists on every install after its first
+			// activation; fresh installs never reach here because the
+			// Activator stamps smartvideo_version (see DB_VERSION).
+			if ( false !== get_option( 'swarmify_status' ) ) {
+				update_option( 'smartvideo_show_player_notice', 1 );
+			}
+			update_option( 'smartvideo_version', self::DB_VERSION );
+		}
+	}
+
+	/**
+	 * Show the one-time player-update notice to admins who haven't dismissed it.
+	 *
+	 * @since 2.4.0
+	 */
+	public function maybe_show_player_notice() {
+		if ( ! current_user_can( 'manage_options' ) || ! get_option( 'smartvideo_show_player_notice' ) ) {
+			return;
+		}
+		if ( get_user_meta( get_current_user_id(), 'smartvideo_player_notice_dismissed', true ) ) {
+			return;
+		}
+		$nonce = wp_create_nonce( 'smartvideo_dismiss_player_notice' );
+		// The same migration that sets this flag moves ex-beta sites to the new
+		// player, so the two cohorts need opposite copy.
+		$message = 'on' === $this->settings->get( 'swarmify_toggle_legacy_player' )
+			? __( 'SmartVideo keeps playing your videos on the classic player, so nothing changes on your site today. A faster new player is ready whenever you are — set "Player version" to Stable in SmartVideo settings to switch over.', 'swarmify' )
+			: __( 'SmartVideo now plays your videos on the new player — the one you were testing as the beta player, no longer a beta. If you need the old behavior back, set "Player version" to Legacy in SmartVideo settings.', 'swarmify' );
+		?>
+		<div class="notice notice-info is-dismissible" id="smartvideo-player-notice" data-nonce="<?php echo esc_attr( $nonce ); ?>">
+			<p><?php echo esc_html( $message ); ?></p>
+		</div>
+		<script>
+		document.addEventListener( 'click', function ( e ) {
+			var notice = document.getElementById( 'smartvideo-player-notice' );
+			if ( ! notice || ! e.target.closest || ! e.target.closest( '#smartvideo-player-notice .notice-dismiss' ) ) {
+				return;
+			}
+			var body = new URLSearchParams();
+			body.append( 'action', 'smartvideo_dismiss_player_notice' );
+			body.append( '_ajax_nonce', notice.getAttribute( 'data-nonce' ) );
+			fetch( window.ajaxurl, { method: 'POST', credentials: 'same-origin', body: body } ).catch( function () {} );
+		} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Persist per-user dismissal of the player-update notice.
+	 *
+	 * @since 2.4.0
+	 */
+	public function dismiss_player_notice() {
+		check_ajax_referer( 'smartvideo_dismiss_player_notice' );
+		if ( current_user_can( 'manage_options' ) ) {
+			update_user_meta( get_current_user_id(), 'smartvideo_player_notice_dismissed', 1 );
+		}
+		wp_die();
 	}
 
 	/**
