@@ -3,7 +3,7 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
 Tested up to: 7.0.2
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -159,6 +159,9 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.1 =
+* Vertical videos keep their true shape. YouTube Shorts and other vertical or 4:3 embeds now render at their real aspect ratio instead of being squeezed into a widescreen 16:9 frame. Embeds added with a youtube.com/shorts/... link pick this up automatically; if a vertical video still shows widescreen after updating, remove that embed block and paste the Shorts link in fresh.
 
 = 2.4.0 =
 * **New player, ready when you are**
@@ -466,6 +469,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.1 =
+Fixes vertical videos (like YouTube Shorts) rendering squeezed inside a widescreen frame. Recommended for everyone.
 
 = 2.4.0 =
 The new, faster player arrives as an opt-in — your site stays on the classic player until you switch under Player → Version. Adds new appearance and playback controls, per-video call-to-action overlays, and Breakdance builder support. Nothing changes on update day; recommended for all users.

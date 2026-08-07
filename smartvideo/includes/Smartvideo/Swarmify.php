@@ -310,6 +310,7 @@ class Swarmify {
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_swarmify_script' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_swarmify_script_admin' ] );
 		add_filter( 'wp_inline_script_attributes', [ $this, 'add_inline_swarmdetect_script_attributes' ] );
+		add_filter( 'embed_oembed_html', [ __CLASS__, 'embed_aspect_ratio_html' ], 10, 2 );
 
 		// Admin-only, but registered here: REST requests are not is_admin().
 		add_action( 'rest_api_init', [ $this->settings, 'register_plugin_settings_routes' ] );
@@ -742,6 +743,49 @@ class Swarmify {
 			. 's.setAttribute("data-no-defer","");'
 			. 's.setAttribute("data-no-optimize","");'
 			. 'document.head.appendChild(s);})();';
+	}
+
+	/**
+	 * Stamp a YouTube/Vimeo oEmbed iframe with its own aspect ratio.
+	 *
+	 * The frontend stylesheet forces iframe.swarm-iframe to a 16:9 fallback,
+	 * which pillarboxes vertical (Shorts) and 4:3 embeds whose oEmbed
+	 * width/height are correct. An inline aspect-ratio from those attributes
+	 * outranks the fallback, and the player copies attributes — style
+	 * included — onto its replacement iframe.
+	 *
+	 * @since 2.4.1
+	 *
+	 * @param  string $html Cached oEmbed markup.
+	 * @param  string $url  The embedded URL.
+	 * @return string
+	 */
+	public static function embed_aspect_ratio_html( $html, $url ) {
+		if ( ! is_string( $html ) || ! is_string( $url ) ) {
+			return $html;
+		}
+		if ( ! preg_match( VideoUrl::YT_REGEX, $url )
+			&& ! preg_match( '%^https?://(?:[a-z0-9-]+\.)*vimeo\.com/%i', $url ) ) {
+			return $html;
+		}
+		if ( ! preg_match( '/<iframe\b[^>]*>/i', $html, $tag ) || false !== stripos( $tag[0], 'style=' ) ) {
+			return $html;
+		}
+		if ( ! preg_match( '/\bwidth="(\d+)"/i', $tag[0], $w )
+			|| ! preg_match( '/\bheight="(\d+)"/i', $tag[0], $h ) ) {
+			return $html;
+		}
+		$width  = (int) $w[1];
+		$height = (int) $h[1];
+		if ( $width < 1 || $height < 1 ) {
+			return $html;
+		}
+		return preg_replace(
+			'/<iframe\b/i',
+			'<iframe style="aspect-ratio:' . $width . '/' . $height . '"',
+			$html,
+			1
+		);
 	}
 
 	/**
