@@ -30,6 +30,22 @@ class Swarmify {
 	public const DB_VERSION = '2.4.0';
 
 	/**
+	 * Mirrors ASPECT_RATIOS in gutenberg/packages/block-library/src/embed/constants.js,
+	 * widest first — core's thresholds decide the padding box, so these must stay in step.
+	 *
+	 * @var array<int, array{0: float, 1: string}>
+	 */
+	private const EMBED_ASPECT_RATIOS = [
+		[ 2.33, 'wp-embed-aspect-21-9' ],
+		[ 2.00, 'wp-embed-aspect-18-9' ],
+		[ 1.78, 'wp-embed-aspect-16-9' ],
+		[ 1.33, 'wp-embed-aspect-4-3' ],
+		[ 1.00, 'wp-embed-aspect-1-1' ],
+		[ 0.56, 'wp-embed-aspect-9-16' ],
+		[ 0.50, 'wp-embed-aspect-1-2' ],
+	];
+
+	/**
 	 * Regex to detect YouTube/Vimeo iframes with a bare `src=` attribute.
 	 *
 	 * Requires whitespace before `src=` so lazy-loading attributes like
@@ -135,7 +151,6 @@ class Swarmify {
 				'overlay_bg'         => 'true',
 				'overlay_bg_color'   => '',
 				'overlay_bg_opacity' => '',
-				'data-swarm-setup'   => '',
 			),
 			$atts,
 			'smartvideo'
@@ -200,31 +215,29 @@ class Swarmify {
 			$tag_attrs['preload'] = esc_attr( $preload );
 		}
 
-		if ( empty( $atts['data-swarm-setup'] ) ) {
-			$overlay_args = [
-				'overlayEnabled'   => '' !== $atts['overlay_enabled'] ? filter_var( $atts['overlay_enabled'], FILTER_VALIDATE_BOOLEAN ) : false,
-				'overlayText'      => $atts['overlay_text'],
-				'overlayUrl'       => $atts['overlay_url'],
-				'overlayColor'     => $atts['overlay_color'],
-				'overlayAlign'     => $atts['overlay_align'],
-				'overlayStart'     => $atts['overlay_start'],
-				'overlayEnd'       => $atts['overlay_end'],
-				'overlayBg'        => '' !== $atts['overlay_bg'] ? filter_var( $atts['overlay_bg'], FILTER_VALIDATE_BOOLEAN ) : true,
-				'overlayBgColor'   => $atts['overlay_bg_color'],
-				'overlayBgOpacity' => $atts['overlay_bg_opacity'],
-			];
-			$legacy_mode  = 'on' === $this->settings->get( 'swarmify_toggle_legacy_player' );
-			$cached_tier  = ( new AccountTier( $this->settings ) )->get_cached();
+		$overlay_args = [
+			'overlayEnabled'   => '' !== $atts['overlay_enabled'] ? filter_var( $atts['overlay_enabled'], FILTER_VALIDATE_BOOLEAN ) : false,
+			'overlayText'      => $atts['overlay_text'],
+			'overlayUrl'       => $atts['overlay_url'],
+			'overlayColor'     => $atts['overlay_color'],
+			'overlayAlign'     => $atts['overlay_align'],
+			'overlayStart'     => $atts['overlay_start'],
+			'overlayEnd'       => $atts['overlay_end'],
+			'overlayBg'        => '' !== $atts['overlay_bg'] ? filter_var( $atts['overlay_bg'], FILTER_VALIDATE_BOOLEAN ) : true,
+			'overlayBgColor'   => $atts['overlay_bg_color'],
+			'overlayBgOpacity' => $atts['overlay_bg_opacity'],
+		];
 
-			$setup_array = OverlayMarkup::build( $overlay_args, $legacy_mode, $cached_tier );
-			if ( null !== $setup_array ) {
-				$setup_json = wp_json_encode( $setup_array );
-				if ( false !== $setup_json ) {
-					$tag_attrs['data-swarm-setup'] = esc_attr( $setup_json );
-				}
+		$setup_array = OverlayMarkup::build(
+			$overlay_args,
+			'on' === $this->settings->get( 'swarmify_toggle_legacy_player' ),
+			( new AccountTier( $this->settings ) )->get_cached()
+		);
+		if ( null !== $setup_array ) {
+			$setup_json = wp_json_encode( $setup_array );
+			if ( false !== $setup_json ) {
+				$tag_attrs['data-swarm-setup'] = esc_attr( $setup_json );
 			}
-		} else {
-			$tag_attrs['data-swarm-setup'] = esc_attr( $atts['data-swarm-setup'] );
 		}
 
 		$parts = [];
@@ -311,6 +324,7 @@ class Swarmify {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_swarmify_script_admin' ] );
 		add_filter( 'wp_inline_script_attributes', [ $this, 'add_inline_swarmdetect_script_attributes' ] );
 		add_filter( 'embed_oembed_html', [ __CLASS__, 'embed_aspect_ratio_html' ], 10, 2 );
+		add_filter( 'render_block_core/embed', [ __CLASS__, 'embed_aspect_class_block' ], 10, 2 );
 
 		// Admin-only, but registered here: REST requests are not is_admin().
 		add_action( 'rest_api_init', [ $this->settings, 'register_plugin_settings_routes' ] );
@@ -455,7 +469,7 @@ class Swarmify {
 	 * @param bool       $breakdance     Breakdance is running on this site.
 	 * @return bool
 	 */
-	protected function evaluate_should_load( array $contents, $mode, $auto_yt, $bg_video, $is_disabled, $elementor_data = '', $bb_data = null, $bricks_data = null, $breakdance = false ) {
+	protected function evaluate_should_load( array $contents, $mode, $auto_yt, $bg_video, $is_disabled, $elementor_data = '', ?array $bb_data = null, ?array $bricks_data = null, $breakdance = false ) {
 		// Per-page disable wins over everything.
 		if ( $is_disabled ) {
 			return false;
@@ -690,12 +704,11 @@ class Swarmify {
 	}
 
 	public function enqueue_swarmify_script_admin( $hook_suffix ) {
-		if ( ! in_array( $hook_suffix, [ 'post.php', 'post-new.php' ], true ) ) {
+		if ( ! in_array( $hook_suffix, [ 'post.php', 'post-new.php' ], true ) || ! Admin::is_block_editor_screen() ) {
 			return;
 		}
 
-		// The block editor needs the script too: the block puts a live
-		// <smartvideo> in the canvas, which is not iframed at apiVersion 1.
+		// The block editor renders a live <smartvideo> in the canvas, which needs the player.
 		$this->enqueue_swarmify_script();
 	}
 
@@ -768,16 +781,12 @@ class Swarmify {
 			&& ! preg_match( '%^https?://(?:[a-z0-9-]+\.)*vimeo\.com/%i', $url ) ) {
 			return $html;
 		}
-		if ( ! preg_match( '/<iframe\b[^>]*>/i', $html, $tag ) || false !== stripos( $tag[0], 'style=' ) ) {
+		$iframe = self::iframe_dimensions( $html );
+		if ( null === $iframe ) {
 			return $html;
 		}
-		if ( ! preg_match( '/\bwidth="(\d+)"/i', $tag[0], $w )
-			|| ! preg_match( '/\bheight="(\d+)"/i', $tag[0], $h ) ) {
-			return $html;
-		}
-		$width  = (int) $w[1];
-		$height = (int) $h[1];
-		if ( $width < 1 || $height < 1 ) {
+		[ $tag, $width, $height ] = $iframe;
+		if ( false !== stripos( $tag, 'style=' ) ) {
 			return $html;
 		}
 		return preg_replace(
@@ -786,6 +795,81 @@ class Swarmify {
 			$html,
 			1
 		);
+	}
+
+	/**
+	 * Correct a stale wp-embed-aspect-* class on a core/embed block at render time.
+	 *
+	 * Gutenberg never regenerates a class already in the saved markup, and the padding box
+	 * core builds from it beats the inline aspect-ratio embed_aspect_ratio_html() stamps.
+	 *
+	 * @since 2.4.2
+	 *
+	 * @param  string $block_content Rendered block markup.
+	 * @param  array  $block         Parsed block. Unused.
+	 * @return string
+	 */
+	public static function embed_aspect_class_block( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- render_block_{block-name} filter signature registered with accepted_args=2; WP always passes (content, block).
+		if ( ! is_string( $block_content ) || false === strpos( $block_content, 'wp-embed-aspect-' ) ) {
+			return $block_content;
+		}
+		// This video plugin must not rewrite unrelated providers' embed markup.
+		if ( ! preg_match( self::VIDEO_IFRAME_RE, $block_content ) ) {
+			return $block_content;
+		}
+		if ( ! preg_match( '/\bwp-embed-aspect-[0-9]+-[0-9]+\b/', $block_content, $current ) ) {
+			return $block_content;
+		}
+		$iframe = self::iframe_dimensions( $block_content );
+		if ( null === $iframe ) {
+			return $block_content;
+		}
+		[ , $width, $height ] = $iframe;
+
+		// Truncate like JS toFixed(2) rather than round(), whose pre-rounding turns 426x240
+		// into 16:9 where core's getClassNames drops the classes instead.
+		$ratio  = (float) sprintf( '%.2f', $width / $height );
+		$wanted = null;
+		$found  = false;
+		foreach ( self::EMBED_ASPECT_RATIOS as $candidate ) {
+			if ( $ratio >= $candidate[0] ) {
+				$found = true;
+				// Core drops the classes rather than scale to a ratio this far off.
+				if ( $ratio - $candidate[0] <= 0.1 ) {
+					$wanted = $candidate[1];
+				}
+				break;
+			}
+		}
+		if ( ! $found || $current[0] === $wanted ) {
+			return $block_content;
+		}
+
+		if ( null === $wanted ) {
+			$corrected = preg_replace( '/\s*\bwp-has-aspect-ratio\b/', '', $block_content, 1 );
+			return preg_replace( '/\s*' . preg_quote( $current[0], '/' ) . '\b/', '', $corrected, 1 );
+		}
+		return preg_replace( '/\b' . preg_quote( $current[0], '/' ) . '\b/', $wanted, $block_content, 1 );
+	}
+
+	/**
+	 * Extract the first iframe's opening tag and its positive dimensions.
+	 *
+	 * @param  string $html Markup containing an iframe.
+	 * @return array{0: string, 1: int, 2: int}|null
+	 */
+	private static function iframe_dimensions( $html ) {
+		if ( ! preg_match( '/<iframe\b[^>]*>/i', $html, $tag )
+			|| ! preg_match( '/\bwidth="(\d+)"/i', $tag[0], $w )
+			|| ! preg_match( '/\bheight="(\d+)"/i', $tag[0], $h ) ) {
+			return null;
+		}
+		$width  = (int) $w[1];
+		$height = (int) $h[1];
+		if ( $width < 1 || $height < 1 ) {
+			return null;
+		}
+		return array( $tag[0], $width, $height );
 	}
 
 	/**

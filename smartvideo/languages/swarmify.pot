@@ -2,7 +2,7 @@
 # This file is distributed under the AGPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: SmartVideo 2.4.1\n"
+"Project-Id-Version: SmartVideo 2.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/swarmify\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -973,11 +973,11 @@ msgstr ""
 msgid "WP Super Cache -- may serve cached pages with stale script references"
 msgstr ""
 
-#: includes/Smartvideo/Swarmify.php:1331
+#: includes/Smartvideo/Swarmify.php:1415
 msgid "SmartVideo keeps playing your videos on the classic player, so nothing changes on your site today. A faster new player is ready whenever you are — set \"Player version\" to Stable in SmartVideo settings to switch over."
 msgstr ""
 
-#: includes/Smartvideo/Swarmify.php:1332
+#: includes/Smartvideo/Swarmify.php:1416
 msgid "SmartVideo now plays your videos on the new player — the one you were testing as the beta player, no longer a beta. If you need the old behavior back, set \"Player version\" to Legacy in SmartVideo settings."
 msgstr ""
 

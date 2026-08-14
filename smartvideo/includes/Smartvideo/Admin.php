@@ -167,7 +167,7 @@ EOSVG;
 	 *
 	 * @return bool
 	 */
-	private function is_block_editor_screen() {
+	public static function is_block_editor_screen() {
 		$screen = get_current_screen();
 		return $screen && $screen->is_block_editor();
 	}
@@ -183,7 +183,7 @@ EOSVG;
 			return;
 		}
 
-		if ( $this->is_block_editor_screen() ) {
+		if ( self::is_block_editor_screen() ) {
 			return;
 		}
 
@@ -203,7 +203,7 @@ EOSVG;
 			return;
 		}
 
-		if ( $this->is_block_editor_screen() ) {
+		if ( self::is_block_editor_screen() ) {
 			return;
 		}
 
@@ -302,7 +302,7 @@ EOSVG;
 	 * @return void
 	 */
 	public function add_video_button() {
-		if ( $this->is_block_editor_screen() ) {
+		if ( self::is_block_editor_screen() ) {
 			return;
 		}
 		echo '<a href="" class="button swarmify_add_button" onclick="event.preventDefault();document.getElementById(\'swarmify-dialog\').showModal();"><img src="' . esc_url( plugin_dir_url( __FILE__ ) ) . 'images/smartvideo_icon.png" alt="">' . esc_html__( 'Add SmartVideo', 'swarmify' ) . '</a>';
@@ -318,7 +318,7 @@ EOSVG;
 		if ( ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
-		if ( $this->is_block_editor_screen() ) {
+		if ( self::is_block_editor_screen() ) {
 			return;
 		}
 		require __DIR__ . '/partials/add-video-lightbox-display.php';

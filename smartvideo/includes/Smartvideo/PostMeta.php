@@ -98,7 +98,7 @@ class PostMeta {
 	 * @param int|null $post_id Post ID (defaults to current post).
 	 * @return bool
 	 */
-	public static function is_disabled( $post_id = null ) {
+	public static function is_disabled( ?int $post_id = null ) {
 		if ( null === $post_id ) {
 			$post_id = get_the_ID();
 		}
