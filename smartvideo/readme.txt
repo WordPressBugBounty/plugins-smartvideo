@@ -2,8 +2,8 @@
 Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
-Tested up to: 7.0.2
-Stable tag: 2.4.2
+Tested up to: 7.1
+Stable tag: 2.4.3
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -159,6 +159,9 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.3 =
+* Fixed the SmartVideo block showing an empty space in the block editor. Current WordPress versions draw the editor preview inside a frame of its own, and the player wasn't loading there, so the block looked blank while you were editing it. Published pages were never affected — they played normally throughout. The preview now shows the real player again.
 
 = 2.4.2 =
 * **Fixed vertical videos still rendering widescreen on embeds added before 2.4.1**
@@ -478,6 +481,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.3 =
+Restores the SmartVideo block's editor preview, which showed as an empty space on current WordPress versions. Published pages were unaffected. Recommended for everyone on 2.4.x.
 
 = 2.4.2 =
 Extends the 2.4.1 vertical-video fix to embeds saved earlier, so correcting a Shorts link no longer means rebuilding the block. Removes the `[smartvideo]` shortcode's raw data-swarm-setup attribute, which WordPress could not pass through intact; the same attribute on a hand-written `<smartvideo>` tag still works. Quiets PHP 8.4 deprecation notices. Recommended for everyone on 2.4.x.

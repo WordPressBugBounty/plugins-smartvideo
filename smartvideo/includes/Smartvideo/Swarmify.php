@@ -321,7 +321,7 @@ class Swarmify {
 		add_action( 'wp_footer', [ 'Swarmify\Smartvideo\SchemaCollector', 'output_schema' ], 20 );
 		add_action( 'template_redirect', [ $this, 'check_should_load_script' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_swarmify_script' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_swarmify_script_admin' ] );
+		add_action( 'enqueue_block_assets', [ $this, 'enqueue_swarmify_script_admin' ] );
 		add_filter( 'wp_inline_script_attributes', [ $this, 'add_inline_swarmdetect_script_attributes' ] );
 		add_filter( 'embed_oembed_html', [ __CLASS__, 'embed_aspect_ratio_html' ], 10, 2 );
 		add_filter( 'render_block_core/embed', [ __CLASS__, 'embed_aspect_class_block' ], 10, 2 );
@@ -703,12 +703,21 @@ class Swarmify {
 		return false;
 	}
 
-	public function enqueue_swarmify_script_admin( $hook_suffix ) {
-		if ( ! in_array( $hook_suffix, [ 'post.php', 'post-new.php' ], true ) || ! Admin::is_block_editor_screen() ) {
+	/**
+	 * Load the player for the block editor, canvas included.
+	 *
+	 * The canvas is an iframe with its own script scope, and core replays only
+	 * `enqueue_block_assets` into it (`_wp_get_iframed_editor_assets()`), so
+	 * nothing enqueued for the admin document converts the preview
+	 * <smartvideo> there — the block face collapses to 0 height. This hook
+	 * fires on both passes, which also covers cores that don't iframe.
+	 */
+	public function enqueue_swarmify_script_admin() {
+		// Fires on the front end too, where conditional loading owns the decision.
+		if ( ! is_admin() || ! Admin::is_block_editor_screen() ) {
 			return;
 		}
 
-		// The block editor renders a live <smartvideo> in the canvas, which needs the player.
 		$this->enqueue_swarmify_script();
 	}
 
