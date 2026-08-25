@@ -23,16 +23,27 @@ class AspectRatio {
 	 * Unknown ratios — 'custom' and older content saved without one —
 	 * fall back to the given width/height.
 	 *
-	 * @param string $ratio  Aspect ratio key (e.g. '16:9', 'custom', '').
-	 * @param int    $width  Fallback width.
-	 * @param int    $height Fallback height.
+	 * @param string   $ratio  Aspect ratio key (e.g. '16:9', 'custom', '').
+	 * @param int|null $width  Fallback width.
+	 * @param int|null $height Fallback height.
 	 * @return array [ width, height ]
 	 */
-	public static function resolve( $ratio, $width = 1280, $height = 720 ) {
+	public static function resolve( $ratio, $width = null, $height = null ) {
 		if ( isset( self::PRESETS[ $ratio ] ) ) {
 			return self::PRESETS[ $ratio ];
 		}
-		return array( max( 0, (int) $width ), max( 0, (int) $height ) );
+
+		return array(
+			self::dimension( $width, 1280 ),
+			self::dimension( $height, 720 ),
+		);
+	}
+
+	// Junk dimensions (empty, zero, negative, non-numeric) become the defaults rather than a 0x0 box; save() only falls back on empty.
+	private static function dimension( $value, $fallback ) {
+		$number = is_numeric( $value ) ? (int) $value : 0;
+
+		return $number > 0 ? $number : $fallback;
 	}
 
 	/**

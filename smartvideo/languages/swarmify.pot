@@ -2,7 +2,7 @@
 # This file is distributed under the AGPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: SmartVideo 2.4.3\n"
+"Project-Id-Version: SmartVideo 2.4.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/swarmify\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr ""
 #: includes/Smartvideo/Admin.php:144
 #: includes/Smartvideo/DashboardWidget.php:22
 #: includes/Smartvideo/PostMeta.php:40
-#: src/gutenberg-block/index.js:127
+#: src/gutenberg-block/index.js:136
 #: src/gutenberg-sidebar.js:25
 #: src/index.js:2467
 msgid "SmartVideo"
@@ -48,7 +48,7 @@ msgid "https://swarmify.com/?smartvideo_wordpress_plugin"
 msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:15
-#: src/gutenberg-block/index.js:128
+#: src/gutenberg-block/index.js:137
 msgid "Effortless, unlimited video player"
 msgstr ""
 
@@ -648,36 +648,36 @@ msgstr ""
 msgid "SmartVideo URL is missing."
 msgstr ""
 
-#: includes/Smartvideo/AspectRatio.php:46
+#: includes/Smartvideo/AspectRatio.php:57
 msgid "No video selected"
 msgstr ""
 
-#: includes/Smartvideo/AspectRatio.php:57
+#: includes/Smartvideo/AspectRatio.php:68
 #: src/gutenberg-block/edit.js:395
 msgid "16:9 (Standard)"
 msgstr ""
 
-#: includes/Smartvideo/AspectRatio.php:58
+#: includes/Smartvideo/AspectRatio.php:69
 #: src/gutenberg-block/edit.js:399
 msgid "4:3 (Legacy)"
 msgstr ""
 
-#: includes/Smartvideo/AspectRatio.php:59
+#: includes/Smartvideo/AspectRatio.php:70
 #: src/gutenberg-block/edit.js:403
 msgid "21:9 (Ultrawide)"
 msgstr ""
 
-#: includes/Smartvideo/AspectRatio.php:60
+#: includes/Smartvideo/AspectRatio.php:71
 #: src/gutenberg-block/edit.js:407
 msgid "9:16 (Vertical)"
 msgstr ""
 
-#: includes/Smartvideo/AspectRatio.php:61
+#: includes/Smartvideo/AspectRatio.php:72
 #: src/gutenberg-block/edit.js:411
 msgid "1:1 (Square)"
 msgstr ""
 
-#: includes/Smartvideo/AspectRatio.php:62
+#: includes/Smartvideo/AspectRatio.php:73
 #: src/gutenberg-block/edit.js:415
 #: src/index.js:664
 msgid "Custom"
@@ -973,11 +973,11 @@ msgstr ""
 msgid "WP Super Cache -- may serve cached pages with stale script references"
 msgstr ""
 
-#: includes/Smartvideo/Swarmify.php:1424
+#: includes/Smartvideo/Swarmify.php:1430
 msgid "SmartVideo keeps playing your videos on the classic player, so nothing changes on your site today. A faster new player is ready whenever you are — set \"Player version\" to Stable in SmartVideo settings to switch over."
 msgstr ""
 
-#: includes/Smartvideo/Swarmify.php:1425
+#: includes/Smartvideo/Swarmify.php:1431
 msgid "SmartVideo now plays your videos on the new player — the one you were testing as the beta player, no longer a beta. If you need the old behavior back, set \"Player version\" to Legacy in SmartVideo settings."
 msgstr ""
 
@@ -1267,15 +1267,15 @@ msgstr ""
 msgid "Replace image"
 msgstr ""
 
-#: src/gutenberg-block/index.js:132
+#: src/gutenberg-block/index.js:141
 msgid "video"
 msgstr ""
 
-#: src/gutenberg-block/index.js:133
+#: src/gutenberg-block/index.js:142
 msgid "smartvideo"
 msgstr ""
 
-#: src/gutenberg-block/index.js:134
+#: src/gutenberg-block/index.js:143
 msgid "embed"
 msgstr ""
 

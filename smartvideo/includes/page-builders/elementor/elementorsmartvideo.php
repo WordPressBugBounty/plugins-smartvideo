@@ -387,8 +387,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 		// Elementor strips conditional control values from get_settings_for_display()
 		// when their condition isn't met (video_width/video_height require
 		// aspect_ratio=custom; switchers may also be absent on legacy saves), so
-		// every read here needs a ?? default to avoid PHP 8 undefined-key warnings
-		// and the 0×0 fallback that AspectRatio::resolve produces from null input.
+		// every read here needs a ?? default to avoid PHP 8 undefined-key warnings.
 		$aspect_ratio           = $settings['aspect_ratio'] ?? '';
 		list( $width, $height ) = \Swarmify\Smartvideo\AspectRatio::resolve(
 			$aspect_ratio,
@@ -438,7 +437,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 
 		$smartvideo = '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); the facade wrapper escapes its own markup; <smartvideo> is a custom element wp_kses_post would strip.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); the facade wrapper escapes its own markup; the <smartvideo> tag is emitted deliberately, not passed through kses.
 		echo \Swarmify\Smartvideo\Facade::wrap(
 			$smartvideo,
 			array(

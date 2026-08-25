@@ -125,18 +125,7 @@ class AdminWidget extends \WP_Widget {
 		echo wp_kses(
 			$inner_output,
 			array(
-				'smartvideo' => array(
-					'src'         => true,
-					'width'       => true,
-					'height'      => true,
-					'class'       => true,
-					'poster'      => true,
-					'autoplay'    => true,
-					'muted'       => true,
-					'loop'        => true,
-					'controls'    => true,
-					'playsinline' => true,
-				),
+				'smartvideo' => Kses::TAG_ATTRIBUTES,
 				'ul'         => array(),
 				'li'         => array(),
 			),

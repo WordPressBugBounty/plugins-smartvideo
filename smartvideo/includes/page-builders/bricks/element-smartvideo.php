@@ -310,7 +310,7 @@ class Smartvideo_Element_Bricks extends \Bricks\Element {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Bricks::render_attributes() output is already escaped by Bricks; wp_kses_post would drop framework data-* attributes.
 		echo "<div {$this->render_attributes( '_root' )}>";
 		$smartvideo = '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); the facade wrapper escapes its own markup; <smartvideo> is a custom element wp_kses_post would strip.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); the facade wrapper escapes its own markup; the <smartvideo> tag is emitted deliberately, not passed through kses.
 		echo \Swarmify\Smartvideo\Facade::wrap(
 			$smartvideo,
 			array(

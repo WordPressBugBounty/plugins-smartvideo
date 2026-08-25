@@ -338,6 +338,15 @@ class Swarmify {
 
 		add_action( 'widgets_init', [ $this, 'load_widget' ] );
 
+		// Runs on REST and cron saves too, not just wp-admin.
+		add_filter( 'wp_kses_allowed_html', [ 'Swarmify\Smartvideo\Kses', 'allow_smartvideo' ], 10, 2 );
+		add_filter( 'content_save_pre', [ 'Swarmify\Smartvideo\Kses', 'protect' ], 9 );
+		add_filter( 'content_save_pre', [ 'Swarmify\Smartvideo\Kses', 'restore' ], 11 );
+
+		// Ahead of every other render_block filter: they all read the element, and
+		// on a kses-stripped post there is none until this puts it back.
+		add_filter( 'render_block_smartvideo/block-smartvideo-guten', [ $this, 'render_block_repair_body' ], 9, 2 );
+
 		// Gutenberg blocks render statically, so their schema has to be read off the block output.
 		add_filter( 'render_block_smartvideo/block-smartvideo-guten', [ $this, 'collect_gutenberg_schema' ], 10, 2 );
 		add_filter( 'render_block_smartvideo/smartvideo', [ $this, 'collect_gutenberg_schema' ], 10, 2 );
@@ -1267,6 +1276,11 @@ class Swarmify {
 		echo '<link rel="dns-prefetch" href="https://assets.swarmcdn.com">' . "\n";
 	}
 
+	/** Render-time only: post_content is never rewritten, so the editor keeps flagging the block until a re-save. */
+	public function render_block_repair_body( $block_content, $block ) {
+		return BlockMarkup::repair_body( $block_content, isset( $block['attrs'] ) ? $block['attrs'] : array() );
+	}
+
 	/**
 	 * Scan Gutenberg static block output for <smartvideo> tags and register
 	 * them with SchemaCollector. These blocks render statically, so their
@@ -1274,27 +1288,19 @@ class Swarmify {
 	 */
 	public function collect_gutenberg_schema( $block_content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- render_block_{block-name} filter signature registered with accepted_args=2; WP always passes (content, block).
 		if ( preg_match( '/<smartvideo[^>]+src="([^"]*)"/', $block_content, $src_match ) ) {
-			$src    = $src_match[1];
+			$src = $src_match[1];
+
+			// No contentUrl for swarmify:// — the resolved CDN file is the only candidate, and publishing it hands scrapers a directly playable URL.
+			if ( 0 === strpos( $src, 'swarmify://' ) ) {
+				return $block_content;
+			}
+
 			$poster = '';
 			if ( preg_match( '/poster="([^"]*)"/', $block_content, $poster_match ) ) {
 				$poster = esc_url_raw( $poster_match[1] );
 			}
 
-			$added = false;
-			if ( 0 === strpos( $src, 'swarmify://' ) ) {
-				$resolved = isset( $block['attrs']['resolvedContentUrl'] ) ? $block['attrs']['resolvedContentUrl'] : '';
-				if ( is_string( $resolved ) && '' !== $resolved ) {
-					$escaped = esc_url_raw( $resolved );
-					if ( '' !== $escaped && 0 === strpos( $escaped, 'http' ) ) {
-						SchemaCollector::add( $escaped, $poster );
-						$added = true;
-					}
-				}
-			}
-
-			if ( ! $added ) {
-				SchemaCollector::add( esc_url_raw( $src ), $poster );
-			}
+			SchemaCollector::add( esc_url_raw( $src ), $poster );
 		}
 		return $block_content;
 	}

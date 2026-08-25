@@ -3,7 +3,7 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.4.3
+Stable tag: 2.4.4
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -159,6 +159,16 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.4 =
+* **Fixed SmartVideos disappearing from pages after they were saved**
+  * WordPress strips out HTML it doesn't recognise whenever someone without full editing permissions saves a page, and it was removing the SmartVideo from the saved copy. A single save could take out a whole batch of pages at once, and the video stopped playing for your visitors. WordPress now leaves the video in place when the page is saved.
+* **Pages that already lost their video are playing again**
+  * Nothing was ever really lost: every setting for the video survived in the saved page, so SmartVideo now rebuilds the player from those settings when the page is displayed. Affected pages started working the moment you updated - there's nothing to edit or re-save.
+* **The block editor stops reporting those pages as broken**
+  * Affected pages no longer show "This block contains unexpected or invalid content" with an "Attempt Recovery" button. The editor now reads the video's settings straight from the saved page, and the next time you save that page as you normally would, the video is written back into it. SmartVideo never rewrites your saved pages on its own.
+* **Stopped publishing the underlying file address for SmartVideo-hosted videos**
+  * Video structured data for an embed added by its swarmify:// link included the directly playable file address - the very thing a swarmify:// link exists to keep out of your page's source. Videos added that way no longer publish video structured data.
 
 = 2.4.3 =
 * Fixed the SmartVideo block showing an empty space in the block editor. Current WordPress versions draw the editor preview inside a frame of its own, and the player wasn't loading there, so the block looked blank while you were editing it. Published pages were never affected — they played normally throughout. The preview now shows the real player again.
@@ -481,6 +491,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.4 =
+Stops WordPress's HTML filter deleting SmartVideos when a page is saved without full editing permissions, and makes pages that already lost their video play again automatically - no re-saving needed. Recommended for everyone.
 
 = 2.4.3 =
 Restores the SmartVideo block's editor preview, which showed as an empty space on current WordPress versions. Published pages were unaffected. Recommended for everyone on 2.4.x.

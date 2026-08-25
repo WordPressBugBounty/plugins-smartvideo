@@ -54,8 +54,7 @@ if ( empty( $swarmify_url ) ) {
 }
 
 	// Beaver Builder omits unset module settings on legacy saves, so every
-	// read here needs a default to avoid PHP 8.2 dynamic-property deprecations
-	// and the 0×0 fallback AspectRatio::resolve produces from a null dimension.
+	// read here needs a default to avoid PHP 8.2 dynamic-property deprecations.
 	$aspect_ratio                 = $settings->aspect_ratio ?? '';
 	list( $sv_width, $sv_height ) = \Swarmify\Smartvideo\AspectRatio::resolve(
 		$aspect_ratio,
@@ -103,7 +102,7 @@ if ( empty( $swarmify_url ) ) {
 
 	$smartvideo = '<smartvideo ' . implode( ' ', $attrs ) . '></smartvideo>';
 
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); the facade wrapper escapes its own markup; <smartvideo> is a custom element wp_kses_post would strip.
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped at construction (esc_url/esc_attr); the facade wrapper escapes its own markup; the <smartvideo> tag is emitted deliberately, not passed through kses.
 	echo \Swarmify\Smartvideo\Facade::wrap(
 		$smartvideo,
 		array(
