@@ -234,7 +234,7 @@ class Swarmify {
 			( new AccountTier( $this->settings ) )->get_cached()
 		);
 		if ( null !== $setup_array ) {
-			$setup_json = wp_json_encode( $setup_array );
+			$setup_json = wp_json_encode( $setup_array, JSON_HEX_AMP );
 			if ( false !== $setup_json ) {
 				$tag_attrs['data-swarm-setup'] = esc_attr( $setup_json );
 			}
@@ -1323,7 +1323,7 @@ class Swarmify {
 			return $block_content;
 		}
 
-		$setup_json = wp_json_encode( $setup_array );
+		$setup_json = wp_json_encode( $setup_array, JSON_HEX_AMP );
 		if ( false === $setup_json ) {
 			return $block_content;
 		}

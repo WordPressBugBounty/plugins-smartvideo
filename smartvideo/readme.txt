@@ -3,7 +3,7 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.4.4
+Stable tag: 2.4.5
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -159,6 +159,9 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.5 =
+* Fixed a security issue in call-to-action overlays on sites using the new player. Shortcode `overlay_text` and `overlay_url` fields, and block CTA text and link fields, could carry markup that ran in visitors' browsers. These fields now preserve text safely. Updating is recommended.
 
 = 2.4.4 =
 * **Fixed SmartVideos disappearing from pages after they were saved**
@@ -491,6 +494,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.5 =
+Fixes a security issue where shortcode `overlay_text` and `overlay_url`, and block CTA text and link fields, could carry markup that ran in visitors' browsers on sites using the new player. Updating is recommended.
 
 = 2.4.4 =
 Stops WordPress's HTML filter deleting SmartVideos when a page is saved without full editing permissions, and makes pages that already lost their video play again automatically - no re-saving needed. Recommended for everyone.
