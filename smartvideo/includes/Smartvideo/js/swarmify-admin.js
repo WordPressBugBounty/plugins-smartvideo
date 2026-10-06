@@ -11,9 +11,12 @@ jQuery(document).ready(function ($) {
 
 	// === Dialog code ===
 
-	// Quotes and "]" in a value would break out of the shortcode, so escape them.
+	// WordPress cannot escape attribute quotes or shortcode brackets, but stripcslashes() consumes literal backslashes.
 	function escShortcodeAttr(val) {
-		return val.replace(/["\\]/g, '\\$&').replace(/\]/g, '&#93;');
+		return val
+			.replace(/\\/g, '\\\\')
+			.replace(/"/g, '%22')
+			.replace(/\]/g, '%5D');
 	}
 
 	// Mirrors the server's URL rules (Swarmify.php): the swarmify: scheme is valid

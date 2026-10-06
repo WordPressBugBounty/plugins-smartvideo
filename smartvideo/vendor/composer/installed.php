@@ -3,7 +3,7 @@
         'name' => 'extension/smartvideo',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '252ca6540e9f9108f0c782062fd4419af6fca0b9',
+        'reference' => 'f34dd34d455b1e0bbebf83e56c0d295a1c577323',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'extension/smartvideo' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '252ca6540e9f9108f0c782062fd4419af6fca0b9',
+            'reference' => 'f34dd34d455b1e0bbebf83e56c0d295a1c577323',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

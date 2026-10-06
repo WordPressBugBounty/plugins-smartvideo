@@ -150,16 +150,48 @@ class BlockMarkup {
 	 * @return string The body unchanged when it is intact or not repairable.
 	 */
 	public static function repair_body( $block_content, $attrs ) {
-		if ( false !== strpos( $block_content, '<smartvideo' ) ) {
-			return $block_content;
-		}
-
 		$markup = self::from_attributes( $attrs );
-		$close  = strrpos( $block_content, '</div>' );
-		if ( '' === $markup || false === $close ) {
+		if ( '' === $markup ) {
 			return $block_content;
 		}
 
-		return substr_replace( $block_content, $markup, $close, 0 );
+		$open_match = array();
+		if ( ! preg_match( '/<smartvideo\b/', $block_content, $open_match, PREG_OFFSET_CAPTURE ) ) {
+			$close = strrpos( $block_content, '</div>' );
+
+			return false === $close ? $block_content : substr_replace( $block_content, $markup, $close, 0 );
+		}
+		$open = $open_match[0][1];
+
+		// save() always emits the pair, so an opener with no closing tag is deliberately left alone.
+		$end = strpos( $block_content, '</smartvideo>', $open );
+		if ( false === $end ) {
+			return $block_content;
+		}
+
+		$length    = $end + strlen( '</smartvideo>' ) - $open;
+		$element   = substr( $block_content, $open, $length );
+		$tag_end   = strpos( $element, '>' );
+		$tag       = false === $tag_end ? '' : substr( $element, 0, $tag_end + 1 );
+		$protocols = array_merge( wp_allowed_protocols(), array( 'swarmify' ) );
+		$src       = esc_url( self::element_src( $markup ), $protocols );
+		$stored    = esc_url( self::element_src( $tag ), $protocols );
+
+		// The default clip must not displace a stored src.
+		if ( $stored === $src || self::DEFAULT_EMBED_LINK === $src ) {
+			return $block_content;
+		}
+
+		if ( preg_match( '/\ssrc=(["\'])(.*?)\1/', $tag, $match, PREG_OFFSET_CAPTURE ) ) {
+			$element = substr_replace( $element, esc_attr( $src ), $match[2][1], strlen( $match[2][0] ) );
+		} else {
+			$element = substr_replace( $element, ' src="' . esc_attr( $src ) . '"', strlen( '<smartvideo' ), 0 );
+		}
+
+		return substr_replace( $block_content, $element, $open, $length );
+	}
+
+	private static function element_src( $element ) {
+		return preg_match( '/\ssrc=(["\'])(.*?)\1/', $element, $match ) ? html_entity_decode( $match[2], ENT_QUOTES, 'UTF-8' ) : '';
 	}
 }

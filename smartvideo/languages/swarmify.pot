@@ -2,7 +2,7 @@
 # This file is distributed under the AGPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: SmartVideo 2.4.5\n"
+"Project-Id-Version: SmartVideo 2.4.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/swarmify\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,8 @@ msgstr ""
 #: includes/Smartvideo/Admin.php:144
 #: includes/Smartvideo/DashboardWidget.php:22
 #: includes/Smartvideo/PostMeta.php:40
-#: src/gutenberg-block/index.js:136
+#: src/gutenberg-block/index.js:150
+#: src/gutenberg-block/index.js:167
 #: src/gutenberg-sidebar.js:25
 #: src/index.js:2467
 msgid "SmartVideo"
@@ -48,7 +49,7 @@ msgid "https://swarmify.com/?smartvideo_wordpress_plugin"
 msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:15
-#: src/gutenberg-block/index.js:137
+#: src/gutenberg-block/index.js:151
 msgid "Effortless, unlimited video player"
 msgstr ""
 
@@ -69,7 +70,7 @@ msgstr ""
 #: includes/page-builders/elementor/elementorsmartvideo.php:108
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:25
 #: includes/Smartvideo/partials/swarmify-widget-display.php:71
-#: src/gutenberg-block/edit.js:306
+#: src/gutenberg-block/edit.js:289
 msgid "Video URL"
 msgstr ""
 
@@ -87,7 +88,7 @@ msgstr ""
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:85
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:124
 #: includes/page-builders/bricks/element-smartvideo.php:79
-#: src/gutenberg-block/edit.js:327
+#: src/gutenberg-block/edit.js:310
 msgid "Choose from Media Library"
 msgstr ""
 
@@ -103,7 +104,7 @@ msgstr ""
 #: includes/page-builders/bricks/element-smartvideo.php:91
 #: includes/page-builders/elementor/elementorsmartvideo.php:154
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:42
-#: src/gutenberg-block/edit.js:344
+#: src/gutenberg-block/edit.js:327
 msgid "Automatic"
 msgstr ""
 
@@ -112,7 +113,7 @@ msgstr ""
 #: includes/page-builders/elementor/elementorsmartvideo.php:155
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:28
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:43
-#: src/gutenberg-block/edit.js:348
+#: src/gutenberg-block/edit.js:331
 msgid "Media library"
 msgstr ""
 
@@ -120,7 +121,7 @@ msgstr ""
 #: includes/page-builders/bricks/element-smartvideo.php:93
 #: includes/page-builders/elementor/elementorsmartvideo.php:156
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:44
-#: src/gutenberg-block/edit.js:352
+#: src/gutenberg-block/edit.js:335
 msgid "Other"
 msgstr ""
 
@@ -137,14 +138,14 @@ msgstr ""
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:123
 #: includes/page-builders/elementor/elementorsmartvideo.php:238
 #: includes/Smartvideo/partials/swarmify-widget-display.php:54
-#: src/gutenberg-block/edit.js:385
+#: src/gutenberg-block/edit.js:368
 msgid "Basic options"
 msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:129
 #: includes/page-builders/bricks/element-smartvideo.php:121
 #: includes/page-builders/elementor/elementorsmartvideo.php:200
-#: src/gutenberg-block/edit.js:389
+#: src/gutenberg-block/edit.js:372
 msgid "Aspect Ratio"
 msgstr ""
 
@@ -154,7 +155,7 @@ msgstr ""
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:175
 #: includes/page-builders/elementor/elementorsmartvideo.php:211
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:75
-#: src/gutenberg-block/edit.js:428
+#: src/gutenberg-block/edit.js:411
 msgid "Height"
 msgstr ""
 
@@ -165,7 +166,7 @@ msgstr ""
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:190
 #: includes/page-builders/elementor/elementorsmartvideo.php:223
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:71
-#: src/gutenberg-block/edit.js:421
+#: src/gutenberg-block/edit.js:404
 msgid "Width"
 msgstr ""
 
@@ -176,7 +177,7 @@ msgstr ""
 #: includes/page-builders/elementor/elementorsmartvideo.php:246
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:85
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:89
-#: src/gutenberg-block/edit.js:435
+#: src/gutenberg-block/edit.js:418
 #: src/index.js:1708
 #: src/index.js:1720
 msgid "Autoplay"
@@ -186,7 +187,7 @@ msgstr ""
 #: includes/page-builders/bricks/element-smartvideo.php:154
 #: includes/page-builders/elementor/elementorsmartvideo.php:247
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:86
-#: src/gutenberg-block/edit.js:436
+#: src/gutenberg-block/edit.js:419
 msgid "Automatically start playing when the video is visible. Most browsers require 'Muted' to be enabled."
 msgstr ""
 
@@ -203,11 +204,11 @@ msgstr ""
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:257
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:269
 #: includes/page-builders/elementor/elementorsmartvideo.php:250
-#: includes/page-builders/elementor/elementorsmartvideo.php:263
-#: includes/page-builders/elementor/elementorsmartvideo.php:275
-#: includes/page-builders/elementor/elementorsmartvideo.php:299
-#: includes/page-builders/elementor/elementorsmartvideo.php:312
-#: includes/page-builders/elementor/elementorsmartvideo.php:324
+#: includes/page-builders/elementor/elementorsmartvideo.php:264
+#: includes/page-builders/elementor/elementorsmartvideo.php:277
+#: includes/page-builders/elementor/elementorsmartvideo.php:302
+#: includes/page-builders/elementor/elementorsmartvideo.php:316
+#: includes/page-builders/elementor/elementorsmartvideo.php:329
 msgid "No"
 msgstr ""
 
@@ -224,11 +225,11 @@ msgstr ""
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:258
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:270
 #: includes/page-builders/elementor/elementorsmartvideo.php:249
-#: includes/page-builders/elementor/elementorsmartvideo.php:262
-#: includes/page-builders/elementor/elementorsmartvideo.php:274
-#: includes/page-builders/elementor/elementorsmartvideo.php:298
-#: includes/page-builders/elementor/elementorsmartvideo.php:311
-#: includes/page-builders/elementor/elementorsmartvideo.php:323
+#: includes/page-builders/elementor/elementorsmartvideo.php:263
+#: includes/page-builders/elementor/elementorsmartvideo.php:276
+#: includes/page-builders/elementor/elementorsmartvideo.php:301
+#: includes/page-builders/elementor/elementorsmartvideo.php:315
+#: includes/page-builders/elementor/elementorsmartvideo.php:328
 msgid "Yes"
 msgstr ""
 
@@ -236,10 +237,10 @@ msgstr ""
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:232
 #: includes/page-builders/bricks/element-smartvideo.php:160
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:216
-#: includes/page-builders/elementor/elementorsmartvideo.php:259
+#: includes/page-builders/elementor/elementorsmartvideo.php:260
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:96
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:100
-#: src/gutenberg-block/edit.js:445
+#: src/gutenberg-block/edit.js:428
 #: src/index.js:1736
 #: src/index.js:1748
 msgid "Muted"
@@ -247,9 +248,9 @@ msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:166
 #: includes/page-builders/bricks/element-smartvideo.php:163
-#: includes/page-builders/elementor/elementorsmartvideo.php:260
+#: includes/page-builders/elementor/elementorsmartvideo.php:261
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:97
-#: src/gutenberg-block/edit.js:446
+#: src/gutenberg-block/edit.js:429
 msgid "Start playback with audio muted."
 msgstr ""
 
@@ -257,10 +258,10 @@ msgstr ""
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:233
 #: includes/page-builders/bricks/element-smartvideo.php:169
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:228
-#: includes/page-builders/elementor/elementorsmartvideo.php:271
+#: includes/page-builders/elementor/elementorsmartvideo.php:273
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:107
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:111
-#: src/gutenberg-block/edit.js:455
+#: src/gutenberg-block/edit.js:438
 #: src/index.js:1764
 #: src/index.js:1776
 msgid "Loop"
@@ -268,9 +269,9 @@ msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:179
 #: includes/page-builders/bricks/element-smartvideo.php:172
-#: includes/page-builders/elementor/elementorsmartvideo.php:272
+#: includes/page-builders/elementor/elementorsmartvideo.php:274
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:108
-#: src/gutenberg-block/edit.js:456
+#: src/gutenberg-block/edit.js:439
 msgid "Restart the video automatically when it reaches the end."
 msgstr ""
 
@@ -278,10 +279,10 @@ msgstr ""
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:234
 #: includes/page-builders/bricks/element-smartvideo.php:178
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:242
-#: includes/page-builders/elementor/elementorsmartvideo.php:295
+#: includes/page-builders/elementor/elementorsmartvideo.php:298
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:121
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:125
-#: src/gutenberg-block/edit.js:470
+#: src/gutenberg-block/edit.js:453
 #: src/index.js:1792
 #: src/index.js:1804
 msgid "Controls"
@@ -289,9 +290,9 @@ msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:192
 #: includes/page-builders/bricks/element-smartvideo.php:181
-#: includes/page-builders/elementor/elementorsmartvideo.php:296
+#: includes/page-builders/elementor/elementorsmartvideo.php:299
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:122
-#: src/gutenberg-block/edit.js:471
+#: src/gutenberg-block/edit.js:454
 msgid "Show player controls (play, pause, volume, etc.)."
 msgstr ""
 
@@ -299,10 +300,10 @@ msgstr ""
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:235
 #: includes/page-builders/bricks/element-smartvideo.php:187
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:254
-#: includes/page-builders/elementor/elementorsmartvideo.php:308
+#: includes/page-builders/elementor/elementorsmartvideo.php:312
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:132
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:136
-#: src/gutenberg-block/edit.js:480
+#: src/gutenberg-block/edit.js:463
 #: src/index.js:1820
 #: src/index.js:1832
 msgid "Play inline"
@@ -310,9 +311,9 @@ msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:205
 #: includes/page-builders/bricks/element-smartvideo.php:190
-#: includes/page-builders/elementor/elementorsmartvideo.php:309
+#: includes/page-builders/elementor/elementorsmartvideo.php:313
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:133
-#: src/gutenberg-block/edit.js:481
+#: src/gutenberg-block/edit.js:464
 msgid "Keep the video inline on iOS instead of opening in fullscreen."
 msgstr ""
 
@@ -320,10 +321,10 @@ msgstr ""
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:236
 #: includes/page-builders/bricks/element-smartvideo.php:196
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:266
-#: includes/page-builders/elementor/elementorsmartvideo.php:320
+#: includes/page-builders/elementor/elementorsmartvideo.php:325
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:143
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:147
-#: src/gutenberg-block/edit.js:490
+#: src/gutenberg-block/edit.js:473
 #: src/index.js:1848
 #: src/index.js:1860
 msgid "Responsive"
@@ -331,9 +332,9 @@ msgstr ""
 
 #: includes/page-builders/beaverbuilder/class-beaverbuilder-smartvideo.php:218
 #: includes/page-builders/bricks/element-smartvideo.php:199
-#: includes/page-builders/elementor/elementorsmartvideo.php:321
+#: includes/page-builders/elementor/elementorsmartvideo.php:326
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:144
-#: src/gutenberg-block/edit.js:491
+#: src/gutenberg-block/edit.js:474
 msgid "Make the video responsive to fill its container width while maintaining aspect ratio."
 msgstr ""
 
@@ -341,21 +342,21 @@ msgstr ""
 #: includes/page-builders/breakdance/elements/SmartVideo/ssr.php:32
 #: includes/page-builders/bricks/element-smartvideo.php:216
 #: includes/page-builders/divi5-builder/modules/SmartVideo/SmartVideoTrait/RenderCallbackTrait.php:210
-#: includes/page-builders/elementor/elementorsmartvideo.php:345
+#: includes/page-builders/elementor/elementorsmartvideo.php:351
 msgid "SmartVideo is currently disabled. Go to the SmartVideo settings page to enable it."
 msgstr ""
 
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:144
 #: includes/page-builders/bricks/element-smartvideo.php:43
 #: includes/page-builders/elementor/elementorsmartvideo.php:141
-#: src/gutenberg-block/edit.js:336
+#: src/gutenberg-block/edit.js:319
 msgid "Poster"
 msgstr ""
 
 #: includes/page-builders/breakdance/elements/SmartVideo/element.php:164
 #: includes/page-builders/bricks/element-smartvideo.php:110
 #: includes/page-builders/elementor/elementorsmartvideo.php:179
-#: src/gutenberg-block/edit.js:377
+#: src/gutenberg-block/edit.js:360
 msgid "Poster URL"
 msgstr ""
 
@@ -499,7 +500,7 @@ msgstr ""
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:293
 #: includes/page-builders/elementor/elementorsmartvideo.php:95
 #: includes/page-builders/elementor/elementorsmartvideo.php:150
-#: src/gutenberg-block/edit.js:338
+#: src/gutenberg-block/edit.js:321
 msgid "Source"
 msgstr ""
 
@@ -526,7 +527,7 @@ msgstr ""
 
 #: includes/page-builders/elementor/elementorsmartvideo.php:75
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:15
-#: src/gutenberg-block/edit.js:304
+#: src/gutenberg-block/edit.js:287
 msgid "Video"
 msgstr ""
 
@@ -536,7 +537,7 @@ msgstr ""
 
 #: includes/page-builders/elementor/elementorsmartvideo.php:111
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:30
-#: src/gutenberg-block/edit.js:313
+#: src/gutenberg-block/edit.js:296
 msgid "YouTube, Vimeo, Swarmify, or direct video URL"
 msgstr ""
 
@@ -552,9 +553,9 @@ msgstr ""
 msgid "https://example.com/poster.jpg"
 msgstr ""
 
-#: includes/page-builders/elementor/elementorsmartvideo.php:287
+#: includes/page-builders/elementor/elementorsmartvideo.php:290
 #: includes/Smartvideo/partials/swarmify-widget-display.php:55
-#: src/gutenberg-block/edit.js:465
+#: src/gutenberg-block/edit.js:448
 msgid "Advanced options"
 msgstr ""
 
@@ -653,32 +654,32 @@ msgid "No video selected"
 msgstr ""
 
 #: includes/Smartvideo/AspectRatio.php:68
-#: src/gutenberg-block/edit.js:395
+#: src/gutenberg-block/edit.js:378
 msgid "16:9 (Standard)"
 msgstr ""
 
 #: includes/Smartvideo/AspectRatio.php:69
-#: src/gutenberg-block/edit.js:399
+#: src/gutenberg-block/edit.js:382
 msgid "4:3 (Legacy)"
 msgstr ""
 
 #: includes/Smartvideo/AspectRatio.php:70
-#: src/gutenberg-block/edit.js:403
+#: src/gutenberg-block/edit.js:386
 msgid "21:9 (Ultrawide)"
 msgstr ""
 
 #: includes/Smartvideo/AspectRatio.php:71
-#: src/gutenberg-block/edit.js:407
+#: src/gutenberg-block/edit.js:390
 msgid "9:16 (Vertical)"
 msgstr ""
 
 #: includes/Smartvideo/AspectRatio.php:72
-#: src/gutenberg-block/edit.js:411
+#: src/gutenberg-block/edit.js:394
 msgid "1:1 (Square)"
 msgstr ""
 
 #: includes/Smartvideo/AspectRatio.php:73
-#: src/gutenberg-block/edit.js:415
+#: src/gutenberg-block/edit.js:398
 #: src/index.js:664
 msgid "Custom"
 msgstr ""
@@ -744,7 +745,7 @@ msgid "https:// or swarmify://"
 msgstr ""
 
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:47
-#: src/gutenberg-block/edit.js:365
+#: src/gutenberg-block/edit.js:348
 msgid "Select poster image"
 msgstr ""
 
@@ -1251,31 +1252,31 @@ msgstr ""
 msgid "Paste a video URL or choose from Media Library →"
 msgstr ""
 
-#: src/gutenberg-block/edit.js:282
+#: src/gutenberg-block/edit.js:265
 msgid "SmartVideo is currently disabled. Enable it in <a>Settings</a> for videos to play."
 msgstr ""
 
-#: src/gutenberg-block/edit.js:309
+#: src/gutenberg-block/edit.js:292
 msgid "https://www.youtube.com/watch?v=… or any video URL"
 msgstr ""
 
-#: src/gutenberg-block/edit.js:326
+#: src/gutenberg-block/edit.js:309
 msgid "Replace video"
 msgstr ""
 
-#: src/gutenberg-block/edit.js:369
+#: src/gutenberg-block/edit.js:352
 msgid "Replace image"
 msgstr ""
 
-#: src/gutenberg-block/index.js:141
+#: src/gutenberg-block/index.js:155
 msgid "video"
 msgstr ""
 
-#: src/gutenberg-block/index.js:142
+#: src/gutenberg-block/index.js:156
 msgid "smartvideo"
 msgstr ""
 
-#: src/gutenberg-block/index.js:143
+#: src/gutenberg-block/index.js:157
 msgid "embed"
 msgstr ""
 

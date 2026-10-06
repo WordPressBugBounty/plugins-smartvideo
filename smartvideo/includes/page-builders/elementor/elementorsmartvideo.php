@@ -250,6 +250,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 				'label_off'    => __( 'No', 'swarmify' ),
 				'return_value' => 'yes',
 				'default'      => 'on' === get_option( 'swarmify_default_autoplay', 'off' ) ? 'yes' : 'no',
+				'save_default' => true,
 			)
 		);
 
@@ -263,6 +264,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 				'label_off'    => __( 'No', 'swarmify' ),
 				'return_value' => 'yes',
 				'default'      => 'on' === get_option( 'swarmify_default_muted', 'off' ) ? 'yes' : 'no',
+				'save_default' => true,
 			)
 		);
 		$this->add_control(
@@ -275,6 +277,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 				'label_off'    => __( 'No', 'swarmify' ),
 				'return_value' => 'yes',
 				'default'      => 'on' === get_option( 'swarmify_default_loop', 'off' ) ? 'yes' : 'no',
+				'save_default' => true,
 			)
 		);
 
@@ -299,6 +302,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 				'label_off'    => __( 'No', 'swarmify' ),
 				'return_value' => 'yes',
 				'default'      => 'on' === get_option( 'swarmify_default_controls', 'on' ) ? 'yes' : 'no',
+				'save_default' => true,
 			)
 		);
 
@@ -312,6 +316,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 				'label_off'    => __( 'No', 'swarmify' ),
 				'return_value' => 'yes',
 				'default'      => 'on' === get_option( 'swarmify_default_playsinline', 'off' ) ? 'yes' : 'no',
+				'save_default' => true,
 			)
 		);
 		$this->add_control(
@@ -324,6 +329,7 @@ class ElementorSmartvideo extends \Elementor\Widget_Base {
 				'label_off'    => __( 'No', 'swarmify' ),
 				'return_value' => 'yes',
 				'default'      => 'on' === get_option( 'swarmify_default_responsive', 'on' ) ? 'yes' : 'no',
+				'save_default' => true,
 			)
 		);
 		$this->end_controls_section();

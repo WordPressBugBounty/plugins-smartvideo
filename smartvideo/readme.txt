@@ -3,7 +3,7 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.4.5
+Stable tag: 2.4.6
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -159,6 +159,13 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.6 =
+* Fixed older SmartVideo blocks showing as invalid in the block editor, including blocks saved by 2.0.x and 2.1.x. Saved video sources, dimensions, and playback choices are preserved.
+* Restored playback when a WordPress HTML filter removed the swarmify:// scheme from a saved video source, without changing the video's other settings.
+* Fixed Elementor re-saves dropping playback choices that matched the current site defaults. Re-save affected widgets to preserve their current choices; settings already omitted from older saves cannot be recovered automatically.
+* Fixed opening a saved Gutenberg block with the intro clip replacing its playback choices with today's site defaults.
+* The Classic editor dialog now percent-encodes quotes and closing brackets in video and poster URLs so WordPress parses them correctly. URL sanitization is unchanged, including removal of literal backslashes. Previously inserted shortcodes are not changed automatically.
 
 = 2.4.5 =
 * Fixed a security issue in call-to-action overlays on sites using the new player. Shortcode `overlay_text` and `overlay_url` fields, and block CTA text and link fields, could carry markup that ran in visitors' browsers. These fields now preserve text safely. Updating is recommended.
@@ -494,6 +501,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.6 =
+Restores validation for older SmartVideo blocks, repairs sanitized video sources, and preserves saved playback choices in Gutenberg and Elementor. Also percent-encodes quotes and closing brackets during Classic editor URL insertion, without changing URL sanitization. Updating is recommended.
 
 = 2.4.5 =
 Fixes a security issue where shortcode `overlay_text` and `overlay_url`, and block CTA text and link fields, could carry markup that ran in visitors' browsers on sites using the new player. Updating is recommended.
