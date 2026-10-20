@@ -85,6 +85,10 @@ class AdminWidget extends \WP_Widget {
 			$errors[] = __( 'SmartVideo URL is missing.', 'swarmify' );
 		}
 
+		if ( ! empty( $errors ) && ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+
 		$inner_output = '';
 		if (empty( $errors)) {
 			$autoplay     = ( 1 === $swarmify_autoplay ? 'autoplay' : '' );

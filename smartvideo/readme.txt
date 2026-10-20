@@ -3,7 +3,7 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.4.6
+Stable tag: 2.4.7
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -159,6 +159,11 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.7 =
+* Fixed Gutenberg videos that stopped loading after 2.4.6 when the video address in the block's saved HTML differed from the address in its block settings. The saved address is kept again, and it is repaired only when it is missing or a WordPress HTML filter removed its swarmify:// scheme.
+* The classic SmartVideo widget no longer shows setup messages to site visitors. Administrators still see them.
+* Right-to-left sites now load the plugin's right-to-left stylesheets.
 
 = 2.4.6 =
 * Fixed older SmartVideo blocks showing as invalid in the block editor, including blocks saved by 2.0.x and 2.1.x. Saved video sources, dimensions, and playback choices are preserved.
@@ -501,6 +506,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.7 =
+Fixes Gutenberg videos that stopped loading after 2.4.6 when a block's saved video address differed from its block settings. Also hides widget setup messages from visitors and serves right-to-left stylesheets. Recommended for everyone on 2.4.6.
 
 = 2.4.6 =
 Restores validation for older SmartVideo blocks, repairs sanitized video sources, and preserves saved playback choices in Gutenberg and Elementor. Also percent-encodes quotes and closing brackets during Classic editor URL insertion, without changing URL sanitization. Updating is recommended.

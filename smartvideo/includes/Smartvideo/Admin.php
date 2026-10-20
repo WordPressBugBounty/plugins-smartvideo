@@ -95,6 +95,7 @@ class Admin {
 			array( 'wp-components', 'smartvideo-google-fonts' ),
 			$this->version
 		);
+		wp_style_add_data( self::ADMIN_HANDLE, 'rtl', 'replace' );
 
 		wp_enqueue_media(); // the settings page's media picker needs wp.media
 

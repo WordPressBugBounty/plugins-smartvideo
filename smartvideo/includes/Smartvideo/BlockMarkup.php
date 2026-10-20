@@ -169,16 +169,23 @@ class BlockMarkup {
 			return $block_content;
 		}
 
-		$length    = $end + strlen( '</smartvideo>' ) - $open;
-		$element   = substr( $block_content, $open, $length );
-		$tag_end   = strpos( $element, '>' );
-		$tag       = false === $tag_end ? '' : substr( $element, 0, $tag_end + 1 );
-		$protocols = array_merge( wp_allowed_protocols(), array( 'swarmify' ) );
-		$src       = esc_url( self::element_src( $markup ), $protocols );
-		$stored    = esc_url( self::element_src( $tag ), $protocols );
+		$length     = $end + strlen( '</smartvideo>' ) - $open;
+		$element    = substr( $block_content, $open, $length );
+		$tag_end    = strpos( $element, '>' );
+		$tag        = false === $tag_end ? '' : substr( $element, 0, $tag_end + 1 );
+		$protocols  = array_merge( wp_allowed_protocols(), array( 'swarmify' ) );
+		$src        = esc_url( self::element_src( $markup ), $protocols );
+		$stored_src = self::element_src( $tag );
+		$stored     = esc_url( $stored_src, $protocols );
 
-		// The default clip must not displace a stored src.
-		if ( $stored === $src || self::DEFAULT_EMBED_LINK === $src ) {
+		// Under the default clip, an element with no src is the block's empty state, not kses damage.
+		if ( self::DEFAULT_EMBED_LINK === $src ) {
+			return $block_content;
+		}
+
+		// Only kses damage (swarmify://id stored as //id) or a missing src is repaired; an edited stored src is not stale.
+		$scheme_eaten = 'swarmify:' . $stored === $src;
+		if ( '' !== $stored_src && ! $scheme_eaten ) {
 			return $block_content;
 		}
 

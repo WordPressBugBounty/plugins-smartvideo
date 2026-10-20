@@ -2,7 +2,7 @@
 # This file is distributed under the AGPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: SmartVideo 2.4.6\n"
+"Project-Id-Version: SmartVideo 2.4.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/swarmify\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,9 +21,9 @@ msgstr ""
 #: includes/page-builders/divi-builder/includes/modules/SmartVideo/SmartVideo.php:20
 #: includes/page-builders/elementor/class-elementor-swarmify.php:110
 #: includes/page-builders/elementor/elementorsmartvideo.php:26
-#: includes/page-builders/gutenberg/src/init.php:130
-#: includes/Smartvideo/Admin.php:143
+#: includes/page-builders/gutenberg/src/init.php:131
 #: includes/Smartvideo/Admin.php:144
+#: includes/Smartvideo/Admin.php:145
 #: includes/Smartvideo/DashboardWidget.php:22
 #: includes/Smartvideo/PostMeta.php:40
 #: src/gutenberg-block/index.js:150
@@ -559,75 +559,75 @@ msgstr ""
 msgid "Advanced options"
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:137
+#: includes/page-builders/gutenberg/src/init.php:138
 msgid "Hero Video"
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:138
+#: includes/page-builders/gutenberg/src/init.php:139
 msgid "Full-width background-style video with autoplay, muted, and loop."
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:150
+#: includes/page-builders/gutenberg/src/init.php:151
 msgid "Video with Description"
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:151
+#: includes/page-builders/gutenberg/src/init.php:152
 msgid "Two-column layout with video on the left and text on the right."
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:162
+#: includes/page-builders/gutenberg/src/init.php:163
 msgid "Video Title"
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:166
+#: includes/page-builders/gutenberg/src/init.php:167
 msgid "Add a description of your video here. Explain what viewers will learn or see."
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:177
+#: includes/page-builders/gutenberg/src/init.php:178
 msgid "Video Showcase"
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:178
+#: includes/page-builders/gutenberg/src/init.php:179
 msgid "Centered video with a heading above and description below."
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:181
+#: includes/page-builders/gutenberg/src/init.php:182
 msgid "Watch Our Video"
 msgstr ""
 
-#: includes/page-builders/gutenberg/src/init.php:189
+#: includes/page-builders/gutenberg/src/init.php:190
 msgid "A brief description of the video content goes here."
 msgstr ""
 
-#: includes/Smartvideo/Admin.php:235
+#: includes/Smartvideo/Admin.php:236
 msgid "View SmartVideo settings"
 msgstr ""
 
-#: includes/Smartvideo/Admin.php:235
+#: includes/Smartvideo/Admin.php:236
 #: includes/Smartvideo/DashboardWidget.php:67
 #: src/index.js:2724
 msgid "Settings"
 msgstr ""
 
 #. translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a>
-#: includes/Smartvideo/Admin.php:265
+#: includes/Smartvideo/Admin.php:266
 #, php-format
 msgid "%1$sSmartVideo%2$s needs your CDN key to work. %3$sSet it up now%4$s"
 msgstr ""
 
 #. translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a>
-#: includes/Smartvideo/Admin.php:277
+#: includes/Smartvideo/Admin.php:278
 #, php-format
 msgid "%1$sSmartVideo%2$s is currently disabled. %3$sEnable it%4$s to start optimizing your videos."
 msgstr ""
 
 #. translators: 1: opening <strong>, 2: closing </strong>, 3: opening <a> tag, 4: closing </a>
-#: includes/Smartvideo/Admin.php:289
+#: includes/Smartvideo/Admin.php:290
 #, php-format
 msgid "%1$sSmartVideo%2$s can automatically replace YouTube and Vimeo embeds with a faster, ad-free player. %3$sTurn it on%4$s"
 msgstr ""
 
-#: includes/Smartvideo/Admin.php:308
+#: includes/Smartvideo/Admin.php:309
 #: includes/Smartvideo/partials/add-video-lightbox-display.php:8
 msgid "Add SmartVideo"
 msgstr ""
@@ -974,11 +974,11 @@ msgstr ""
 msgid "WP Super Cache -- may serve cached pages with stale script references"
 msgstr ""
 
-#: includes/Smartvideo/Swarmify.php:1430
+#: includes/Smartvideo/Swarmify.php:1431
 msgid "SmartVideo keeps playing your videos on the classic player, so nothing changes on your site today. A faster new player is ready whenever you are — set \"Player version\" to Stable in SmartVideo settings to switch over."
 msgstr ""
 
-#: includes/Smartvideo/Swarmify.php:1431
+#: includes/Smartvideo/Swarmify.php:1432
 msgid "SmartVideo now plays your videos on the new player — the one you were testing as the beta player, no longer a beta. If you need the old behavior back, set \"Player version\" to Legacy in SmartVideo settings."
 msgstr ""
 

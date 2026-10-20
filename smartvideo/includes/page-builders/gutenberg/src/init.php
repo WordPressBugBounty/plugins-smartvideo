@@ -42,6 +42,7 @@ function smartvideo_register_gutenberg_block() {
 		array(),
 		SWARMIFY_PLUGIN_VERSION
 	);
+	wp_style_add_data( 'smartvideo-gutenberg-block-style', 'rtl', 'replace' );
 
 	// Pass plugin status and global defaults to the block editor.
 	wp_localize_script(

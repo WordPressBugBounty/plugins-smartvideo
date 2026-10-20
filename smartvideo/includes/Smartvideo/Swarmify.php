@@ -1237,6 +1237,7 @@ class Swarmify {
 			array( 'smartvideo-facade-artifact' ),
 			$asset['version']
 		);
+		wp_style_add_data( 'smartvideo-facade', 'rtl', 'replace' );
 
 		return $asset;
 	}
