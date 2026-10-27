@@ -38,6 +38,8 @@ class UploadAccelerator {
 	 */
 	private static $instance = false;
 
+	private $upload_id_script_added = false;
+
 	/**
 	 * Get the singleton instance, creating it on first call.
 	 *
@@ -68,6 +70,9 @@ class UploadAccelerator {
 			add_filter( 'plupload_default_params', array( $this, 'filter_plupload_params' ) );
 			add_action( 'wp_ajax_swarmify_upload_accelerator', array( $this, 'ajax_chunk_receiver' ) ); // admin-ajax.php prefixes the posted action name with wp_ajax_
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_upload_id_script' ) );
+			// Elementor's editor and the Customizer never fire admin_enqueue_scripts,
+			// yet their media modals still upload through swarmify_upload_accelerator.
+			add_action( 'wp_enqueue_media', array( $this, 'enqueue_upload_id_script' ) );
 
 			add_action( 'swarmify_cleanup_chunks', array( $this, 'cleanup_stale_chunks' ) );
 			if ( ! wp_next_scheduled( 'swarmify_cleanup_chunks' ) ) {
@@ -101,9 +106,14 @@ class UploadAccelerator {
 	 * @since 2.3.0
 	 */
 	public function enqueue_upload_id_script() {
+		if ( $this->upload_id_script_added ) {
+			return;
+		}
+		$this->upload_id_script_added = true;
+
 		// Patch the constructor rather than one uploader, so every uploader gets
 		// the binding whichever admin screen created it. Attaching to both script
-		// handles is safe — wp_add_inline_script no-ops on un-enqueued handles.
+		// handles is safe — inline data prints only if its handle is enqueued.
 		$js = <<<'JS'
 (function(){
 if(typeof plupload==="undefined"||!plupload.Uploader||plupload.Uploader.__svPatched)return;

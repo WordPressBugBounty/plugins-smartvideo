@@ -3,7 +3,7 @@ Contributors: kinggmobb, jdadmin, chris10sen
 Tags: video player, video hosting, youtube, video embed, vimeo
 Requires at least: 6.6
 Tested up to: 7.1
-Stable tag: 2.4.7
+Stable tag: 2.4.8
 Requires PHP: 7.3
 License: AGPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -159,6 +159,9 @@ You may use SmartVideo to deliver any content that is legally permissible under 
 6. Frontend player — Embed video without ads: clean, ad-free player as your visitors see it
 
 == Changelog ==
+
+= 2.4.8 =
+* Fixed media uploads from the Elementor editor and the Customizer failing with "Missing or invalid upload ID." when Upload Acceleration is on.
 
 = 2.4.7 =
 * Fixed Gutenberg videos that stopped loading after 2.4.6 when the video address in the block's saved HTML differed from the address in its block settings. The saved address is kept again, and it is repaired only when it is missing or a WordPress HTML filter removed its swarmify:// scheme.
@@ -506,6 +509,9 @@ Minor link updates
 Initial version
 
 == Upgrade Notice ==
+
+= 2.4.8 =
+Fixes media uploads from the Elementor editor and the Customizer, which failed with "Missing or invalid upload ID." while Upload Acceleration was on. Recommended for sites that use Upload Acceleration.
 
 = 2.4.7 =
 Fixes Gutenberg videos that stopped loading after 2.4.6 when a block's saved video address differed from its block settings. Also hides widget setup messages from visitors and serves right-to-left stylesheets. Recommended for everyone on 2.4.6.
